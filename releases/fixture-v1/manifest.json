@@ -1,0 +1,67 @@
+{
+  "current_boundary_disclaimer": "This artifact must not be represented as current official administrative boundaries.",
+  "declared_reference_vintage": "synthetic fixture-v1; no current-boundary meaning",
+  "environment": {
+    "definition": "environment.yml and requirements.lock",
+    "pyproj": "3.7.1",
+    "python": "3.11.13",
+    "shapely": "2.1.1"
+  },
+  "input_files": {
+    "fixtures/admin_candidates.geojson": "e83ba851ecf9fcf2df97826e37bd3d50664569d7daee41f39a316afa30ca9cca",
+    "fixtures/census_units.geojson": "c7fc5f18797d8c88326fc498c2a09e2854e9e8c543a5f89cc450f9ec7f6d8147"
+  },
+  "limitations": [
+    "Synthetic bounded fixture only; not an Argentina geography release.",
+    "Not official, not current boundaries, and not suitable for substantive analysis.",
+    "Historical IGN vintage, license, and checksum remain unresolved; no live source was adopted."
+  ],
+  "output": {
+    "axis_order": "longitude, latitude",
+    "byte_sha256": "6dbf55564a319e088130bd6577c0962aae4cee9e0dcc9ce7eb526bcab4b73b42",
+    "crs": "OGC:CRS84",
+    "feature_count": 4,
+    "geometry_type": "Polygon or MultiPolygon",
+    "path": "geography.geojson",
+    "precision_degrees": 1e-09,
+    "schema": {
+      "admin_id": "nullable string[5]",
+      "geometry_repaired": "boolean",
+      "province_id": "string[2]",
+      "status": "matched|unmatched",
+      "unit_id": "string[5]",
+      "weight": "number",
+      "winner_area_share": "number"
+    },
+    "semantic_content_sha256": "6b68d5baccdb24121d906e16349c26c935c0a35bf0216fdbca11916dad82b4ab",
+    "semantic_geometry_sha256": "8c982c07edc05f61066aa9fe1cb4935a768781042148c583d77876a55541aa04"
+  },
+  "policy": {
+    "approval_scope": "Synthetic fixture only; real-data adoption requires human approval and a new methodology version.",
+    "methodology_version": "1.1.0",
+    "path": "config/reconciliation_policy.json",
+    "sha256": "5184d84406c381684bbc0ec8b538fb3cd7c6f66d4a47a9687ab994121e7c4e9a"
+  },
+  "producer": {
+    "command": "make release-fixture",
+    "git_commit": "WORKTREE_PRECOMMIT"
+  },
+  "release_id": "fixture-v1",
+  "release_version": "1.1.0",
+  "reports": {
+    "coverage": {
+      "path": "coverage.json",
+      "sha256": "75c34d21b00dcf2be714a23cbd230827c5c9f582cb5ab3b5e96f03ba55a8e89d"
+    },
+    "exceptions": {
+      "path": "exceptions.json",
+      "sha256": "f83069bae918e372191f8e23c66cf7c6c9bd1c7ca733b53432a4d32395c317cd"
+    }
+  },
+  "schema_version": "1.1.0",
+  "source_registry": {
+    "path": "config/source_registry.json",
+    "sha256": "ca5656ba01177ed5af6994399d67e15f9bf2357af58e4cf9595ab2762bc601f2",
+    "version": "2026-08-04"
+  }
+}

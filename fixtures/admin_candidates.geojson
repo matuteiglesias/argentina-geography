@@ -1,0 +1,4 @@
+{"type":"FeatureCollection","name":"admin_candidates","crs":{"type":"name","properties":{"name":"urn:ogc:def:crs:EPSG::3857"}},"features":[
+{"type":"Feature","properties":{"admin_id":"10101","province_id":"10"},"geometry":{"type":"Polygon","coordinates":[[[0,0],[1000,0],[1000,1000],[0,1000],[0,0]]]}},
+{"type":"Feature","properties":{"admin_id":"10102","province_id":"10"},"geometry":{"type":"Polygon","coordinates":[[[1000,0],[2000,0],[2000,1000],[1000,1000],[1000,0]]]}}
+]}

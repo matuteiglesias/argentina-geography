@@ -1,0 +1,75 @@
+{
+  "area": {
+    "analysis_crs": "EPSG:3857",
+    "note": "Intersection areas drive assignment; no national area-coverage claim is made."
+  },
+  "counts": {
+    "ambiguous": 0,
+    "dropped": 2,
+    "input": 6,
+    "manually_overridden": 0,
+    "matched": 3,
+    "multiply_matched": 1,
+    "output": 4,
+    "repaired": 1,
+    "unmatched": 1
+  },
+  "coverage_by_province": [
+    {
+      "feature_coverage_share": 0.6,
+      "input_count": 5,
+      "matched_count": 3,
+      "province_id": "10",
+      "synthetic_weight_coverage_share": 0.871794872,
+      "synthetic_weight_input": 195.0,
+      "synthetic_weight_matched": 170.0
+    },
+    {
+      "feature_coverage_share": 0.0,
+      "input_count": 1,
+      "matched_count": 0,
+      "province_id": "99",
+      "synthetic_weight_coverage_share": 0.0,
+      "synthetic_weight_input": 25.0,
+      "synthetic_weight_matched": 0.0
+    }
+  ],
+  "geographic_level": "synthetic census unit",
+  "historical_snapshot_difference": {
+    "comparable": false,
+    "reason": "Synthetic fixture has no corresponding historical snapshot."
+  },
+  "invalid_geometry": {
+    "after_repair": 0,
+    "before_repair": 1
+  },
+  "orthogonal_flags": {
+    "geometry_repaired": 1,
+    "manually_overridden": 0,
+    "multiply_matched": 1
+  },
+  "partition_check": {
+    "input_count": 6,
+    "reconciles": true,
+    "terminal_sum": 6
+  },
+  "population_coverage": null,
+  "release_id": "fixture-v1",
+  "schema_version": "1.1.0",
+  "shares_of_input": {
+    "ambiguous": 0.0,
+    "dropped": 0.333333333,
+    "manually_overridden": 0.0,
+    "matched": 0.5,
+    "multiply_matched": 0.166666667,
+    "repaired": 0.166666667,
+    "unmatched": 0.166666667
+  },
+  "synthetic_weight_note": "Weight belongs to this synthetic fixture vintage; it is not population.",
+  "terminal_dispositions": {
+    "ambiguous_excluded": 0,
+    "duplicate_conflict_excluded": 2,
+    "matched_retained": 3,
+    "unmatched_retained": 1
+  }
+}

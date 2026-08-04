@@ -1,0 +1,36 @@
+{
+  "analysis_crs": "EPSG:3857",
+  "approval_scope": "Synthetic fixture only; real-data adoption requires human approval and a new methodology version.",
+  "axis_order": "always_xy (longitude/x, latitude/y)",
+  "dissolve": "Not used by fixture release. A future live release must union by normalized ID only after duplicate resolution and report before/after counts.",
+  "geometry_repair": {
+    "max_relative_area_change": 0.01,
+    "method": "shapely.make_valid",
+    "on_excess": "fail",
+    "zero_area_epsilon_m2": 1e-06,
+    "zero_area_max_absolute_area_change_m2": 200000.0
+  },
+  "identifier": {
+    "admin_width": 5,
+    "on_duplicate": "exclude every conflicting occurrence and report",
+    "province_width": 2,
+    "type": "string",
+    "unit_width": 5
+  },
+  "intersection": {
+    "assignment": "unique largest positive-area overlap",
+    "minimum_area_m2": 1e-06,
+    "minimum_winner_share": 0.5,
+    "on_tie": "ambiguous and unmatched",
+    "tie_tolerance_m2": 1e-06
+  },
+  "manual_overrides": [],
+  "methodology_version": "1.1.0",
+  "nearest_or_centroid": "Never used.",
+  "null_invalid_unsupported": "Null, empty, non-polygonal, or still-invalid geometry fails release; repaired inputs are retained and reported.",
+  "output_crs": "OGC:CRS84",
+  "policy_id": "bounded-fixture-largest-overlap-v1",
+  "population_weighting": "Fixture weight is synthetic, same-vintage test data and used only in fixture coverage; it is not population.",
+  "schema_version": "1.1.0",
+  "slivers": "Intersections at or below minimum_area_m2 are reported candidates=false and ignored; no buffer is applied."
+}

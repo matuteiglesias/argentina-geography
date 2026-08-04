@@ -1,0 +1,180 @@
+{
+  "features": [
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              0.0008983153,
+              0.0008983153
+            ],
+            [
+              0.0071865223,
+              0.0008983153
+            ],
+            [
+              0.0071865223,
+              0.0071865223
+            ],
+            [
+              0.0008983153,
+              0.0071865223
+            ],
+            [
+              0.0008983153,
+              0.0008983153
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "properties": {
+        "admin_id": "10101",
+        "geometry_repaired": false,
+        "province_id": "10",
+        "status": "matched",
+        "unit_id": "00001",
+        "weight": 100.0,
+        "winner_area_share": 1.0
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              0.0071865223,
+              0.0017966306
+            ],
+            [
+              0.011677,
+              0.0017966306
+            ],
+            [
+              0.011677,
+              0.0062882069
+            ],
+            [
+              0.0071865223,
+              0.0062882069
+            ],
+            [
+              0.0071865223,
+              0.0017966306
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "properties": {
+        "admin_id": "10102",
+        "geometry_repaired": false,
+        "province_id": "10",
+        "status": "matched",
+        "unit_id": "00002",
+        "weight": 50.0,
+        "winner_area_share": 0.6
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              0.0269494585,
+              0.0269494575
+            ],
+            [
+              0.03144,
+              0.0269494575
+            ],
+            [
+              0.03144,
+              0.03144
+            ],
+            [
+              0.0269494585,
+              0.03144
+            ],
+            [
+              0.0269494585,
+              0.0269494575
+            ]
+          ]
+        ],
+        "type": "Polygon"
+      },
+      "properties": {
+        "admin_id": null,
+        "geometry_repaired": false,
+        "province_id": "99",
+        "status": "unmatched",
+        "unit_id": "00003",
+        "weight": 25.0,
+        "winner_area_share": 0.0
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          [
+            [
+              [
+                0.0017966306,
+                0.0017966306
+              ],
+              [
+                0.0053898917,
+                0.0017966306
+              ],
+              [
+                0.00359326115,
+                0.00359326115
+              ],
+              [
+                0.0017966306,
+                0.0017966306
+              ]
+            ]
+          ],
+          [
+            [
+              [
+                0.0017966306,
+                0.0053898917
+              ],
+              [
+                0.00359326115,
+                0.00359326115
+              ],
+              [
+                0.0053898917,
+                0.0053898917
+              ],
+              [
+                0.0017966306,
+                0.0053898917
+              ]
+            ]
+          ]
+        ],
+        "type": "MultiPolygon"
+      },
+      "properties": {
+        "admin_id": "10101",
+        "geometry_repaired": true,
+        "province_id": "10",
+        "status": "matched",
+        "unit_id": "00004",
+        "weight": 20.0,
+        "winner_area_share": 1.0
+      },
+      "type": "Feature"
+    }
+  ],
+  "name": "fixture-v1",
+  "type": "FeatureCollection"
+}
