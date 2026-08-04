@@ -1,71 +1,57 @@
 # Geografías censales reconciliadas con IGN
 
-Proceso de preparación geoespacial que vincula radios y fracciones censales de Argentina con referencias administrativas del Instituto Geográfico Nacional (IGN).
+Proceso histórico de preparación geoespacial que vincula radios y fracciones censales de Argentina con referencias administrativas del Instituto Geográfico Nacional (IGN).
 
-> **Estado:** productor histórico reutilizable. El repositorio fue actualizado por última vez en agosto de 2025; el entorno, las URLs de descarga y los outputs no fueron revalidados en 2026. Las geometrías corresponden a vintages censales históricos, no a límites administrativos corrientes.
+> **Estado y autoridad:** productor histórico reutilizable más una release **sintética y acotada** (`fixture-v1`). Ningún artefacto se presenta como límite administrativo oficial o corriente de 2026. El repositorio posee sus transformaciones, no las fuentes de INDEC, IGN o CEUR-CONICET.
 
-## Producto principal
+## Release soportada: `fixture-v1`
 
-El pipeline genera archivos con el patrón:
+Batch 1 provides one offline, deterministic validation slice—not a national data refresh. It exercises an unambiguous polygon, a polygon crossing two candidates, an unmatched polygon, a repaired self-intersection, a conflicting duplicate identifier, synthetic same-vintage weights, and CRS84 → EPSG:3857 → CRS84 conversion.
 
-```text
-radios_IGN_<year>
-```
+Committed artifacts are under `releases/fixture-v1/`:
 
-Estos artefactos combinan identificadores y geometrías para provincia, departamento, fracción y radio censal. La documentación histórica del proyecto reporta 52.401 unidades geográficas únicas en el producto reconciliado; esa cifra debería verificarse al regenerar los datos.
+- `geography.geojson`: normalized features in OGC:CRS84, longitude/latitude axis order;
+- `coverage.json`: counts, shares, province-level feature and synthetic-weight coverage;
+- `exceptions.json`: unmatched, multi-match, repair and duplicate detail;
+- `manifest.json`: source/policy/environment lineage plus byte and normalized-semantic SHA-256 checksums.
 
-## Qué hace el proceso
+The normative inputs and decisions are `config/source_registry.json` and `config/reconciliation_policy.json`. This fixture is not suitable for substantive analysis.
 
-Los notebooks implementan tres etapas conceptuales:
+## Reproducible environment and commands
 
-1. **Adquisición:** descarga geometrías censales e información del IGN.
-2. **Agregación:** disuelve radios hacia fracciones y departamentos.
-3. **Reconciliación:** usa intersecciones espaciales para resolver identificadores faltantes o inconsistentes entre fuentes.
-
-El output está pensado para análisis que necesitan una geografía censal navegable dentro de una referencia administrativa común.
-
-## Uso del snapshot
-
-Quien solo necesita las geometrías procesadas puede consumir los archivos publicados sin ejecutar los notebooks. Registrar siempre:
-
-- año censal;
-- fuente de cada geometría;
-- sistema de referencia de coordenadas;
-- commit del repositorio;
-- reglas de reconciliación aplicadas.
-
-## Regeneración
-
-La ejecución requiere un entorno geoespacial con Jupyter y GeoPandas. Una instalación moderna puede comenzar con:
+The supported environment is the pinned Python 3.11 Conda/Mamba definition:
 
 ```bash
-conda create -n censo-geo python=3.11 geopandas jupyter
-conda activate censo-geo
-jupyter lab
+mamba env create -f environment.yml
+conda activate censo-geography-release
+make install
+make check
+make test
+make smoke
+make release-fixture
 ```
 
-Después, ejecutar los notebooks en el orden de adquisición, disolución y reconciliación que indica su contenido. No se recomienda reutilizar instrucciones antiguas basadas en wheels manuales de GDAL: primero debe probarse una instalación reproducible con Conda/Mamba o un contenedor.
+`make check`, `make test`, and `make smoke` use only committed bounded inputs and require no network. `make release-fixture` recreates the committed release and verifies a second build byte-for-byte. Installation may require access to the configured package channel; no manual GDAL wheels or notebook runtime installs are supported.
 
-## Autoridad y límites
+## Historical product and evidence
 
-Este repositorio posee la **transformación y el snapshot reconciliado**. No posee las geometrías oficiales ni sustituye la documentación de INDEC, IGN o CEUR-CONICET.
+The historical notebooks intend to generate `radios_IGN_<year>` outputs combining province, department, fraction and radio identifiers/geometries. No such final directories are committed. The historical **52,401** figure is evidenced by the record count in the committed 2010 radio shapefile’s DBF header, but uniqueness is not independently proven and its lookup CSV count differs. It must not be read as a current-boundary feature count.
 
-Antes de usarlo para decisiones actuales, considerar:
+Read in this order before using historical material:
 
-- cambios de límites desde el censo correspondiente;
-- geometrías faltantes o inválidas;
-- intersecciones ambiguas;
-- diferencias entre identificadores censales y administrativos;
-- efectos de CRS, tolerancias y simplificación.
+1. `docs/GEOGRAPHY_CHARACTERIZATION.md` for notebooks, sources, CRS evidence, counts and unsafe assumptions;
+2. `docs/HISTORICAL_GEOGRAPHY_INPUTS.md` for adopt/regression/method-only classifications;
+3. the source registry and reconciliation policy;
+4. the artifact manifest and reports.
 
-## Próxima revisión útil
+## Fixture reconciliation rules
 
-1. identificar con precisión fuentes y vintages de cada input;
-2. fijar un entorno ejecutable;
-3. publicar conteos y cobertura por etapa;
-4. registrar excepciones de reconciliación;
-5. emitir un manifest del output con checksum y CRS.
+All IDs are digit strings with fixed zero-padding. Candidate geometry is already EPSG:3857; census fixture geometry is converted from CRS84 with `always_xy`. Invalid polygons are repaired with `make_valid` and reported. Duplicate-ID occurrences are all excluded. Positive-area intersections below tolerance are ignored. A unique largest overlap is assigned only when it covers at least 50% of the input; a tolerance tie is ambiguous. Unmatched units remain in the output with a null assignment. No buffer, centroid, nearest-neighbour or manual override is used. Geometry is returned to CRS84, precision-normalized, oriented and stably ordered before deterministic JSON serialization.
 
-## Posible cambio de nombre
+These rules validate the harness; adopting them for historical/live geography requires human approval and a new methodology version. Coverage separates mutually exclusive terminal dispositions from orthogonal repair/multi-match flags. Repair records expose before/after types, parts and areas plus tolerance outcomes; an exceeded tolerance stops the release.
 
-`geoespacial-censo-IGN` comunica los ingredientes, pero `censo-arg-geografias` o `censo-ign-geografias` serían más fáciles de encontrar y mantener como nombre de producto.
+## Limitations and stop points
+
+Exact historical IGN vintage, checksum, published CRS and redistribution rights remain unresolved. CEUR-CONICET snapshot provenance and redistribution terms also need validation. Population coverage is deliberately null; the fixture’s `weight` is synthetic and explicitly not population. No historical override is approved.
+
+Stop for review before selecting a real source vintage, changing a consumed identifier, accepting a substantive tie-break, dropping a real unmatched unit, claiming population coverage, replacing a snapshot, or labeling any release current/official.

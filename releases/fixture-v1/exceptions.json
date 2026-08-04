@@ -1,0 +1,80 @@
+{
+  "ambiguous_ids": [],
+  "duplicate_ids": [
+    "00005"
+  ],
+  "exceptions": [
+    {
+      "candidate_admin_ids": [
+        "10102",
+        "10101"
+      ],
+      "geometry_repaired": false,
+      "occurrence": 2,
+      "reason": "unique_largest_overlap",
+      "status": "matched",
+      "unit_id": "00002"
+    },
+    {
+      "candidate_admin_ids": [],
+      "geometry_repaired": false,
+      "occurrence": 3,
+      "reason": "no_positive_area_intersection",
+      "status": "unmatched",
+      "unit_id": "00003"
+    },
+    {
+      "candidate_admin_ids": [
+        "10101"
+      ],
+      "geometry_repaired": true,
+      "occurrence": 4,
+      "reason": "unique_largest_overlap",
+      "status": "matched",
+      "unit_id": "00004"
+    },
+    {
+      "candidate_admin_ids": [
+        "10101"
+      ],
+      "geometry_repaired": false,
+      "occurrence": 5,
+      "reason": "duplicate_identifier",
+      "status": "dropped",
+      "unit_id": "00005"
+    },
+    {
+      "candidate_admin_ids": [
+        "10101"
+      ],
+      "geometry_repaired": false,
+      "occurrence": 6,
+      "reason": "duplicate_identifier",
+      "status": "dropped",
+      "unit_id": "00005"
+    }
+  ],
+  "manual_overrides": [],
+  "release_id": "fixture-v1",
+  "repairs": [
+    {
+      "absolute_area_change_m2": 79999.998546,
+      "area_after_m2": 79999.998546,
+      "area_before_m2": 0.0,
+      "empty_result": false,
+      "method": "make_valid",
+      "original_geometry_type": "Polygon",
+      "original_part_count": 1,
+      "relative_area_change": null,
+      "repair_reason": "Self-intersection[400.000001505253 400.000001964235]",
+      "resulting_geometry_type": "MultiPolygon",
+      "resulting_part_count": 2,
+      "tolerance_exceeded": false,
+      "unit_id": "00004"
+    }
+  ],
+  "schema_version": "1.1.0",
+  "unmatched_ids": [
+    "00003"
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "schema_version": "1.0.0",
+  "registry_version": "2026-08-04",
+  "sources": [
+    {
+      "source_id": "ceur-conicet-census-radios-1991",
+      "publisher": "CEUR-CONICET (attributed in repository; original authorship unresolved)",
+      "title": "1991 Radios Argentina",
+      "source_url": "http://ceur-conicet.gov.ar/archivos/transferencia/1991_RADIOS_ARGENTINA.rar",
+      "acquisition_note": "Committed RAR and extracted shapefile inspected locally; URL not revalidated.",
+      "geographic_level": "census radio",
+      "reference_vintage": "1991 census",
+      "crs_as_published": "POSGAR 94 / Argentina 3 (best match EPSG:22183; .prj evidence)",
+      "expected_identifiers": ["PROV_", "DEPTO_", "FRACC_", "COD_1991"],
+      "retrieved_file_sha256": "f1f3e880ae89407b0801b3b9a21b894397d3abd5de38ffa7ae9e2610143d492c",
+      "licensing_redistribution": "No license found in repository; redistribution status unresolved.",
+      "status": "historical snapshot"
+    },
+    {
+      "source_id": "ceur-conicet-census-radios-2001",
+      "publisher": "CEUR-CONICET (attributed in repository; original authorship unresolved)",
+      "title": "2001 Radios Argentina",
+      "source_url": "http://ceur-conicet.gov.ar/archivos/transferencia/2001_RADIOS_ARGENTINA.rar",
+      "acquisition_note": "Committed RAR and extracted shapefile inspected locally; URL not revalidated.",
+      "geographic_level": "census radio",
+      "reference_vintage": "2001 census",
+      "crs_as_published": "POSGAR 94 / Argentina 3 (best match EPSG:22183; .prj evidence)",
+      "expected_identifiers": ["PROV_", "DEPTO_", "FRACC_", "COD_2001"],
+      "retrieved_file_sha256": "304b38eeeab5e0d1bb785e3bf86f15cacb7fc20a4e8b806be576951fbf73af44",
+      "licensing_redistribution": "No license found in repository; redistribution status unresolved.",
+      "status": "historical snapshot"
+    },
+    {
+      "source_id": "ceur-conicet-census-radios-2010",
+      "publisher": "CEUR-CONICET (attributed in repository; original authorship unresolved)",
+      "title": "2010 Radios Argentina",
+      "source_url": "http://ceur-conicet.gov.ar/archivos/transferencia/2010_RADIOS_ARGENTINA.rar",
+      "acquisition_note": "Committed RAR and extracted shapefile inspected locally; URL not revalidated.",
+      "geographic_level": "census radio",
+      "reference_vintage": "2010 census",
+      "crs_as_published": "POSGAR 94 / Argentina 3 (best match EPSG:22183; .prj evidence)",
+      "expected_identifiers": ["PROV_", "DEPTO_", "FRACC_", "COD_2010"],
+      "retrieved_file_sha256": "93d28ac9c367fe779cc6780b4de1a6969914feab6ff03ce931f0c50ec34365ea",
+      "licensing_redistribution": "No license found in repository; redistribution status unresolved.",
+      "status": "historical snapshot"
+    },
+    {
+      "source_id": "ign-departamentos-notebook-download",
+      "publisher": "Instituto Geográfico Nacional (Argentina)",
+      "title": "Departamentos",
+      "source_url": "https://www.ign.gob.ar/descargas/geodatos/SHAPES/ign_departamento.zip",
+      "acquisition_note": "Referenced by acquisition notebook; dataset is not committed and exact retrieval date/vintage is absent.",
+      "geographic_level": "department/partido/comuna",
+      "reference_vintage": "unresolved (download observed in notebook output before August 2025)",
+      "crs_as_published": "unresolved",
+      "expected_identifiers": ["IN1", "NAM"],
+      "retrieved_file_sha256": null,
+      "licensing_redistribution": "Not recorded; verify with publisher before redistribution.",
+      "status": "unresolved"
+    },
+    {
+      "source_id": "fixture-census-units-v1",
+      "publisher": "This repository",
+      "title": "Synthetic census units fixture v1",
+      "source_url": "fixtures/census_units.geojson",
+      "acquisition_note": "Synthetic and redistributable under repository terms.",
+      "geographic_level": "synthetic census unit",
+      "reference_vintage": "fixture-v1 (not a real-world vintage)",
+      "crs_as_published": "OGC:CRS84 (longitude, latitude)",
+      "expected_identifiers": ["unit_id", "province_id", "weight"],
+      "retrieved_file_sha256": "computed in release manifest",
+      "licensing_redistribution": "Synthetic; redistributable.",
+      "status": "observed"
+    },
+    {
+      "source_id": "fixture-admin-candidates-v1",
+      "publisher": "This repository",
+      "title": "Synthetic administrative candidates fixture v1",
+      "source_url": "fixtures/admin_candidates.geojson",
+      "acquisition_note": "Synthetic and redistributable under repository terms.",
+      "geographic_level": "synthetic administrative unit",
+      "reference_vintage": "fixture-v1 (not a real-world vintage)",
+      "crs_as_published": "EPSG:3857 (x, y metres)",
+      "expected_identifiers": ["admin_id", "province_id"],
+      "retrieved_file_sha256": "computed in release manifest",
+      "licensing_redistribution": "Synthetic; redistributable.",
+      "status": "observed"
+    }
+  ]
+}
