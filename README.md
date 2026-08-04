@@ -1,50 +1,71 @@
-# Datos espaciales: Radios Censales, Fracciones, en Departamentos IGN
+# Geografías censales reconciliadas con IGN
 
-Este repositorio contiene scripts de procesamiento de datos para la manipulación y reconciliación de información geográfica de los últimos censos de Argentina (1991, 2001, 2010, INDEC) con las referencias del Instituto Geográfico Nacional (IGN) de Argentina.
+Proceso de preparación geoespacial que vincula radios y fracciones censales de Argentina con referencias administrativas del Instituto Geográfico Nacional (IGN).
 
-## Descripción
+> **Estado:** productor histórico reutilizable. El repositorio fue actualizado por última vez en agosto de 2025; el entorno, las URLs de descarga y los outputs no fueron revalidados en 2026. Las geometrías corresponden a vintages censales históricos, no a límites administrativos corrientes.
 
-El repositorio se compone de tres scripts de Jupyter notebook que realizan las siguientes tareas:
+## Producto principal
 
-- **Descarga de geometrías (IGN, Censo - CEUR CONICET)**: Este script se encarga de descargar las geometrías de radios censales de las fuentes mencionadas.
+El pipeline genera archivos con el patrón:
 
-- **Dissolver de áreas del censo**: Este script realiza un proceso de disolución de las áreas del censo a nivel de fracciones censales y departamentos. Esto significa que las geometrías se agrupan y combinan en base a atributos comunes.
+```text
+radios_IGN_<year>
+```
 
-- **Reconciliación de información geográfica**: Este script se encarga de la tarea crítica de reconciliar la información geográfica de las dos fuentes de datos. Se realiza una intersección espacial para ajustar las geometrías de los radios censales del CONICET con las áreas geográficas del IGN en los casos con problemas o inconsistencia en ids de lugares.
+Estos artefactos combinan identificadores y geometrías para provincia, departamento, fracción y radio censal. La documentación histórica del proyecto reporta 52.401 unidades geográficas únicas en el producto reconciliado; esa cifra debería verificarse al regenerar los datos.
 
-*El producto principal de este repositorio es el archivo `radios_IGN_<year>`, que se guarda después de ejecutar el tercer script. Este archivo contiene geometrías conciliadas a varios niveles geográficos, incluyendo provincias, departamentos, fracciones censales y radios censales. Tiene un total de 52,401 unidades geográficas únicas, lo que lo hace extremadamente útil para una variedad de análisis geoespaciales.*
+## Qué hace el proceso
 
-## Contribuciones
+Los notebooks implementan tres etapas conceptuales:
 
-Las contribuciones a este repositorio son bienvenidas. Si encuentra algún error o tiene alguna sugerencia no dude en abrir issue, pull request o contactarse.
+1. **Adquisición:** descarga geometrías censales e información del IGN.
+2. **Agregación:** disuelve radios hacia fracciones y departamentos.
+3. **Reconciliación:** usa intersecciones espaciales para resolver identificadores faltantes o inconsistentes entre fuentes.
 
-## Contacto
+El output está pensado para análisis que necesitan una geografía censal navegable dentro de una referencia administrativa común.
 
-Si tenes cualquier pregunta sobre este repositorio o necesitas ayuda, no dudes en escribime matuteiglesias@gmail.com.
+## Uso del snapshot
 
+Quien solo necesita las geometrías procesadas puede consumir los archivos publicados sin ejecutar los notebooks. Registrar siempre:
 
-#### Instalación de Geopandas en Windows
+- año censal;
+- fuente de cada geometría;
+- sistema de referencia de coordenadas;
+- commit del repositorio;
+- reglas de reconciliación aplicadas.
 
-Es posible que encuentres problemas al instalar Geopandas en Windows. Aquí te proporcionamos algunos pasos que podrían ayudarte a resolver estos problemas. Recuerda que estos pasos son necesarios si quieres ejecutar los scripts de este repositorio en tu máquina local. Si sólo estás interesado en los datos procesados, puedes usar directamente los archivos `radios_IGN_...`.
+## Regeneración
 
-Pasos para solucionar problemas de instalación de Geopandas:
-- Descarga los archivos .whl: En Windows, puede ser necesario descargar y utilizar los archivos .whl correspondientes a tu versión de Python. Puedes encontrar estos archivos en 
-(www.lfd.uci.edu/~gohlke/pythonlibs/).
+La ejecución requiere un entorno geoespacial con Jupyter y GeoPandas. Una instalación moderna puede comenzar con:
 
-- Instalación de Fiona:** Si se produce un error al instalar Fiona con el archivo .whl, necesitarás instalar Fiona a partir del código fuente. Para hacer esto, descarga el archivo tar.gz de Fiona, extrae su contenido y ejecuta el siguiente comando desde la carpeta donde lo hayas extraído:
+```bash
+conda create -n censo-geo python=3.11 geopandas jupyter
+conda activate censo-geo
+jupyter lab
+```
 
-`python setup.py build_ext -I<path to gdal include files> -lgdal_i -L<path to gdal library> install --gdalversion X.X`
+Después, ejecutar los notebooks en el orden de adquisición, disolución y reconciliación que indica su contenido. No se recomienda reutilizar instrucciones antiguas basadas en wheels manuales de GDAL: primero debe probarse una instalación reproducible con Conda/Mamba o un contenedor.
 
-por ejemplo:
+## Autoridad y límites
 
-`python setup.py build_ext -IC:\user\anaconda3\Lib\site-packages\osgeo\include\gdal -lgdal_i -LC:\user\anaconda3\Lib\site-packages\osgeo\lib install --gdalversion 3.2.1`
+Este repositorio posee la **transformación y el snapshot reconciliado**. No posee las geometrías oficiales ni sustituye la documentación de INDEC, IGN o CEUR-CONICET.
 
-- Configuración de las variables de entorno de GDAL: También necesitarás configurar las variables de entorno de Windows correspondientes a GDAL. Para hacer esto, haz clic derecho en "Mi PC" y selecciona "Propiedades" -> "Configuración avanzada del sistema" -> "Variables de entorno" ('Advanced system settings'> 'Environment Variables...'). Agrega las siguientes variables:
+Antes de usarlo para decisiones actuales, considerar:
 
-`GDAL_DATA = C:\user\anaconda3\Lib\site-packages\osgeo\data\gdal`
+- cambios de límites desde el censo correspondiente;
+- geometrías faltantes o inválidas;
+- intersecciones ambiguas;
+- diferencias entre identificadores censales y administrativos;
+- efectos de CRS, tolerancias y simplificación.
 
-`PROJ_LIB = C:\Users\BCNCPC23\anaconda3\Lib\site-packages\osgeo\data\proj`
+## Próxima revisión útil
 
-- Instalación de Geopandas: Finalmente, para instalar Geopandas, descarga el archivo tar.gz de Geopandas y ejecuta el siguiente comando desde la carpeta donde lo hayas extraído:
-  
-`python setup.py build_ext`
+1. identificar con precisión fuentes y vintages de cada input;
+2. fijar un entorno ejecutable;
+3. publicar conteos y cobertura por etapa;
+4. registrar excepciones de reconciliación;
+5. emitir un manifest del output con checksum y CRS.
+
+## Posible cambio de nombre
+
+`geoespacial-censo-IGN` comunica los ingredientes, pero `censo-arg-geografias` o `censo-ign-geografias` serían más fáciles de encontrar y mantener como nombre de producto.
