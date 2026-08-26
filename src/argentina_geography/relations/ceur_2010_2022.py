@@ -13,6 +13,7 @@ from empirical_contracts import (
     AuthorityLevel,
     DataLayer,
     DatasetRef,
+    GeographySpec,
     GrainSpec,
     QAResult,
     RunManifest,
@@ -29,9 +30,11 @@ from argentina_geography.products import (
     write_json,
 )
 from argentina_geography.sources.ceur_2010_v2025_1 import (
+    normalize_source as normalize_ceur_2010_source,
     verify_release as verify_ceur_2010_release,
 )
 from argentina_geography.sources.ceur_2022_v2025_1 import (
+    normalize_source as normalize_ceur_2022_source,
     verify_release as verify_ceur_2022_release,
 )
 
@@ -109,6 +112,114 @@ def _load_parent(
     )
     frame = gpd.read_parquet(release / manifest["artifacts"]["geography"])
     return frame, manifest, dataset
+
+
+def _expected_parent_dataset(expected: dict, vintage: str) -> DatasetRef:
+    if vintage == "2010":
+        grain = GrainSpec(keys=("radio_2010_id",))
+    elif vintage == "2022":
+        grain = GrainSpec(keys=("geo_uid",))
+    else:
+        raise ValueError(f"unsupported CEUR fallback vintage: {vintage}")
+    return DatasetRef(
+        dataset_id=expected["dataset_id"],
+        version=expected["release_version"],
+        schema_version="arggeo.geography/v1",
+        layer=DataLayer.SILVER,
+        authority=AuthorityLevel.L1_NORMALIZED,
+        grain=grain,
+        geography=GeographySpec(
+            provider="ceur",
+            version=f"{vintage}-v2025-1",
+            scheme="census",
+            level="radio",
+        ),
+        content_sha256=expected["content_sha256"],
+    )
+
+
+def _load_fallback_parent(
+    path: Path,
+    expected: dict,
+    fallback: dict,
+    *,
+    vintage: str,
+) -> tuple[gpd.GeoDataFrame, dict, DatasetRef, dict]:
+    observed_sha = sha256_file(path)
+    observed_size = path.stat().st_size
+    if observed_sha != fallback["sha256"]:
+        raise ValueError(
+            f"CEUR {vintage} fallback SHA mismatch: expected {fallback['sha256']}, "
+            f"found {observed_sha}"
+        )
+    if observed_size != int(fallback["size_bytes"]):
+        raise ValueError(
+            f"CEUR {vintage} fallback size mismatch: expected {fallback['size_bytes']}, "
+            f"found {observed_size}"
+        )
+    frame = gpd.read_parquet(path)
+    if len(frame) != int(fallback["expected_rows"]):
+        raise ValueError(
+            f"CEUR {vintage} fallback row count mismatch: expected "
+            f"{fallback['expected_rows']}, found {len(frame)}"
+        )
+    received_crs = frame.crs.to_string() if frame.crs is not None else None
+    if received_crs != fallback["received_crs"]:
+        raise ValueError(
+            f"CEUR {vintage} fallback CRS mismatch: expected {fallback['received_crs']}, "
+            f"found {received_crs}"
+        )
+    frame = frame.to_crs(fallback["normalization_crs"])
+    if vintage == "2010":
+        normalized, audit = normalize_ceur_2010_source(frame, {})
+        invalid_ids = sorted(
+            normalized.loc[normalized["geometry_role"].eq("source_invalid"), "native_id"]
+            .astype(str)
+            .tolist()
+        )
+    else:
+        normalized, audit = normalize_ceur_2022_source(frame, {})
+        invalid_ids = sorted(
+            normalized.loc[normalized["geometry_role"].eq("source_invalid"), "native_id"]
+            .astype(str)
+            .tolist()
+        )
+    expected_invalid = sorted(fallback["expected_invalid_native_ids"])
+    if invalid_ids != expected_invalid:
+        raise ValueError(
+            f"CEUR {vintage} fallback invalid-geometry identity drift: expected "
+            f"{expected_invalid}, found {invalid_ids}"
+        )
+    dataset = _expected_parent_dataset(expected, vintage)
+    source_manifest = {
+        "source_snapshot": {
+            "source": f"ceur-census-{vintage}-radio-v2025-1",
+            "release": "V2025-1",
+            "snapshot_id": f"sha256:{expected['source_snapshot_sha256']}",
+            "origin": fallback["original_record_uri"],
+            "storage_mode": "external_immutable",
+            "files": [],
+        }
+    }
+    execution = {
+        "mode": "pinned_fallback_distribution",
+        "vintage": vintage,
+        "url": fallback["url"],
+        "sha256": observed_sha,
+        "size_bytes": observed_size,
+        "received_crs": received_crs,
+        "normalization_crs": fallback["normalization_crs"],
+        "expected_parent_source_snapshot_sha256": expected["source_snapshot_sha256"],
+        "expected_parent_content_sha256": expected["content_sha256"],
+        "row_count": len(normalized),
+        "invalid_native_ids": invalid_ids,
+        "identity_composition_mismatch_count": int(
+            audit.get("identity_composition_mismatch_count", 0)
+        ),
+        "original_bitstream_status": fallback["original_bitstream_status"],
+        "original_bitstream_url": fallback["original_bitstream_url"],
+    }
+    return normalized, source_manifest, dataset, execution
 
 
 def _quantiles(values: pd.Series) -> dict:
@@ -704,7 +815,18 @@ def _summary_markdown(
     target_dataset: DatasetRef,
     config: dict,
     examples: dict,
+    execution_geometry: dict | None = None,
 ) -> str:
+    execution_note = ""
+    if execution_geometry is not None:
+        execution_note = (
+            "\n## Execution geometry distribution\n\n"
+            "The original CONICET bitstream URLs were unavailable during this A11 run. "
+            "The exact released parent identities remain the scientific lineage, while the "
+            "national overlap computation used pinned surviving Source Cooperative copies. "
+            "Those copies were hash-pinned and checked for row counts, native identity "
+            "composition, CRS normalization, and the same invalid-geometry identities.\n\n"
+        )
     return f"""# CEUR Census 2010 → 2022 radio relation summary
 
 This release contains **explicit N:M geometric relation facts** between two exact harmonized CEUR releases. It contains no population allocation, transfer weights, preferred geography, or one-to-one crosswalk.
@@ -718,7 +840,7 @@ This release contains **explicit N:M geometric relation facts** between two exac
   - source snapshot SHA-256: `{config['target_parent']['source_snapshot_sha256']}`
   - normalized geography SHA-256: `{target_dataset.content_sha256}`
 
-## Relation size and multiplicity
+{execution_note}## Relation size and multiplicity
 
 - Source parent rows: **{audit['source_parent_rows']:,}**
 - Source analytical rows: **{audit['source_analytical_rows']:,}**
@@ -754,26 +876,18 @@ The separate `pattern_examples.*` artifact uses interpretation version `{example
 """
 
 
-def materialize_relation(
-    source_release: Path,
-    target_release: Path,
+def _materialize_relation_loaded(
+    source: gpd.GeoDataFrame,
+    source_manifest: dict,
+    source_dataset: DatasetRef,
+    target: gpd.GeoDataFrame,
+    target_manifest: dict,
+    target_dataset: DatasetRef,
     output: Path,
-    config_path: Path = DEFAULT_CONFIG,
+    config: dict,
+    *,
+    execution_geometry: dict | None = None,
 ) -> dict:
-    config = load_config(config_path)
-    source, source_manifest, source_dataset = _load_parent(
-        source_release,
-        config["source_parent"],
-        verify=verify_ceur_2010_release,
-        label="CEUR 2010 source parent",
-    )
-    target, target_manifest, target_dataset = _load_parent(
-        target_release,
-        config["target_parent"],
-        verify=verify_ceur_2022_release,
-        label="CEUR 2022 target parent",
-    )
-
     relation, audit = build_relation(source, target, config)
     examples = build_pattern_examples(relation, config)
     missing_examples = [
@@ -883,6 +997,7 @@ def materialize_relation(
             "geometry_repair_applied": False,
             "stage_decision": audit["stage_decision"],
             "accepted_qa_warnings": warnings_list,
+            "execution_geometry_distribution": execution_geometry or {"mode": "exact_parent_releases"},
         },
         outputs=(dataset,),
         qa=(qa_result,),
@@ -944,10 +1059,13 @@ def materialize_relation(
             },
             "interpretation": config["interpretation"],
             "known_limitations": config["known_limitations"],
+            "execution_geometry_distribution": execution_geometry or {"mode": "exact_parent_releases"},
         },
     )
     (output / "relation_summary.md").write_text(
-        _summary_markdown(audit, source_dataset, target_dataset, config, examples),
+        _summary_markdown(
+            audit, source_dataset, target_dataset, config, examples, execution_geometry
+        ),
         encoding="utf-8",
     )
 
@@ -974,6 +1092,7 @@ def materialize_relation(
         "transfer_weights_applied": False,
         "adjudication_applied": False,
         "geometry_repair_applied": False,
+        "execution_geometry_distribution": execution_geometry or {"mode": "exact_parent_releases"},
         "row_count": len(relation),
         "positive_relation_rows": audit["positive_relation_rows"],
         "artifacts": {
@@ -989,6 +1108,76 @@ def materialize_relation(
     write_json(output / "manifest.json", manifest)
     write_checksums(output, REQUIRED_OUTPUT_FILES)
     return manifest
+
+
+def materialize_relation(
+    source_release: Path,
+    target_release: Path,
+    output: Path,
+    config_path: Path = DEFAULT_CONFIG,
+) -> dict:
+    config = load_config(config_path)
+    source, source_manifest, source_dataset = _load_parent(
+        source_release,
+        config["source_parent"],
+        verify=verify_ceur_2010_release,
+        label="CEUR 2010 source parent",
+    )
+    target, target_manifest, target_dataset = _load_parent(
+        target_release,
+        config["target_parent"],
+        verify=verify_ceur_2022_release,
+        label="CEUR 2022 target parent",
+    )
+    return _materialize_relation_loaded(
+        source,
+        source_manifest,
+        source_dataset,
+        target,
+        target_manifest,
+        target_dataset,
+        output,
+        config,
+    )
+
+
+def materialize_relation_from_fallback(
+    source_fallback: Path,
+    target_fallback: Path,
+    output: Path,
+    config_path: Path = DEFAULT_CONFIG,
+) -> dict:
+    config = load_config(config_path)
+    fallback = config["fallback_distributions"]
+    source, source_manifest, source_dataset, source_execution = _load_fallback_parent(
+        source_fallback,
+        config["source_parent"],
+        fallback["2010"],
+        vintage="2010",
+    )
+    target, target_manifest, target_dataset, target_execution = _load_fallback_parent(
+        target_fallback,
+        config["target_parent"],
+        fallback["2022"],
+        vintage="2022",
+    )
+    execution_geometry = {
+        "mode": "pinned_fallback_distributions",
+        "reason": fallback["reason"],
+        "source": source_execution,
+        "target": target_execution,
+    }
+    return _materialize_relation_loaded(
+        source,
+        source_manifest,
+        source_dataset,
+        target,
+        target_manifest,
+        target_dataset,
+        output,
+        config,
+        execution_geometry=execution_geometry,
+    )
 
 
 def verify_relation(output: Path, config_path: Path = DEFAULT_CONFIG) -> None:
@@ -1007,6 +1196,19 @@ def verify_relation(output: Path, config_path: Path = DEFAULT_CONFIG) -> None:
         raise ValueError("relation row count does not match manifest")
     if manifest.get("relation_cardinality") != "N:M":
         raise ValueError("A11 relation must explicitly declare N:M cardinality")
+
+    execution_geometry = manifest.get("execution_geometry_distribution", {})
+    if execution_geometry.get("mode") == "pinned_fallback_distributions":
+        configured = config["fallback_distributions"]
+        for vintage, side in (("2010", "source"), ("2022", "target")):
+            observed = execution_geometry[side]
+            expected = configured[vintage]
+            if observed.get("sha256") != expected["sha256"]:
+                raise ValueError(f"fallback {vintage} SHA pin mismatch in manifest")
+            if int(observed.get("size_bytes", -1)) != int(expected["size_bytes"]):
+                raise ValueError(f"fallback {vintage} size pin mismatch in manifest")
+            if observed.get("original_bitstream_status") != expected["original_bitstream_status"]:
+                raise ValueError(f"fallback {vintage} original-bitstream status drift")
 
     required = {
         "source_geo_uid",
@@ -1144,6 +1346,11 @@ def main() -> None:
     materialize.add_argument("--target-release", type=Path, required=True)
     materialize.add_argument("--output", type=Path, required=True)
     materialize.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
+    fallback = subparsers.add_parser("materialize-fallback")
+    fallback.add_argument("--source-fallback", type=Path, required=True)
+    fallback.add_argument("--target-fallback", type=Path, required=True)
+    fallback.add_argument("--output", type=Path, required=True)
+    fallback.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     verify = subparsers.add_parser("verify")
     verify.add_argument("--release", type=Path, required=True)
     verify.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
@@ -1152,6 +1359,14 @@ def main() -> None:
         materialize_relation(
             args.source_release,
             args.target_release,
+            args.output,
+            args.config,
+        )
+        verify_relation(args.output, args.config)
+    elif args.command == "materialize-fallback":
+        materialize_relation_from_fallback(
+            args.source_fallback,
+            args.target_fallback,
             args.output,
             args.config,
         )
