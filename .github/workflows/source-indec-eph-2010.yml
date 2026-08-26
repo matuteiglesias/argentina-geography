@@ -1,0 +1,81 @@
+name: source-proof-indec-eph-2010
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["feat/indec-eph-geography"]
+    paths:
+      - "config/sources/indec_eph_census2010_radio.json"
+      - "src/argentina_geography/sources/indec_eph_2010_probe.py"
+      - "src/argentina_geography/sources/indec_eph_2010.py"
+      - "tests/test_indec_eph_2010.py"
+      - ".github/workflows/source-indec-eph-2010.yml"
+
+concurrency:
+  group: source-proof-indec-eph-2010-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  probe-source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install
+        run: |
+          python -m pip install -e ".[dev]"
+          python -m pip install xlrd
+      - name: Probe official INDEC EPH Census 2010 source set
+        run: |
+          python -m argentina_geography.sources.indec_eph_2010_probe \
+            --source-dir /tmp/indec-eph-2010-source \
+            --output /tmp/indec-eph-2010-raw-evidence.json
+          cat /tmp/indec-eph-2010-raw-evidence.json
+      - name: Upload raw source evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: indec-eph-2010-raw-evidence
+          path: /tmp/indec-eph-2010-raw-evidence.json
+          if-no-files-found: error
+      - name: Materialize exact merged A6 parent
+        run: |
+          python -m argentina_geography.sources.indec_2010_radio materialize \
+            --source-dir /tmp/indec-2010-parent-source \
+            --output /tmp/indec-2010-parent-release
+          python -m argentina_geography.sources.indec_2010_radio verify \
+            --release /tmp/indec-2010-parent-release
+      - name: Materialize exact probed EPH snapshot
+        run: |
+          python -m argentina_geography.sources.indec_eph_2010 materialize \
+            --source-dir /tmp/indec-eph-2010-source \
+            --parent-release /tmp/indec-2010-parent-release \
+            --output /tmp/indec-eph-2010-release
+      - name: Verify detached product
+        run: |
+          cp -R /tmp/indec-eph-2010-release /tmp/indec-eph-2010-release-detached
+          python -m argentina_geography.sources.indec_eph_2010 verify \
+            --release /tmp/indec-eph-2010-release-detached
+      - name: Prepare release evidence
+        run: |
+          mkdir -p /tmp/source-evidence
+          cp /tmp/indec-eph-2010-release/manifest.json /tmp/source-evidence/
+          cp /tmp/indec-eph-2010-release/qa.json /tmp/source-evidence/
+          cp /tmp/indec-eph-2010-release/source_metadata.json /tmp/source-evidence/
+          cp /tmp/indec-eph-2010-release/limitations.json /tmp/source-evidence/
+          cp /tmp/indec-eph-2010-release/identity_contract.json /tmp/source-evidence/
+          cp /tmp/indec-eph-2010-release/parent_compatibility.json /tmp/source-evidence/
+          cp /tmp/indec-eph-2010-release/consumer_compatibility.json /tmp/source-evidence/
+          cp /tmp/indec-eph-2010-release/frame_catalog.parquet /tmp/source-evidence/
+          cat /tmp/indec-eph-2010-release/manifest.json
+          cat /tmp/indec-eph-2010-release/qa.json
+          cat /tmp/indec-eph-2010-release/parent_compatibility.json
+          cat /tmp/indec-eph-2010-release/consumer_compatibility.json
+      - name: Upload release evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: indec-eph-2010-source-evidence
+          path: /tmp/source-evidence
+          if-no-files-found: error
