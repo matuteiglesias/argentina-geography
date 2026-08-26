@@ -42,6 +42,12 @@ jobs:
               raise SystemExit('geo uid construction block not found')
           text = text.replace(old, new, 1)
 
+          old = '''    return _feature_uid(\n        vintage,\n        str(row["source_path"]),\n        str(row["codprov"]),\n        coddepto,\n        str(row["circuito"]),\n        str(row["source_geometry_sha256"]),\n    )\n'''
+          new = '''    return _feature_uid(\n        vintage,\n        str(row["source_path"]),\n        int(row["source_feature_index"]),\n        str(row["codprov"]),\n        coddepto,\n        str(row["circuito"]),\n        str(row["source_geometry_sha256"]),\n    )\n'''
+          if old not in text:
+              raise SystemExit('detached feature uid verifier block not found')
+          text = text.replace(old, new, 1)
+
           marker = '''    qa_warnings: list[dict] = []\n    nonstandard_count = int((~standard).sum())\n'''
           insert = '''    qa_warnings: list[dict] = []\n    if duplicate_source_feature_count:\n        qa_warnings.append(\n            _warning(\n                "duplicate_source_feature_content",\n                "Feature-identical source rows are retained as distinct pinned source features; "\n                "source_path plus source_feature_index distinguishes them without assigning "\n                "electoral equivalence semantics.",\n                affected_rows=duplicate_source_feature_count,\n                duplicate_groups=duplicate_source_feature_group_count,\n            )\n        )\n    nonstandard_count = int((~standard).sum())\n'''
           if marker not in text:
