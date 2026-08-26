@@ -1,0 +1,73 @@
+name: source-proof-ign-department-a10
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["feat/ign-administrative-relation"]
+    paths:
+      - "config/sources/ign_administrative_department.json"
+      - "src/argentina_geography/sources/ign_department.py"
+      - "tests/test_ign_department.py"
+      - "docs/source-evidence/ign-department-2026-08-26.json"
+      - ".github/workflows/source-ign-department-a10.yml"
+
+concurrency:
+  group: source-proof-ign-department-a10-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            pyproject.toml
+            src
+            config
+            tests
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install project
+        run: python -m pip install -e ".[dev]"
+      - name: Test IGN source adapter
+        run: python -m pytest -q tests/test_ign_department.py
+      - name: Acquire exact pinned IGN WFS snapshot
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from argentina_geography.sources.ign_department import download_source, load_config
+          download_source(Path("/tmp/ign-departamento.geojson"), load_config())
+          PY
+      - name: Materialize exact IGN Geography Release
+        run: |
+          python -m argentina_geography.sources.ign_department materialize \
+            --source /tmp/ign-departamento.geojson \
+            --output /tmp/ign-department-release
+      - name: Verify detached Geography Release
+        run: |
+          cp -R /tmp/ign-department-release /tmp/ign-department-release-detached
+          python -m argentina_geography.sources.ign_department verify \
+            --release /tmp/ign-department-release-detached
+      - name: Emit QA and release identity
+        run: |
+          cat /tmp/ign-department-release/manifest.json
+          cat /tmp/ign-department-release/qa.json
+          cat /tmp/ign-department-release/source_metadata.json
+      - name: Prepare non-geometric source evidence
+        run: |
+          mkdir -p /tmp/ign-source-evidence
+          cp /tmp/ign-department-release/manifest.json /tmp/ign-source-evidence/
+          cp /tmp/ign-department-release/qa.json /tmp/ign-source-evidence/
+          cp /tmp/ign-department-release/source_metadata.json /tmp/ign-source-evidence/
+          cp /tmp/ign-department-release/limitations.json /tmp/ign-source-evidence/
+          cp /tmp/ign-department-release/geography_catalog.parquet /tmp/ign-source-evidence/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ign-department-a10-source-evidence
+          path: /tmp/ign-source-evidence
+          if-no-files-found: error

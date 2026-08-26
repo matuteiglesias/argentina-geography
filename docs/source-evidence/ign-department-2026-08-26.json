@@ -1,0 +1,67 @@
+{
+  "source_id": "ign-administrative-department-wfs-20260826",
+  "provider": "Instituto Geográfico Nacional (IGN)",
+  "layer": "ign:departamento",
+  "request_url": "https://wms.ign.gob.ar/geoserver/ign/ows?service=WFS&version=2.0.0&request=GetFeature&typeNames=ign%3Adepartamento&outputFormat=application%2Fjson&srsName=EPSG%3A4326",
+  "retrieved_at_utc": "2026-08-26T04:12:53.487083+00:00",
+  "source_sha256": "e8a7065c26e45df58dc050f288063021ae1ce375ebfc02b797eac1685b245012",
+  "source_size_bytes": 140561295,
+  "http_content_type": "application/json;charset=UTF-8",
+  "feature_count": 529,
+  "property_fields": [
+    "fdc",
+    "fna",
+    "gid",
+    "gna",
+    "in1",
+    "nam",
+    "objeto",
+    "sag"
+  ],
+  "identity_observations": {
+    "in1": {
+      "null_count": 0,
+      "unique_count": 529,
+      "format": "five-digit administrative code"
+    },
+    "gid": {
+      "null_count": 0,
+      "unique_count": 529,
+      "role": "preserved service/database feature identifier"
+    },
+    "fna_unique_count": 472,
+    "nam_unique_count": 447
+  },
+  "source_vocabularies": {
+    "objeto": [
+      "Departamento"
+    ],
+    "gna": [
+      "Comuna",
+      "Departamento",
+      "Partido"
+    ],
+    "sag": [
+      "IGN"
+    ],
+    "fdc_unique_count": 21
+  },
+  "geojson_crs": "urn:ogc:def:crs:EPSG::4326",
+  "geometry_types": [
+    "MultiPolygon"
+  ],
+  "missing_geometry_count": 0,
+  "bbox": [
+    -74,
+    -90.00000001,
+    -25,
+    -21.78085676
+  ],
+  "probe_workflow_run_id": 32929339319,
+  "probe_artifact_id": 9592657790,
+  "notes": [
+    "This is a retrieval snapshot of a live WFS layer, not a provider-declared immutable release.",
+    "Raw source bytes are not committed to the repository.",
+    "Topology validity and normalized-content identity are established by the source materialization proof."
+  ]
+}
