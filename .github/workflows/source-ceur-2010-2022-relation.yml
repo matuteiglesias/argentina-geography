@@ -41,14 +41,36 @@ jobs:
         run: python -m pytest -q tests/test_ceur_2010_2022_relation.py
       - name: Acquire exact CEUR 2010 V2025-1 source bytes
         run: |
-          python -m argentina_geography.sources.ceur_2010_v2025_1_probe \
-            --source-out /tmp/RADIOS_2010_V2025-1.zip \
-            --output /tmp/ceur-2010-v2025-1-raw-evidence.json
+          curl --fail --location --retry 3 --retry-all-errors \
+            --user-agent "Mozilla/5.0 argentina-geography/0.1" \
+            --referer "https://ri.conicet.gov.ar/handle/11336/149711" \
+            "https://ri.conicet.gov.ar/bitstream/handle/11336/149711/RADIOS_2010_V2025-1.zip?sequence=14&isAllowed=y" \
+            --output /tmp/RADIOS_2010_V2025-1.zip
+          echo "464e9b4c265a27f46a48e0c5914ef4e833c14e8977b8f0c9c1eaad672f374baa  /tmp/RADIOS_2010_V2025-1.zip" | sha256sum -c -
+          python - <<'PY'
+          from pathlib import Path
+          from argentina_geography.sources.ceur_2010_v2025_1_probe import profile_source
+          profile_source(
+              Path("/tmp/RADIOS_2010_V2025-1.zip"),
+              Path("/tmp/ceur-2010-v2025-1-raw-evidence.json"),
+          )
+          PY
       - name: Acquire exact CEUR 2022 V2025-1 source bytes
         run: |
-          python -m argentina_geography.sources.ceur_2022_v2025_1_probe \
-            --source-out /tmp/RADIOS_2022_V2025-1.zip \
-            --output /tmp/ceur-2022-v2025-1-raw-evidence.json
+          curl --fail --location --retry 3 --retry-all-errors \
+            --user-agent "Mozilla/5.0 argentina-geography/0.1" \
+            --referer "https://ri.conicet.gov.ar/handle/11336/149711" \
+            "https://ri.conicet.gov.ar/bitstream/handle/11336/149711/RADIOS_2022_V2025-1.zip?sequence=2&isAllowed=y" \
+            --output /tmp/RADIOS_2022_V2025-1.zip
+          echo "d3a6f4c951022130d19a894984eb1315b0c9096314afb1fe2ac79eb9c85da3c8  /tmp/RADIOS_2022_V2025-1.zip" | sha256sum -c -
+          python - <<'PY'
+          from pathlib import Path
+          from argentina_geography.sources.ceur_2022_v2025_1_probe import profile_source
+          profile_source(
+              Path("/tmp/RADIOS_2022_V2025-1.zip"),
+              Path("/tmp/ceur-2022-v2025-1-raw-evidence.json"),
+          )
+          PY
       - name: Materialize and verify exact CEUR 2010 parent
         run: |
           python -m argentina_geography.sources.ceur_2010_v2025_1 materialize \
