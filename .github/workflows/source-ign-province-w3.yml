@@ -142,7 +142,7 @@ jobs:
           cp /tmp/ign-province-release/source_metadata.json /tmp/ign-province-evidence/
           cp /tmp/ign-province-release/limitations.json /tmp/ign-province-evidence/
           cp /tmp/ign-province-release/geography_catalog.parquet /tmp/ign-province-evidence/
-          cp /tmp/ign-province-release/checksums.sha256 /tmp/ign-province-evidence/
+          cp /tmp/ign-province-release/checksums.txt /tmp/ign-province-evidence/
       - uses: actions/upload-artifact@v4
         with:
           name: ign-province-release-evidence
