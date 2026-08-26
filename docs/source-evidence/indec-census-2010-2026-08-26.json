@@ -1,0 +1,50 @@
+{
+  "evidence_date": "2026-08-26",
+  "source_id": "indec-census-2010-radio",
+  "source_release": "census-2010-cartography",
+  "authority": "INDEC official",
+  "snapshot_sha256": "c9184f47fd46c8a47e2c15e5c734b7b6ceb660ce737e18430691f6fbff3c53e8",
+  "expected_release_version": "2010-national-c9184f47fd46",
+  "source_component_count": 52408,
+  "unique_radio_count": 52406,
+  "source_crs": "EPSG:22183",
+  "schema_variant_count": 3,
+  "files": [
+    ["06","Codgeo_Buenos_Aires_con_datos.zip","Buenos_Aires_con_datos","d7094875b07b5c2787be51c33be481aef2d6a2f22ecab57f07ec400277620a36",19577],
+    ["02","Codgeo_CABA_con_datos.zip","cabaxrdatos","111229da6a0af096020db19df9259db47b5d690570c134a278aa617e115dc7b5",3555],
+    ["10","Codgeo_Catamarca_con_datos.zip","Catamarca_con_datos","3e4d2626d338b1183e56e64c0e569e691a3bbe2efbe92907eaa56fc52cfb42fc",561],
+    ["22","Codgeo_Chaco_con_datos.zip","Chaco_con_datos","1aa1a352c72c625748b08bf6cde7ea1b75f96d84232d566e734ec68c04c784b7",1483],
+    ["26","Codgeo_Chubut_con_datos.zip","Chubut_con_datos","128d192389f1628e36a70c940d8419828f885cc9e2e853c175f21bc3b668ffd8",753],
+    ["14","Codgeo_Cordoba_con_datos.zip","Cordoba_con_datos","9f431bb8cb705090194052239c0b40a116862a5b6cef022a55c3feb335e87da1",4752],
+    ["18","Codgeo_Corrientes_con_datos.zip","Corrientes_con_datos","bf2c86a33ce0608afa4e5d810143b992232ab7bae83778527c98ae3d5ba82943",1632],
+    ["30","Codgeo_Entre_Rios_con_datos.zip","Entre_Ríos_con_datos","ac72e987a11141eb1ee5edec00ea628e9996fe62e9a0168faf8afde3c4fd4672",2673],
+    ["34","Codgeo_Formosa_con_datos.zip","Formosa_con_datos","af1fab2b300d35409716c996ae2a5c06d0b9689f41e50bc34d2e39aa12c17e1f",773],
+    ["38","Codgeo_Jujuy_con_datos.zip","Jujuy_con_datos","dd6b2e1647678f9bba84a3b89b25ea2882d474e49456c338b9e09ac48ec6d447",822],
+    ["42","Codgeo_La_Pampa_con_datos.zip","La_Pampa_con_datos","1669b745f74bf7d33b21a6ca866f13f94d3e80f184d57d481e1717e94152be05",769],
+    ["46","Codgeo_La_Rioja_con_datos.zip","La_Rioja_con_datos","d3a9c5714ff0358556d9a05e6fc24ffabf11a443ef11e6dc19dcd7640ff010dd",316],
+    ["50","Codgeo_Mendoza_con_datos.zip","Mendoza_con_datos","8f3d7ac4de2231327c8ed7dfb05da30710b307fd7b5649102124123eab533ee7",1867],
+    ["54","Codgeo_Misiones_con_datos.zip","Misiones_con_datos","69ebd1419230c1daa842667b43396eb7c3f5dc72d8cc9fd7ed61fdf750ef0719",1432],
+    ["58","Codgeo_Neuquen_con_datos.zip","Neuquen_con_datos","3f53461355529097a13340e322aaafcc906eae02d6dbb4d81976772689947d53",794],
+    ["62","Codgeo_Rio_Negro_con_datos.zip","Rio_Negro_con_datos","af125d2566200f271ef9b296f1f5914ae51e6abd7f44d39b1bf7e8f265b47ded",940],
+    ["66","Codgeo_Salta_con_datos.zip","Salta_con_datos","548205fda2a86d55325254e9f11d078479e0deb24ab4461a9e7f053b7c02c012",1358],
+    ["70","Codgeo_San_Juan_con_datos.zip","San_Juan_con_datos","c458a34cfadcc38d9df09afe18c6a18e36eda94c438fcb3273ea653bdbfe2b71",701],
+    ["74","Codgeo_San_Luis_con_datos.zip","San_Luis_con_datos","0fe8c3807bcecd7f6762e9bcee339cefffd1797507abeb9711989359cb7ee83f",656],
+    ["82","Codgeo_Santa_Fe_con_datos.zip","Santa_Fe_con_datos","64adc53a1916a7fe30e78e0d45c65eec45e69e206cdc26928fdbcb7dca918804",3779],
+    ["78","Codgeo_Santa_Cruz_con_datos.zip","Santa_Cruz_con_datos","7b4ad76fc7c99a8f225b77150bc37eca7521001700ba5ee40e606e92a667aa64",302],
+    ["86","Codgeo_Santiago_del_Estero_con_datos.zip","Santiago_del_Estero_con_datos","87421b93222142c9555a6d600df3845f1dae11c301e8b5f4b350448d6f84ed1a",1041],
+    ["94","Codgeo_Tierra_del_Fuego_con_datos.zip","Tierra_del_Fuego_con_datos","9d47990c17e0b5b02e988dbc0aba09b9f63e04326e9d8bd47a1c98ee204e2f96",155],
+    ["90","Codgeo_Tucuman_con_datos.zip","Tucuman_con_datos","cdf7cce8d93f1b76e23553dc3483b2fe7d465ea6f09c0d2656db53e02c48ec0f",1717]
+  ],
+  "file_tuple_schema": ["province_code","file_name","layer_name","sha256","feature_count"],
+  "caba_duplicate_radio_components": {
+    "duplicated_link_values": ["020121607","020130104"],
+    "duplicated_row_count": 4,
+    "interpretation": "Each repeated official LINK consists of two distinct source polygon components; one component in each pair carries null census-count fields. All source rows are preserved; component aggregation is only for the unique consumer radio geometry."
+  },
+  "historical_evidence": {
+    "historical_conicet_feature_count": 52401,
+    "historical_lookup_row_count": 52382,
+    "historical_lookup_columns": ["RADIO_REF_ID","FRAC_REF_ID","IDRADIO"],
+    "note": "Historical counts are comparison evidence, not acceptance targets."
+  }
+}

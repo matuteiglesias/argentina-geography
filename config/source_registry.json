@@ -1,7 +1,21 @@
 {
   "schema_version": "1.0.0",
-  "registry_version": "2026-08-04",
+  "registry_version": "2026-08-26",
   "sources": [
+    {
+      "source_id": "indec-census-2010-radio",
+      "publisher": "Instituto Nacional de Estadística y Censos (INDEC)",
+      "title": "Unidades Geoestadísticas — Provincia por radio censal (Censo 2010)",
+      "source_url": "https://portal-andino.datos.gob.ar/dataset/unidades-geoestadisticas",
+      "acquisition_note": "Live official catalog re-checked 2026-08-26. The authoritative snapshot is the 24 province-by-radio ZIP set recorded in docs/source-evidence/indec-census-2010-2026-08-26.json.",
+      "geographic_level": "census radio",
+      "reference_vintage": "2010 census",
+      "crs_as_published": "EPSG:22183",
+      "expected_identifiers": ["link/LINK", "toponimo_i/PAIS0210_I", "radio_2010_id", "department_2010_id", "province_2010_id"],
+      "retrieved_file_sha256": "snapshot:c9184f47fd46c8a47e2c15e5c734b7b6ceb660ce737e18430691f6fbff3c53e8",
+      "licensing_redistribution": "Current official government catalog declares Creative Commons Attribution 4.0.",
+      "status": "observed official snapshot"
+    },
     {
       "source_id": "ceur-conicet-census-radios-1991",
       "publisher": "CEUR-CONICET (attributed in repository; original authorship unresolved)",
