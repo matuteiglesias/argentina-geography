@@ -1,0 +1,114 @@
+name: source-proof-tartagalensis-circuits
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "config/sources/tartagalensis_electoral_circuits.json"
+      - "src/argentina_geography/sources/tartagalensis_circuits.py"
+      - "tests/test_tartagalensis_circuits.py"
+      - ".github/workflows/source-tartagalensis-circuits.yml"
+      - "Makefile"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: source-proof-tartagalensis-circuits-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  materialize-source-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install
+        run: python -m pip install -e ".[dev]"
+
+      - name: Materialize pinned 2021 geography
+        run: |
+          python -m argentina_geography.sources.tartagalensis_circuits materialize \
+            --vintage 2021 \
+            --output /tmp/tartagalensis-a8/2021
+
+      - name: Materialize pinned 2025 geography
+        run: |
+          python -m argentina_geography.sources.tartagalensis_circuits materialize \
+            --vintage 2025 \
+            --output /tmp/tartagalensis-a8/2025
+
+      - name: Detached verification
+        run: |
+          cp -R /tmp/tartagalensis-a8/2021 /tmp/tartagalensis-a8/2021-detached
+          cp -R /tmp/tartagalensis-a8/2025 /tmp/tartagalensis-a8/2025-detached
+          python -m argentina_geography.sources.tartagalensis_circuits verify \
+            --release /tmp/tartagalensis-a8/2021-detached
+          python -m argentina_geography.sources.tartagalensis_circuits verify \
+            --release /tmp/tartagalensis-a8/2025-detached
+
+      - name: Prove aggregate direct-code compatibility without equivalence rows
+        run: |
+          python -m argentina_geography.sources.tartagalensis_circuits compatibility-evidence \
+            --release-2021 /tmp/tartagalensis-a8/2021 \
+            --release-2025 /tmp/tartagalensis-a8/2025 \
+            --output /tmp/tartagalensis-a8/code-compatibility-evidence.json
+
+      - name: Record exact A8 release identities
+        run: |
+          python -m argentina_geography.sources.tartagalensis_circuits release-identities \
+            --release-2021 /tmp/tartagalensis-a8/2021 \
+            --release-2025 /tmp/tartagalensis-a8/2025 \
+            --output /tmp/tartagalensis-a8/a8-release-identities.json
+          {
+            echo "### A8 exact Tartagalensis release identities"
+            echo
+            echo '```json'
+            cat /tmp/tartagalensis-a8/a8-release-identities.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Prepare bounded release evidence
+        run: |
+          mkdir -p /tmp/source-evidence/2021 /tmp/source-evidence/2025
+          for vintage in 2021 2025; do
+            cp /tmp/tartagalensis-a8/$vintage/manifest.json /tmp/source-evidence/$vintage/
+            cp /tmp/tartagalensis-a8/$vintage/qa.json /tmp/source-evidence/$vintage/
+            cp /tmp/tartagalensis-a8/$vintage/source_metadata.json /tmp/source-evidence/$vintage/
+            cp /tmp/tartagalensis-a8/$vintage/limitations.json /tmp/source-evidence/$vintage/
+          done
+          cp /tmp/tartagalensis-a8/code-compatibility-evidence.json /tmp/source-evidence/
+          cp /tmp/tartagalensis-a8/a8-release-identities.json /tmp/source-evidence/
+
+      - name: Upload release evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: tartagalensis-a8-source-evidence
+          path: /tmp/source-evidence
+          if-no-files-found: error
+
+      - name: Comment exact identities on the PR
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          {
+            echo '<!-- a8-tartagalensis-release-identities -->'
+            echo '### A8 exact source-proof identities'
+            echo
+            echo 'Pinned Tartagalensis commit: `50692fd821f825566b0589da2cc1fefdef5fa02f`'
+            echo
+            echo '```json'
+            cat /tmp/tartagalensis-a8/a8-release-identities.json
+            echo '```'
+            echo
+            echo 'The source proof also validated 24 districts in each vintage, detached verification,'
+            echo 'and aggregate direct-code compatibility counts without publishing equivalence rows.'
+          } > /tmp/pr-comment.md
+          gh pr comment "$PR_NUMBER" --body-file /tmp/pr-comment.md

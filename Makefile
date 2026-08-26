@@ -1,6 +1,6 @@
 PYTHON ?= python
 
-.PHONY: install check test smoke release-fixture product-smoke product-fixture build materialize-indec-2022-radio materialize-indec-2022-fraction materialize-ceur-2022-radio materialize-indec-ceur-2022-relation
+.PHONY: install check test smoke release-fixture product-smoke product-fixture build materialize-indec-2022-radio materialize-indec-2022-fraction materialize-ceur-2022-radio materialize-indec-ceur-2022-relation materialize-tartagalensis-circuits
 install:
 	$(PYTHON) -m pip install -e ".[dev]"
 check:
@@ -10,6 +10,7 @@ check:
 	$(PYTHON) -m json.tool config/sources/indec_census_2022_radio.json >/dev/null
 	$(PYTHON) -m json.tool config/sources/indec_census_2022_fraction.json >/dev/null
 	$(PYTHON) -m json.tool config/sources/ceur_census_2022_radio_v2025_1.json >/dev/null
+	$(PYTHON) -m json.tool config/sources/tartagalensis_electoral_circuits.json >/dev/null
 	$(PYTHON) -m json.tool config/relations/indec_ceur_census_2022_radio.json >/dev/null
 	$(PYTHON) -m censo_geo.release --check
 	$(PYTHON) -m argentina_geography.fixture --check
@@ -36,5 +37,16 @@ materialize-indec-ceur-2022-relation: materialize-indec-2022-radio materialize-c
 		--indec-release build/indec-2022-radio \
 		--ceur-release build/ceur-2022-v2025-1-radio \
 		--output build/indec-ceur-2022-relation
+materialize-tartagalensis-circuits:
+	$(PYTHON) -m argentina_geography.sources.tartagalensis_circuits materialize \
+		--vintage 2021 \
+		--output build/tartagalensis-circuits-2021
+	$(PYTHON) -m argentina_geography.sources.tartagalensis_circuits materialize \
+		--vintage 2025 \
+		--output build/tartagalensis-circuits-2025
+	$(PYTHON) -m argentina_geography.sources.tartagalensis_circuits compatibility-evidence \
+		--release-2021 build/tartagalensis-circuits-2021 \
+		--release-2025 build/tartagalensis-circuits-2025 \
+		--output build/tartagalensis-circuit-code-compatibility.json
 build:
 	$(PYTHON) -m build
