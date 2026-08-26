@@ -1,0 +1,26 @@
+{
+  "relation_id": "arggeo.relation.indec-ceur.census.2022.radio",
+  "source_role": "indec_official_2022_radio",
+  "target_role": "ceur_curated_2022_v2025_1_radio",
+  "source_parent": {
+    "dataset_id": "arggeo.indec.census.2022.radio",
+    "release_version": "2022-national-20260320-a390c8403850",
+    "source_snapshot_sha256": "a390c84038509eb3e6125a5968c72f57fbfae757cda2a2344a14defb5ac18a7b"
+  },
+  "target_parent": {
+    "dataset_id": "arggeo.ceur.census.2022.radio",
+    "release_version": "v2025-1-2022-d3a6f4c95102",
+    "source_snapshot_sha256": "d3a6f4c951022130d19a894984eb1315b0c9096314afb1fe2ac79eb9c85da3c8"
+  },
+  "analysis_crs": "EPSG:6933",
+  "minimum_overlap_area_m2": 0.0,
+  "policy": "geometric_relation_only",
+  "interpretation": "Retain all positive-area INDEC-source to CEUR-target overlaps. Do not choose a preferred provider, winner, nearest feature, or canonical geometry.",
+  "known_limitations": [
+    "Three source-invalid INDEC polygons remain visible as invalid source relation rows and are not repaired.",
+    "Thirteen source-invalid CEUR target polygons are excluded from the analytical target set and counted explicitly in QA.",
+    "An unmatched or low-coverage INDEC source may therefore reflect either a true cross-source coverage difference or exclusion of a source-invalid CEUR target; A5 does not repair or adjudicate that distinction.",
+    "Positive area and overlap shares are geometric facts in EPSG:6933, not population or ownership allocations.",
+    "A5 does not select a canonical geography or create a one-to-one crosswalk."
+  ]
+}
