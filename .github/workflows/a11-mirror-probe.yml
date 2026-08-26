@@ -12,24 +12,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Probe alternate exact-source surfaces
+      - name: Inspect official CONICET dataset REST payload
         shell: bash
         run: |
-          set +e
-          echo '== CONICET dataset bundle endpoint =='
-          for url in \
+          set -euo pipefail
+          curl --fail --silent --show-error --location --max-time 30 \
             'https://ri.conicet.gov.ar/rest/dataset/11336/149711' \
-            'https://ri.conicet.gov.ar/rest/dataset/11336/149711?metadata=false' \
-            'https://ri.conicet.gov.ar/rest/dataset/11336/149711?download=true'; do
-            echo "-- $url"
-            curl -sSIL --max-time 30 "$url" | sed -n '1,20p'
-          done
-          echo '== public S3 known/candidate objects =='
-          for url in \
-            'https://arg-fulbright-data.s3.us-east-2.amazonaws.com/censo-argentino-2022/radios-2022.parquet' \
-            'https://arg-fulbright-data.s3.us-east-2.amazonaws.com/censo-argentino-2010/radios-2010.parquet' \
-            'https://arg-fulbright-data.s3.us-east-2.amazonaws.com/censo-argentino-2010/radios.parquet'; do
-            echo "-- $url"
-            curl -sSIL --max-time 20 "$url" | sed -n '1,12p'
-          done
-          exit 0
+            --output /tmp/dataset.json
+          cat /tmp/dataset.json
+          echo
+          echo '== pretty =='
+          python -m json.tool /tmp/dataset.json
