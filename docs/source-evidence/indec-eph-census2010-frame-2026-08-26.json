@@ -1,0 +1,45 @@
+{
+  "evidence_id": "indec-eph-census2010-frame-2026-08-26",
+  "authority_status": "official",
+  "source_page": "https://www.indec.gob.ar/Institucional/Indec/BasesDeDatos",
+  "source_snapshot_sha256": "9b372c33aa6827705e354f9be3545bf80bd668e44acfb602b6b63aabbe2704b8",
+  "source_files": {
+    "radios_eph.zip": "9624b4022e9caa98e33cb7c06bdf4d1a90f876e8d1a213da9aa293bf6f4e84ab",
+    "radios_eph_json.zip": "39066cc54aec04349cf87455de8d37da00327d922170383a39ca81bc987080ed",
+    "estructura_radios_eph.xls": "bbc8a51ad1cdb60700c7da2798f6979a45595db8654896c6cca868abade8ec94",
+    "localidades_aglomerados_eph.xls": "9ac67ae607795c48c666b3e7a1ead8644aac82f853460a87ad34daa0ce1d0be1"
+  },
+  "dataset_id": "arggeo.indec.eph.census2010.radio_frame",
+  "release_version": "census2010-frame-9b372c33aa68",
+  "frame_sha256": "ea0f5a749cfe0863e71d06064814d003607a43547398d0baa192aea26b18f675",
+  "geography_sha256": "243a448071bf03e08d69208b585a7e63f22a228a8ac5fba5e1ff44f07a899b68",
+  "source_components_sha256": "d48e06c98cebfc59ddd61830f294689107eebd40967b3f148c8ba5d6b54f28f3",
+  "direct_radio_agglomerate_relation_sha256": "2fdf263982639b6dc7ebfbeeaec3cecc971801debe8adde6ba48043e48641052",
+  "source_component_count": 26815,
+  "radio_count": 26417,
+  "agglomerate_code_count": 32,
+  "province_count": 24,
+  "department_count": 106,
+  "multi_component_radio_count": 236,
+  "extra_source_rows_beyond_radio_grain": 398,
+  "missing_geometry_radio_2010_ids": ["020011704", "020011706", "500281605"],
+  "invalid_geometry_count": 0,
+  "crs": "EPSG:22183",
+  "parent": {
+    "dataset_id": "arggeo.indec.census.2010.radio",
+    "release_version": "2010-national-c9184f47fd46",
+    "content_sha256": "762b825f27e3b6e8c1c3f63ae2a5f9aecfa80784b0f56d6739755d02ee749019",
+    "parent_radio_count": 52406,
+    "missing_from_parent_count": 0
+  },
+  "consumer_proof": {
+    "repository": "matuteiglesias/income-modeling-eph",
+    "commit": "48cf614fc6e05c1b4b0b595dfe949dcbe8b1e138",
+    "consumer_column": "AGLOMERADO",
+    "projection": "AGLOMERADO = int(eph_agglomerate_id)",
+    "gis_logic_required": false,
+    "scientific_changes_required": false
+  },
+  "source_proof_run": 32928410734,
+  "general_ci_run": 32928413472
+}
