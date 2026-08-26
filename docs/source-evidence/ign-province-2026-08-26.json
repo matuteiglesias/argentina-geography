@@ -1,0 +1,130 @@
+{
+  "source_id": "ign-administrative-province-archive-20260826",
+  "provider": "Instituto Geográfico Nacional (IGN)",
+  "official_download_url": "https://www.ign.gob.ar/descargas/geodatos/SHAPES/ign_provincia.zip",
+  "official_metadata_url": "https://www.ign.gob.ar/capas-sig/metadata/provincia.pdf",
+  "archive_member": "Provincia/ign_provincia.shp",
+  "retrieved_at_utc": "2026-08-26T11:26:10.513047+00:00",
+  "source_sha256": "b9fcf6f90f28f1bdfcc713a47ad4ed63e2db0b000c4642611597d4ea8b897c55",
+  "source_size_bytes": 10520464,
+  "repeated_download_byte_identity": true,
+  "embedded_member_date_note": "The shapefile archive members are dated September 2019; current IGN metadata records geometry last modified 2019-07-21. Retrieval in 2026 is not treated as a 2026 geometry vintage.",
+  "feature_count": 24,
+  "source_fields": [
+    "OBJECTID",
+    "Entidad",
+    "Objeto",
+    "FNA",
+    "GNA",
+    "NAM",
+    "SAG",
+    "FDC",
+    "IN1",
+    "SHAPE_STAr",
+    "SHAPE_STLe"
+  ],
+  "identity_observations": {
+    "IN1": {
+      "null_count": 0,
+      "unique_count": 24,
+      "format": "zero-preserving two-character province/CABA code",
+      "normalized_role": "native_id and geography_id",
+      "values": [
+        "02",
+        "06",
+        "10",
+        "14",
+        "18",
+        "22",
+        "26",
+        "30",
+        "34",
+        "38",
+        "42",
+        "46",
+        "50",
+        "54",
+        "58",
+        "62",
+        "66",
+        "70",
+        "74",
+        "78",
+        "82",
+        "86",
+        "90",
+        "94"
+      ]
+    },
+    "OBJECTID": {
+      "null_count": 0,
+      "unique_count": 24,
+      "normalized_role": "preserved source feature identifier"
+    },
+    "FNA_unique_count": 24,
+    "NAM_unique_count": 24
+  },
+  "source_vocabularies": {
+    "Entidad": ["0"],
+    "Objeto": ["Provincia"],
+    "GNA": ["Ciudad Autónoma", "Provincia"],
+    "SAG_unique_count": 1,
+    "FDC_unique_count": 1,
+    "FDC_null_count": 0
+  },
+  "crs": "EPSG:4326",
+  "geometry_types": ["MultiPolygon", "Polygon"],
+  "missing_geometry_count": 0,
+  "empty_geometry_count": 0,
+  "invalid_geometry_count": 0,
+  "bbox": [
+    -73.99999999999994,
+    -90.00000002899998,
+    -24.999999999999943,
+    -21.780856763999964
+  ],
+  "normalized_release": {
+    "dataset_id": "arggeo.ign.administrative.province",
+    "release_version": "snapshot-20260826-b9fcf6f90f28",
+    "geography_version": "2026-08-26-b9fcf6f90f28",
+    "content_sha256": "3907e1e0e256f2ea768a66e14874266a576787fe724dad0d35eb9308ddc6dd7b",
+    "feature_count": 24,
+    "analytical_feature_count": 24,
+    "stage_decision": "PASS",
+    "qa_state": "GREEN"
+  },
+  "display_derivative": {
+    "artifact": "geography.geojson",
+    "content_sha256": "c49be97fef429c9bc473681e6677135bf19307da1141b1d7f6f12c50df366ed3",
+    "feature_count": 24,
+    "feature_id_field": "geography_id",
+    "feature_id_rule": "geography_id = IN1 = native_id",
+    "property_fields": ["geography_id", "geo_uid", "native_id", "FNA", "GNA", "NAM"],
+    "geometry_transform": "none",
+    "geometry_repair_applied": false,
+    "geometry_clip_applied": false,
+    "geometry_dissolve_applied": false,
+    "poverty_values_embedded": false
+  },
+  "materialization_proof": {
+    "workflow_run_id": 32963837665,
+    "workflow_head_sha": "4b40171b49962cd7523f4720ccb96fbb4cca2918",
+    "source_adapter_tests": "10 passed",
+    "live_source_probe": true,
+    "normalized_hash_pinned_before_run": true,
+    "detached_release_verification": true,
+    "result": "success"
+  },
+  "distribution": {
+    "mode": "official_remote_fetch",
+    "attribution": "Instituto Geográfico Nacional de la República Argentina (IGN)",
+    "license_evidence": "IGN official Provincia metadata states free use with appropriate citation of IGN; raw source bytes are not committed to this repository."
+  },
+  "notes": [
+    "The exact source release anchor is the official SHAPE archive plus retrieval time, byte size and raw SHA-256.",
+    "The canonical GeoParquet content hash is independently pinned in source configuration and verified during materialization.",
+    "The exact 24 IN1 values equal the poverty-atlas fixture IDs without coercion or integer round-tripping.",
+    "The source geometry is adopted directly; no department/radio dissolve or topology repair is performed.",
+    "The deterministic GeoJSON is a display/transport derivative of the same exact geometry and carries no poverty or presentation values."
+  ]
+}
