@@ -1,0 +1,41 @@
+{
+  "source_id": "indec-census-2022-radio-national",
+  "provider": "INDEC",
+  "authority_status": "official",
+  "resource_title": "Radios censales",
+  "resource_uuid": "927226f0-de91-4927-9c2c-522a4bbdbaaf",
+  "metadata_publication_date": "2026-03-20T18:45:00-03:00",
+  "metadata_url": "https://geonode.indec.gob.ar/layers/geonode_data:geonode:radios_censales2",
+  "coding_note_url": "https://portalgeoestadistico.indec.gob.ar/maps/geoportal/nota_radios_censales.pdf",
+  "layer_name": "geonode:radios_censales2",
+  "wfs_url": "https://geonode.indec.gob.ar/geoserver/wfs",
+  "wfs_version": "1.1.0",
+  "wfs_output_format": "SHAPE-ZIP",
+  "source_encoding": "CP1252",
+  "distribution_mode": "official_remote_fetch",
+  "license_status": "not_specified",
+  "attribution": "INDEC",
+  "citation": "Instituto Nacional de Estadística y Censos (2022). Cartografía y códigos geográficos del Sistema Estadístico Nacional. https://portalgeoestadistico.indec.gob.ar/",
+  "required_fields": ["jur", "cpr", "cde", "dpto", "cfn", "cro", "tro", "cod_indec"],
+  "optional_preserved_fields": ["fid", "id", "sag"],
+  "identity_field": "cod_indec",
+  "component_widths": {"cpr": 2, "cfn": 2, "cro": 2, "cod_indec": 9},
+  "source_cde_max_width": 5,
+  "identity_composition": "cod_indec is authoritative. Parse department_code=cod_indec[0:5], fraction_code=cod_indec[5:7], radio_code=cod_indec[7:9]. Source cde is preserved because the national layer contains both five-digit cumulative and a small number of three-digit local representations.",
+  "documented_adjustment_jurisdictions": ["Entre Ríos", "Misiones"],
+  "documented_adjustment_semantics": "INDEC metadata states that fractions and radios 00 in Entre Ríos and Misiones are adjustment surfaces to the river median line and do not carry census data.",
+  "accepted_qa_warnings": [
+    {
+      "code": "noncanonical_ring_winding",
+      "stage_decision": "PASS_WITH_WARNINGS",
+      "evidence": "The official 2026-08-26 source proof emitted a GDAL/pyogrio warning that some shapefile polygon rings use invalid winding order.",
+      "handling": "GDAL/pyogrio normalizes ring winding while reading. Argentina Geography does not apply make_valid, buffering, snapping or other topology repair for this warning."
+    }
+  ],
+  "known_limitations": [
+    "The national layer integrates DPE cartography and adjusts it to IGN provincial limits.",
+    "INDEC documents possible deformation and exceptional transfer of surface when adapting radios to provincial limits.",
+    "The GeoNode metadata currently reports License: Not Specified; this project does not infer redistribution rights.",
+    "The geography is statistical cartography; uses beyond statistical purposes remain the user's responsibility."
+  ]
+}

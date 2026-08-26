@@ -17,9 +17,7 @@ The target layer sits between domain-agnostic `spatial-data-foundation` and simp
 
 ## Current executable product kernel
 
-Wave A1 adds a second synthetic release surface, `product-fixture-v1`, whose purpose is to prove the target architecture before any live source is adopted.
-
-It builds two independent synthetic **Geography Releases**, a many-to-many **Relation Release** using `spatial-data-foundation.geography.relate_areal_objects`, and a separate policy-bound **Crosswalk Release**. It also emits truthful geography/relation catalogs containing only those products actually built.
+Wave A1 established a synthetic release surface, `product-fixture-v1`, proving two independent Geography Releases, a many-to-many Relation Release through `spatial-data-foundation`, and a separate policy-bound Crosswalk Release.
 
 ```bash
 python -m pip install -e ".[dev]"
@@ -28,50 +26,19 @@ make test
 make product-smoke
 ```
 
-To materialize the new fixture bundle locally:
+## First official source product: INDEC 2022 census radios
+
+Wave A2 adds a provider-specific producer for the official national INDEC 2022 census-radio layer. The source is fetched explicitly from INDEC GeoNode or supplied as a local snapshot; ordinary tests never depend on the network.
+
+Because the current GeoNode metadata reports no license, the adopted distribution mode is `official_remote_fetch`: Argentina Geography materializes and verifies a local GeoParquet release but does not redistribute the official geometry.
 
 ```bash
-make product-fixture
+make materialize-indec-2022-radio
 ```
 
-The bundle is written under `releases/product-fixture-v1/` and contains:
+The successful 2026-08-26 national source proof materialized **66,515** unique `cod_indec` radios from a pinned WFS snapshot. `cod_indec` is the authoritative native identity; source `cpr`, `cde`, `cfn` and `cro` remain preserved for audit. The source contains 5 rows using a local three-digit `cde` representation, 3 source-invalid polygons, and 26 documented adjustment radios in Entre Ríos/Misiones. No rows are dropped and no substantive geometry repair is performed.
 
-```text
-geographies/
-  synthetic-census/
-  synthetic-admin/
-relations/
-  census-admin/
-crosswalks/
-  census-admin-largest-overlap/
-geography_catalog.parquet
-relation_catalog.parquet
-manifest.json
-```
-
-The Geography and Relation products use GeoParquet/Parquet; every sub-bundle carries manifests, QA and checksums. Verification works from the detached artifact tree and does not require sibling repository paths.
-
-The fixture deliberately preserves source-specific behavior locally: duplicate census IDs are excluded under the fixture policy, one invalid polygon is explicitly repaired and audited, and the largest-overlap winner rule is applied only when constructing the separate crosswalk. None of those fixture policies become generic `spatial-data-foundation` behavior.
-
-## Historical executable state: `fixture-v1`
-
-The historical bounded release remains supported as regression evidence. It exercises an unambiguous polygon, a polygon crossing two candidates, an unmatched polygon, a repaired self-intersection, a conflicting duplicate identifier, synthetic same-vintage weights, and CRS84 → EPSG:3857 → CRS84 conversion.
-
-Committed artifacts are under `releases/fixture-v1/`:
-
-- `geography.geojson`: normalized features in OGC:CRS84;
-- `coverage.json`: counts, shares and synthetic fixture coverage;
-- `exceptions.json`: unmatched, multi-match, repair and duplicate detail;
-- `manifest.json`: source/policy/environment lineage plus hashes.
-
-The normative inputs and decisions for this historical fixture are `config/source_registry.json` and `config/reconciliation_policy.json`. It is not suitable for substantive analysis.
-
-Legacy commands remain available:
-
-```bash
-make smoke
-make release-fixture
-```
+The release therefore stages as **`PASS_WITH_WARNINGS` / QA `YELLOW`**: 66,512 rows are immediately eligible for `geometry_role=analytical`, while the 3 invalid source polygons remain visible as `geometry_role=source_invalid`. See [`docs/INDEC_2022_RADIO_PRODUCT.md`](docs/INDEC_2022_RADIO_PRODUCT.md) and the pinned [`source-proof evidence`](docs/source-evidence/indec-2022-radio-2026-08-26.md).
 
 ## Product boundaries
 
@@ -82,6 +49,17 @@ Argentina Geography publishes artifacts rather than requiring downstream reposit
 - **Crosswalk Release:** an optional interpretation created only when an explicit policy needs one target per source.
 
 `empirical-data-contracts` owns shared provenance/identity envelopes. `spatial-data-foundation` owns provider-neutral spatial mechanics. This repository owns Argentine source knowledge, native identifier semantics, source-specific QA and approved Argentina-specific interpretations.
+
+## Historical executable state: `fixture-v1`
+
+The historical bounded release remains supported as regression evidence. Its normative inputs and decisions are `config/source_registry.json` and `config/reconciliation_policy.json`; it is not suitable for substantive analysis.
+
+Legacy commands remain available:
+
+```bash
+make smoke
+make release-fixture
+```
 
 ## Historical product and evidence
 
@@ -96,6 +74,4 @@ Read historical evidence in this order:
 
 ## Current limitations and stop points
 
-No substantive national Argentina Geography release is produced yet. The current source registry predates the refreshed source-authority program. Later waves must re-characterize INDEC 2010/2022, CEUR V2025-1, IGN, official EPH geography and pinned Tartagalensis circuit snapshots before adoption.
-
-Stop for review before changing a consumed identifier, silently repairing real geometry, selecting a substantive tie-break, dropping a real unmatched unit, making a population claim, replacing a provider's source identity or asserting redistribution rights not supported by source evidence.
+Only synthetic geometry is committed. Real source products are materialized locally from explicit authorities; source distribution rights remain provider-specific. QA warnings may stage when they are explicit and source-faithful, but identity ambiguity, lost units, silent substantive geometry repair or unsupported domain interpretation remain stop conditions.

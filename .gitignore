@@ -1,6 +1,8 @@
 /IGN_shp
 /radios_IGN_2010/radios_IGN_2010.shp
-
+/build/
+/dist/
+*.egg-info/
 
 __pycache__/
 *.py[cod]
