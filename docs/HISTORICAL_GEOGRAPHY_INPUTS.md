@@ -12,7 +12,7 @@ Assessment date: 2026-08-04. This classification does not confer authority, curr
 | IGN department download referenced by notebooks | **unresolved** | Files are absent. Exact vintage, checksum, published CRS and redistribution terms cannot be established from the URL. |
 | `matuteiglesias/Aglomerados-EPH-INDEC` | **unresolved** | No checkout or immutable snapshot was available inside this repository/environment. Do not infer EPH-agglomerate membership or adopt it without a pinned commit, source lineage, rights review, and census-vintage validation. |
 | Census/electoral crosswalk repositories | **unresolved** | None is identified or checked out here. No rule was imported. Future inspection must be read-only and pin the repository and commit. |
-| `Notebook.ipynb` and notebook checkpoints | **methodological evidence only** | Preserve historical intent; absolute paths, partial ordering and deliberate stop cells preclude reproduction. |
+| `legacy/notebooks/Notebook.ipynb` and the preserved historical notebooks | **methodological evidence only** | Preserve historical intent; absolute paths, partial ordering and deliberate stop cells preclude reproduction. Jupyter checkpoints were redundant editor snapshots and are not preserved as independent evidence. |
 | Fixture inputs and release | **adopt as source** | Synthetic, bounded, self-contained test data only; never a source for substantive Argentine geography. |
 
 ## Decisions deliberately deferred
