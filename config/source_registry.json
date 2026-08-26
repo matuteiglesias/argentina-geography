@@ -14,7 +14,21 @@
       "expected_identifiers": ["link/LINK", "toponimo_i/PAIS0210_I", "radio_2010_id", "department_2010_id", "province_2010_id"],
       "retrieved_file_sha256": "snapshot:c9184f47fd46c8a47e2c15e5c734b7b6ceb660ce737e18430691f6fbff3c53e8",
       "licensing_redistribution": "Current official government catalog declares Creative Commons Attribution 4.0.",
-      "status": "observed official snapshot"
+      "status": "observed"
+    },
+    {
+      "source_id": "ceur-census-2010-radio-v2025-1",
+      "publisher": "CEUR-CONICET",
+      "title": "Cartografía de radios censales de Argentina corregidos, completados y estandarizados — 2010 V2025-1",
+      "source_url": "http://hdl.handle.net/11336/149711",
+      "acquisition_note": "Live CONICET Digital record and exact RADIOS_2010_V2025-1.zip sequence 14 re-checked 2026-08-26; full source proof and detached release verification succeeded.",
+      "geographic_level": "census radio",
+      "reference_vintage": "2010 census; CEUR longitudinal harmonization release V2025-1",
+      "crs_as_published": "EPSG:3857",
+      "expected_identifiers": ["COD_2010", "PROV", "DEPTO", "FRACC", "RADIO", "radio_2010_id", "department_2010_id", "province_2010_id"],
+      "retrieved_file_sha256": "464e9b4c265a27f46a48e0c5914ef4e833c14e8977b8f0c9c1eaad672f374baa",
+      "licensing_redistribution": "CONICET Digital record declares Creative Commons Attribution 2.5 Unported (CC BY 2.5), except where otherwise noted.",
+      "status": "observed"
     },
     {
       "source_id": "ceur-conicet-census-radios-1991",
@@ -49,7 +63,7 @@
       "publisher": "CEUR-CONICET (attributed in repository; original authorship unresolved)",
       "title": "2010 Radios Argentina",
       "source_url": "http://ceur-conicet.gov.ar/archivos/transferencia/2010_RADIOS_ARGENTINA.rar",
-      "acquisition_note": "Committed RAR and extracted shapefile inspected locally; URL not revalidated.",
+      "acquisition_note": "Committed RAR and extracted shapefile inspected locally; retained only as historical repository evidence after current V2025-1 authority was separately revalidated.",
       "geographic_level": "census radio",
       "reference_vintage": "2010 census",
       "crs_as_published": "POSGAR 94 / Argentina 3 (best match EPSG:22183; .prj evidence)",
@@ -95,7 +109,7 @@
       "geographic_level": "synthetic administrative unit",
       "reference_vintage": "fixture-v1 (not a real-world vintage)",
       "crs_as_published": "EPSG:3857 (x, y metres)",
-      "expected_identifiers": ["admin_id", "province_id"],
+      "expected_identifiers": ["admin_id", "province_id", "weight"],
       "retrieved_file_sha256": "computed in release manifest",
       "licensing_redistribution": "Synthetic; redistributable.",
       "status": "observed"
