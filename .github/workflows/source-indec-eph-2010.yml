@@ -40,20 +40,25 @@ jobs:
           name: indec-eph-2010-raw-evidence
           path: /tmp/indec-eph-2010-raw-evidence.json
           if-no-files-found: error
-      - name: Materialize exact probed snapshot
-        if: ${{ hashFiles('src/argentina_geography/sources/indec_eph_2010.py') != '' }}
+      - name: Materialize exact merged A6 parent
+        run: |
+          python -m argentina_geography.sources.indec_2010_radio materialize \
+            --source-dir /tmp/indec-2010-parent-source \
+            --output /tmp/indec-2010-parent-release
+          python -m argentina_geography.sources.indec_2010_radio verify \
+            --release /tmp/indec-2010-parent-release
+      - name: Materialize exact probed EPH snapshot
         run: |
           python -m argentina_geography.sources.indec_eph_2010 materialize \
             --source-dir /tmp/indec-eph-2010-source \
+            --parent-release /tmp/indec-2010-parent-release \
             --output /tmp/indec-eph-2010-release
       - name: Verify detached product
-        if: ${{ hashFiles('src/argentina_geography/sources/indec_eph_2010.py') != '' }}
         run: |
           cp -R /tmp/indec-eph-2010-release /tmp/indec-eph-2010-release-detached
           python -m argentina_geography.sources.indec_eph_2010 verify \
             --release /tmp/indec-eph-2010-release-detached
       - name: Prepare release evidence
-        if: ${{ hashFiles('src/argentina_geography/sources/indec_eph_2010.py') != '' }}
         run: |
           mkdir -p /tmp/source-evidence
           cp /tmp/indec-eph-2010-release/manifest.json /tmp/source-evidence/
@@ -61,12 +66,14 @@ jobs:
           cp /tmp/indec-eph-2010-release/source_metadata.json /tmp/source-evidence/
           cp /tmp/indec-eph-2010-release/limitations.json /tmp/source-evidence/
           cp /tmp/indec-eph-2010-release/identity_contract.json /tmp/source-evidence/
+          cp /tmp/indec-eph-2010-release/parent_compatibility.json /tmp/source-evidence/
+          cp /tmp/indec-eph-2010-release/consumer_compatibility.json /tmp/source-evidence/
           cp /tmp/indec-eph-2010-release/frame_catalog.parquet /tmp/source-evidence/
-          cat /tmp/indec-eph-2010-release/source_metadata.json
+          cat /tmp/indec-eph-2010-release/manifest.json
           cat /tmp/indec-eph-2010-release/qa.json
-          cat /tmp/indec-eph-2010-release/identity_contract.json
+          cat /tmp/indec-eph-2010-release/parent_compatibility.json
+          cat /tmp/indec-eph-2010-release/consumer_compatibility.json
       - name: Upload release evidence
-        if: ${{ hashFiles('src/argentina_geography/sources/indec_eph_2010.py') != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: indec-eph-2010-source-evidence
