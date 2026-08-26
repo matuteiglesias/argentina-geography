@@ -12,14 +12,21 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Inspect official CONICET dataset REST payload
+      - name: Discover official CONICET file API surface
         shell: bash
         run: |
-          set -euo pipefail
-          curl --fail --silent --show-error --location --max-time 30 \
-            'https://ri.conicet.gov.ar/rest/dataset/11336/149711' \
-            --output /tmp/dataset.json
-          cat /tmp/dataset.json
-          echo
-          echo '== pretty =='
-          python -m json.tool /tmp/dataset.json
+          set +e
+          echo '== candidate REST endpoints =='
+          for suffix in files file bitstreams download contents resources; do
+            url="https://ri.conicet.gov.ar/rest/dataset/11336/149711/$suffix"
+            echo "-- $url"
+            code=$(curl -sSL -o /tmp/out -w '%{http_code}' --max-time 20 "$url")
+            echo "HTTP $code bytes=$(wc -c </tmp/out) type=$(file -b --mime-type /tmp/out)"
+            head -c 1200 /tmp/out; echo
+          done
+          echo '== page source endpoint clues =='
+          curl -fsSL --max-time 30 'https://ri.conicet.gov.ar/handle/11336/149711' -o /tmp/page.html
+          grep -Eo '(/rest/[^"<> ]+|/bitstream/[^"<> ]+|RADIOS_[^"<> ]+)' /tmp/page.html | head -80
+          echo '== script src =='
+          grep -Eo 'src="[^"]+\.js[^" ]*"' /tmp/page.html | head -40
+          exit 0
