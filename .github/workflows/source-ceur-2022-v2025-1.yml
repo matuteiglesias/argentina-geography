@@ -6,6 +6,7 @@ on:
     branches: ["feat/ceur-2022-v2025-1-radio"]
     paths:
       - "config/sources/ceur_census_2022_radio_v2025_1.json"
+      - "src/argentina_geography/sources/ceur_2022_v2025_1.py"
       - "src/argentina_geography/sources/ceur_2022_v2025_1_probe.py"
       - ".github/workflows/source-ceur-2022-v2025-1.yml"
 
@@ -14,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  characterize-source:
+  materialize-source-proof:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -29,9 +30,32 @@ jobs:
           python -m argentina_geography.sources.ceur_2022_v2025_1_probe \
             --source-out /tmp/RADIOS_2022_V2025-1.zip \
             --output /tmp/ceur-2022-v2025-1-raw-evidence.json
-      - name: Upload source evidence
+      - name: Upload raw source evidence
         uses: actions/upload-artifact@v4
         with:
           name: ceur-2022-v2025-1-raw-evidence
           path: /tmp/ceur-2022-v2025-1-raw-evidence.json
+          if-no-files-found: error
+      - name: Materialize exact probed snapshot
+        run: |
+          python -m argentina_geography.sources.ceur_2022_v2025_1 materialize \
+            --source /tmp/RADIOS_2022_V2025-1.zip \
+            --output /tmp/ceur-2022-v2025-1
+      - name: Verify detached product
+        run: |
+          cp -R /tmp/ceur-2022-v2025-1 /tmp/ceur-2022-v2025-1-detached
+          python -m argentina_geography.sources.ceur_2022_v2025_1 verify \
+            --release /tmp/ceur-2022-v2025-1-detached
+      - name: Prepare non-geometric release evidence
+        run: |
+          mkdir -p /tmp/source-evidence
+          cp /tmp/ceur-2022-v2025-1/manifest.json /tmp/source-evidence/
+          cp /tmp/ceur-2022-v2025-1/qa.json /tmp/source-evidence/
+          cp /tmp/ceur-2022-v2025-1/source_metadata.json /tmp/source-evidence/
+          cp /tmp/ceur-2022-v2025-1/limitations.json /tmp/source-evidence/
+      - name: Upload release evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ceur-2022-v2025-1-source-evidence
+          path: /tmp/source-evidence
           if-no-files-found: error
