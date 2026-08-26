@@ -99,7 +99,7 @@ def build_crosswalk(
                 "selected_target_geo_uid": selected,
                 "policy_id": policy["policy_id"],
                 "policy_version": policy["methodology_version"],
-                "candidate_count": int(len(candidates)),
+                "candidate_count": len(candidates),
                 "winner_share": winner_share,
                 "assignment_status": status,
                 "manual_override_id_or_null": pd.NA,

@@ -209,7 +209,7 @@ and optional crosswalk products in their own release boundary rather than silent
 
 ## 7. Authority metadata
 
-Allowed seed vocabulary:
+Allowed seed vocabulary for substantive products:
 
 ```text
 official
@@ -218,6 +218,8 @@ curated_operational
 derived_geometric_fact
 research_interpretation
 ```
+
+`synthetic_fixture` is permitted only for committed fixtures and CI artifacts. It is not a substantive authority label and MUST NOT be used for real-source releases.
 
 The authority label belongs in metadata/catalogs, not repeated on every row unless a product has mixed row-level authority and that mixture is meaningful.
 

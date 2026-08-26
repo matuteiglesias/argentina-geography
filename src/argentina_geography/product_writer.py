@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
@@ -20,7 +20,7 @@ from empirical_contracts import (
 
 from .products import sha256_file, write_checksums, write_json
 
-FIXTURE_TIME = datetime(2026, 8, 4, 0, 0, tzinfo=timezone.utc)
+FIXTURE_TIME = datetime(2026, 8, 4, 0, 0, tzinfo=UTC)
 
 
 def package_version() -> str:

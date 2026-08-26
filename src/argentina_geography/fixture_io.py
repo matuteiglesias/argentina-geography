@@ -149,11 +149,11 @@ def prepare_geographies(
 
     audit = {
         "input_census_occurrences": input_occurrences,
-        "released_census_features": int(len(census)),
+        "released_census_features": len(census),
         "duplicate_occurrences_excluded": duplicate_occurrences,
         "duplicate_ids": duplicate_ids,
         "repaired_features": len(repairs),
         "repairs": repairs,
-        "released_admin_features": int(len(admins)),
+        "released_admin_features": len(admins),
     }
     return census, admins, audit
