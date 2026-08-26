@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 from urllib.request import Request, urlopen
@@ -60,33 +61,88 @@ def _direct_identity_profile(frame: gpd.GeoDataFrame) -> dict:
         + frame["frac2010"].astype(str).str.strip()
         + frame["radio2010"].astype(str).str.strip()
     )
+    relation = pd.DataFrame(
+        {
+            "radio_2010_id": radio_id,
+            "eph_agglomerate_id": frame["eph_codagl"].astype(str).str.strip(),
+            "eph_agglomerate_name": frame["eph_aglome"].astype(str).str.strip(),
+            "geometry_present": frame.geometry.notna(),
+        }
+    )
     duplicate_mask = radio_id.duplicated(False)
+    grouped = relation.groupby("radio_2010_id", sort=True)
+    group_summary = grouped.agg(
+        source_row_count=("radio_2010_id", "size"),
+        agglomerate_code_count=("eph_agglomerate_id", "nunique"),
+        agglomerate_name_count=("eph_agglomerate_name", "nunique"),
+        geometry_present_count=("geometry_present", "sum"),
+    )
+    duplicate_groups = group_summary.loc[group_summary["source_row_count"] > 1]
+    conflicts = group_summary.loc[group_summary["agglomerate_code_count"] > 1]
+    name_conflicts = group_summary.loc[group_summary["agglomerate_name_count"] > 1]
+    all_geometry_missing = group_summary.loc[group_summary["geometry_present_count"] == 0]
+    partial_geometry_missing = group_summary.loc[
+        (group_summary["geometry_present_count"] > 0)
+        & (group_summary["geometry_present_count"] < group_summary["source_row_count"])
+    ]
+
+    conflict_records = []
+    for radio in conflicts.index.tolist():
+        rows = relation.loc[relation["radio_2010_id"] == radio]
+        conflict_records.append(
+            {
+                "radio_2010_id": radio,
+                "eph_agglomerate_ids": sorted(rows["eph_agglomerate_id"].unique().tolist()),
+                "eph_agglomerate_names": sorted(rows["eph_agglomerate_name"].unique().tolist()),
+            }
+        )
+
     agglomerate_names = (
-        frame[["eph_codagl", "eph_aglome"]]
+        relation[["eph_agglomerate_id", "eph_agglomerate_name"]]
         .drop_duplicates()
-        .sort_values(["eph_codagl", "eph_aglome"])
-        .groupby("eph_codagl", dropna=False)["eph_aglome"]
+        .sort_values(["eph_agglomerate_id", "eph_agglomerate_name"])
+        .groupby("eph_agglomerate_id", dropna=False)["eph_agglomerate_name"]
         .agg(list)
     )
-    row_counts = frame["eph_codagl"].value_counts().sort_index()
-    missing_geometry_rows = frame.loc[frame.geometry.isna()].copy()
-    missing_geometry_ids = (
-        missing_geometry_rows["codprov"].astype(str).str.strip()
-        + missing_geometry_rows["coddepto"].astype(str).str.strip()
-        + missing_geometry_rows["frac2010"].astype(str).str.strip()
-        + missing_geometry_rows["radio2010"].astype(str).str.strip()
+    row_counts = relation["eph_agglomerate_id"].value_counts().sort_index()
+    relation_pairs = relation[["radio_2010_id", "eph_agglomerate_id"]].drop_duplicates()
+    relation_payload = "\n".join(
+        f"{row.radio_2010_id}\t{row.eph_agglomerate_id}"
+        for row in relation_pairs.sort_values(["radio_2010_id", "eph_agglomerate_id"]).itertuples()
     )
+    relation_sha256 = hashlib.sha256(relation_payload.encode("utf-8")).hexdigest()
+
     return {
         "available": True,
         "candidate_composition": "codprov+coddepto+frac2010+radio2010",
         "candidate_radio_2010_id_count": int(radio_id.nunique()),
-        "duplicate_candidate_radio_2010_id_row_count": int(duplicate_mask.sum()),
-        "duplicate_candidate_radio_2010_ids": sorted(radio_id.loc[duplicate_mask].unique().tolist()),
         "candidate_width_counts": {
             str(int(width)): int(count) for width, count in radio_id.str.len().value_counts().sort_index().items()
         },
-        "agglomerate_code_count": int(frame["eph_codagl"].nunique()),
-        "agglomerate_codes": sorted(frame["eph_codagl"].astype(str).unique().tolist()),
+        "duplicate_candidate_radio_2010_id_row_count": int(duplicate_mask.sum()),
+        "duplicate_radio_group_count": int(len(duplicate_groups)),
+        "extra_source_rows_beyond_unique_radio_grain": int(len(frame) - radio_id.nunique()),
+        "max_source_rows_per_radio": int(group_summary["source_row_count"].max()),
+        "radio_to_agglomerate_relation_pair_count": int(len(relation_pairs)),
+        "radio_to_agglomerate_relation_sha256": relation_sha256,
+        "radio_with_multiple_agglomerate_code_count": int(len(conflicts)),
+        "radio_with_multiple_agglomerate_codes": conflict_records,
+        "radio_with_multiple_agglomerate_name_count": int(len(name_conflicts)),
+        "all_geometry_missing_radio_count": int(len(all_geometry_missing)),
+        "all_geometry_missing_radio_2010_ids": sorted(all_geometry_missing.index.tolist()),
+        "partial_geometry_missing_radio_count": int(len(partial_geometry_missing)),
+        "partial_geometry_missing_radio_2010_ids": sorted(partial_geometry_missing.index.tolist()),
+        "duplicate_radio_sample": [
+            {
+                "radio_2010_id": str(index),
+                "source_row_count": int(row.source_row_count),
+                "agglomerate_code_count": int(row.agglomerate_code_count),
+                "geometry_present_count": int(row.geometry_present_count),
+            }
+            for index, row in duplicate_groups.head(25).iterrows()
+        ],
+        "agglomerate_code_count": int(relation["eph_agglomerate_id"].nunique()),
+        "agglomerate_codes": sorted(relation["eph_agglomerate_id"].unique().tolist()),
         "agglomerate_code_to_names": {
             str(code): [str(name) for name in names] for code, names in agglomerate_names.items()
         },
@@ -98,7 +154,6 @@ def _direct_identity_profile(frame: gpd.GeoDataFrame) -> dict:
         "rows_by_agglomerate_code": {
             str(code): int(count) for code, count in row_counts.items()
         },
-        "missing_geometry_radio_2010_ids": sorted(missing_geometry_ids.tolist()),
     }
 
 
@@ -197,6 +252,15 @@ def probe(source_dir: Path, output: Path, config_path: Path = DEFAULT_CONFIG) ->
                 "candidate_radio_2010_id_count"
             ),
             "agglomerate_code_count": item["direct_identity_profile"].get("agglomerate_code_count"),
+            "relation_pair_count": item["direct_identity_profile"].get(
+                "radio_to_agglomerate_relation_pair_count"
+            ),
+            "relation_sha256": item["direct_identity_profile"].get(
+                "radio_to_agglomerate_relation_sha256"
+            ),
+            "radio_with_multiple_agglomerate_code_count": item["direct_identity_profile"].get(
+                "radio_with_multiple_agglomerate_code_count"
+            ),
             "missing_geometry_count": item["missing_geometry_count"],
             "invalid_geometry_count": item["invalid_geometry_count"],
         }
