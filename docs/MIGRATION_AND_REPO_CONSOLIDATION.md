@@ -46,22 +46,36 @@ Historical value:
 - contains a historical radio↔agglomerate overlay workflow;
 - captures older assumptions and source artifacts.
 
-Target successor:
+Successor:
 
 ```text
 INDEC official EPH geography
-       -> argentina-geography source adapter
-       -> indec:eph:<release>:radio
+       -> argentina-geography
+       -> arggeo.indec.eph.census2010.radio_frame
 ```
 
-Do not port the old overlay merely for behavioral compatibility if INDEC already publishes the official radio-level association.
+The migration is now complete. A7 publishes the exact successor:
+
+```text
+release         census2010-frame-9b372c33aa68
+source snapshot 9b372c33aa6827705e354f9be3545bf80bd668e44acfb602b6b63aabbe2704b8
+frame SHA       ea0f5a749cfe0863e71d06064814d003607a43547398d0baa192aea26b18f675
+geography SHA   243a448071bf03e08d69208b585a7e63f22a228a8ac5fba5e1ff44f07a899b68
+direct mapping  2fdf263982639b6dc7ebfbeeaec3cecc971801debe8adde6ba48043e48641052
+```
+
+It preserves all 26,815 source rows, exposes the official 26,417-radio / 32-agglomerate frame, binds it to the exact official Census 2010 parent, and has detached verification plus a read-only `income-modeling-eph` compatibility proof.
+
+The old overlay is not ported for behavioral compatibility because INDEC directly publishes `eph_codagl`. The historical repository remains useful as regression/method evidence, including the notebook-era 26,418-radio inferred result and its geographic-CRS area calculation, but it is no longer a production authority.
 
 Archive/supersede criteria:
 
-- official EPH release materialized and verified;
-- fields needed by downstream EPH users preserved;
-- `income-modeling-eph` consumer proof succeeds;
-- old repo lifecycle points to the successor and its unique evidence remains accessible.
+- official EPH release materialized and verified — **satisfied**;
+- fields needed by downstream EPH users preserved — **satisfied**;
+- `income-modeling-eph` consumer proof succeeds — **satisfied**;
+- old repo lifecycle points to the successor and its unique evidence remains accessible — **satisfied by the 2026-08-26 decommissioning change**.
+
+Disposition: **superseded; archive recommended**.
 
 ## `censo2010-circuitos-electorales`
 
@@ -133,13 +147,11 @@ move every old file -> delete source repo
 
 ## Migration ledger
 
-The new repo should eventually maintain a small ledger:
-
 | Legacy asset | Durable idea/evidence | Successor product/module | State |
 | --- | --- | --- | --- |
 | historical Censo notebooks | ID corrections / source lineage / regression cases | source adapters + QA | pending |
 | old Censo↔IGN overlay | relation/adjudication intent | relation release + policy | pending |
-| EPH overlay notebook | EPH radio/agglomerate need | official EPH release | pending |
+| EPH overlay notebook | EPH radio/agglomerate need + historical regression evidence | `arggeo.indec.eph.census2010.radio_frame@census2010-frame-9b372c33aa68` | **superseded** |
 | circuit overlay notebook | Censo↔circuit need and edge cases | electoral relation/crosswalk | pending |
 
 Only mark a row `superseded` after observable successor evidence exists.
