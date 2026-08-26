@@ -5,15 +5,18 @@
   "source_parent": {
     "dataset_id": "arggeo.indec.census.2022.radio",
     "release_version": "2022-national-20260320-a390c8403850",
-    "source_snapshot_sha256": "a390c84038509eb3e6125a5968c72f57fbfae757cda2a2344a14defb5ac18a7b"
+    "source_snapshot_sha256": "a390c84038509eb3e6125a5968c72f57fbfae757cda2a2344a14defb5ac18a7b",
+    "content_sha256": "6a4b0bc3db5a92567eed7d643670e06c9916f4640a5247c5bfc022c1fb93dbce"
   },
   "target_parent": {
     "dataset_id": "arggeo.ceur.census.2022.radio",
     "release_version": "v2025-1-2022-d3a6f4c95102",
-    "source_snapshot_sha256": "d3a6f4c951022130d19a894984eb1315b0c9096314afb1fe2ac79eb9c85da3c8"
+    "source_snapshot_sha256": "d3a6f4c951022130d19a894984eb1315b0c9096314afb1fe2ac79eb9c85da3c8",
+    "content_sha256": "6ff1fc751585a9c94a7ed73c32b8337d05f0a31cc833b8958425fb4dbb7cb6fe"
   },
   "analysis_crs": "EPSG:6933",
   "minimum_overlap_area_m2": 0.0,
+  "mutual_full_overlap_tolerance": 1e-09,
   "policy": "geometric_relation_only",
   "interpretation": "Retain all positive-area INDEC-source to CEUR-target overlaps. Do not choose a preferred provider, winner, nearest feature, or canonical geometry.",
   "known_limitations": [
@@ -21,6 +24,7 @@
     "Thirteen source-invalid CEUR target polygons are excluded from the analytical target set and counted explicitly in QA.",
     "An unmatched or low-coverage INDEC source may therefore reflect either a true cross-source coverage difference or exclusion of a source-invalid CEUR target; A5 does not repair or adjudicate that distinction.",
     "Positive area and overlap shares are geometric facts in EPSG:6933, not population or ownership allocations.",
+    "The mutual-full-overlap tolerance is used only to summarize geometry agreement when native IDs already agree; it is not an assignment or crosswalk threshold.",
     "A5 does not select a canonical geography or create a one-to-one crosswalk."
   ]
 }
