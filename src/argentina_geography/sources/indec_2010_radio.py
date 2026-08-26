@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -183,7 +182,7 @@ def _aggregate_radios(components: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
                 "radio_2010_id": radio_id,
                 "department_2010_id": departments[0],
                 "province_2010_id": provinces[0],
-                "source_component_count": int(len(group)),
+                "source_component_count": len(group),
                 "provider_native_row_ids": "|".join(native_rows),
                 "geometry_valid": True,
                 "geometry_role": "analytical",
@@ -282,8 +281,8 @@ def materialize_from_sources(
     )
     qa = {
         "stage_decision": "PASS",
-        "source_component_count": int(len(components)),
-        "consumer_radio_count": int(len(geography)),
+        "source_component_count": len(components),
+        "consumer_radio_count": len(geography),
         "duplicate_radio_component_rows": int(len(components) - len(geography)),
         "multi_component_radio_count": int((geography["source_component_count"] > 1).sum()),
         "multi_component_radios": duplicate_components,
