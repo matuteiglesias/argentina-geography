@@ -1,0 +1,27 @@
+name: source-probe-ign-department-static-a10
+
+on:
+  push:
+    branches: ["feat/ign-administrative-relation"]
+    paths:
+      - ".github/workflows/source-ign-static-probe.yml"
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Retrieve official department SHAPE twice
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL='https://www.ign.gob.ar/descargas/geodatos/SHAPES/ign_departamento.zip'
+          curl --fail --location --retry 2 --user-agent 'argentina-geography/0.1 research-data-client' "$URL" -o /tmp/ign-departamento-a.zip
+          sleep 2
+          curl --fail --location --retry 2 --user-agent 'argentina-geography/0.1 research-data-client' "$URL" -o /tmp/ign-departamento-b.zip
+          echo "retrieved_at_utc=$(date --utc --iso-8601=seconds)"
+          echo "url=$URL"
+          sha256sum /tmp/ign-departamento-a.zip /tmp/ign-departamento-b.zip
+          stat --printf='%n %s bytes\n' /tmp/ign-departamento-a.zip /tmp/ign-departamento-b.zip
+          cmp /tmp/ign-departamento-a.zip /tmp/ign-departamento-b.zip
+          unzip -l /tmp/ign-departamento-a.zip
