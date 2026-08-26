@@ -30,7 +30,7 @@ jobs:
             'https://data.source.coop/nlebovits/censo-argentino/2022/radios.parquet' \
             --output /tmp/radios-2022.parquet
           sha256sum /tmp/radios-2010.parquet /tmp/radios-2022.parquet
-          ls -lh /tmp/radios-2010.parquet /tmp/radios-2022.parquet
+          stat -c '%n %s' /tmp/radios-2010.parquet /tmp/radios-2022.parquet
       - name: Inspect schema identity and geometry
         run: |
           python - <<'PY'
@@ -39,18 +39,20 @@ jobs:
           for vintage in (2010, 2022):
               path = Path(f'/tmp/radios-{vintage}.parquet')
               frame = gpd.read_parquet(path)
+              id_field = f'COD_{vintage}'
               print(f'== {vintage} ==')
               print('rows', len(frame))
-              print('crs', frame.crs)
-              print('geometry', frame.geometry.name)
+              print('crs', frame.crs.to_string())
               print('columns', list(frame.columns))
               print('geometry_types', frame.geometry.geom_type.value_counts(dropna=False).to_dict())
               print('missing_geometry', int(frame.geometry.isna().sum()))
-              print('invalid_geometry', int((frame.geometry.notna() & ~frame.geometry.is_valid).sum()))
-              for candidate in (f'COD_{vintage}', 'COD_2010', 'COD_2022'):
-                  if candidate in frame.columns:
-                      values = frame[candidate].astype(str)
-                      print('id_field', candidate, 'unique', values.nunique(), 'widths', values.str.len().value_counts().sort_index().to_dict())
-                      break
-              print(frame.head(2).to_string())
+              print('invalid_geometry_4326', int((frame.geometry.notna() & ~frame.geometry.is_valid).sum()))
+              metric = frame.to_crs('EPSG:3857')
+              invalid_metric = metric.geometry.notna() & ~metric.geometry.is_valid
+              print('invalid_geometry_roundtrip_3857', int(invalid_metric.sum()))
+              print('invalid_ids_roundtrip_3857', sorted(metric.loc[invalid_metric, id_field].astype(str).tolist()))
+              values = frame[id_field].astype(str)
+              print('id_field', id_field, 'unique', values.nunique(), 'widths', values.str.len().value_counts().sort_index().to_dict())
+              reconstructed = frame['PROV'].astype(str).str.zfill(2) + frame['DEPTO'].astype(str).str.zfill(3) + frame['FRACC'].astype(str).str.zfill(2) + frame['RADIO'].astype(str).str.zfill(2)
+              print('identity_mismatches', int((values != reconstructed).sum()))
           PY
