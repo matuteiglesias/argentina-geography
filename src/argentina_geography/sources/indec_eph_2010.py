@@ -611,7 +611,7 @@ def verify_release(output: Path) -> None:
         raise ValueError("INDEC EPH missing geometries are not explicitly source_missing")
     if not geography.loc[~missing, "geometry_role"].eq("analytical").all():
         raise ValueError("INDEC EPH present geometries are not explicitly analytical")
-    if (geography.loc[~missing].geometry.is_valid == False).any():  # noqa: E712
+    if (geography.loc[~missing].geometry.is_valid == False).any():
         raise ValueError("INDEC EPH detached analytical geometry is invalid")
     parent = read_json(output / manifest["artifacts"]["parent_compatibility"])
     consumer = read_json(output / manifest["artifacts"]["consumer_compatibility"])
