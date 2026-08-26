@@ -1,0 +1,223 @@
+{
+  "schema_version": "arggeo.electoral-vertical/v1",
+  "analysis_crs": "EPSG:6933",
+  "minimum_overlap_area_m2": 0.0,
+  "census_parent": {
+    "dataset_id": "arggeo.indec.census.2010.radio",
+    "release_version": "2010-national-c9184f47fd46",
+    "source_snapshot_sha256": "c9184f47fd46c8a47e2c15e5c734b7b6ceb660ce737e18430691f6fbff3c53e8",
+    "content_sha256": "762b825f27e3b6e8c1c3f63ae2a5f9aecfa80784b0f56d6739755d02ee749019"
+  },
+  "circuit_parents": {
+    "2021": {
+      "dataset_id": "arggeo.tartagalensis.electoral.2021.circuit",
+      "release_version": "2021-50692fd821f8-a27c3d480f45",
+      "source_snapshot_sha256": "a27c3d480f45ea47c292accb65310c1d8a80cffd20cf4df353c2b48611577f57",
+      "content_sha256": "265b559ae30323e91b67684edee8c41418197f2aa9dfc9df11f63f61b5fdb45b",
+      "source_commit_sha": "50692fd821f825566b0589da2cc1fefdef5fa02f",
+      "source_tree_sha": "5e0fdbf4c010b4ce25bd6ebe0b74938797638daa"
+    },
+    "2025": {
+      "dataset_id": "arggeo.tartagalensis.electoral.2025.circuit",
+      "release_version": "2025-50692fd821f8-cb9a9d7747a9",
+      "source_snapshot_sha256": "cb9a9d7747a98ad1d7bee5e750e143407533777570523916c2227cd1c951d769",
+      "content_sha256": "a273f8c1d259663ff537c26e6d278acc9041ddfbfdee1819a637f2588826cb5f",
+      "source_commit_sha": "50692fd821f825566b0589da2cc1fefdef5fa02f",
+      "source_tree_sha": "44cb1588f49c6c51345dbce11b8fb1177eac5c99"
+    }
+  },
+  "foundation_kernel": {
+    "repository": "matuteiglesias/spatial-data-foundation",
+    "commit_sha": "92080025305e634deb6fec45b20068ef513c64b2",
+    "overlap_blob_sha": "5825f248beb30fc693de346d9d430b0b73bd6b37",
+    "callable": "spatial_foundation.geography.relate_areal_objects"
+  },
+  "relation_ids": {
+    "radio_circuit": "arggeo.relation.indec-census-2010.tartagalensis-{vintage}.radio-circuit",
+    "section_department": "arggeo.relation.indec-census-2010.tartagalensis-{vintage}.section-department",
+    "district_province": "arggeo.relation.indec-census-2010.tartagalensis-{vintage}.district-province"
+  },
+  "district_province_bridge": [
+    {
+      "electoral_district_code": "01",
+      "electoral_district_name": "Ciudad Autónoma de Buenos Aires",
+      "province_2010_id": "02"
+    },
+    {
+      "electoral_district_code": "02",
+      "electoral_district_name": "Buenos Aires",
+      "province_2010_id": "06"
+    },
+    {
+      "electoral_district_code": "03",
+      "electoral_district_name": "Catamarca",
+      "province_2010_id": "10"
+    },
+    {
+      "electoral_district_code": "04",
+      "electoral_district_name": "Córdoba",
+      "province_2010_id": "14"
+    },
+    {
+      "electoral_district_code": "05",
+      "electoral_district_name": "Corrientes",
+      "province_2010_id": "18"
+    },
+    {
+      "electoral_district_code": "06",
+      "electoral_district_name": "Chaco",
+      "province_2010_id": "22"
+    },
+    {
+      "electoral_district_code": "07",
+      "electoral_district_name": "Chubut",
+      "province_2010_id": "26"
+    },
+    {
+      "electoral_district_code": "08",
+      "electoral_district_name": "Entre Ríos",
+      "province_2010_id": "30"
+    },
+    {
+      "electoral_district_code": "09",
+      "electoral_district_name": "Formosa",
+      "province_2010_id": "34"
+    },
+    {
+      "electoral_district_code": "10",
+      "electoral_district_name": "Jujuy",
+      "province_2010_id": "38"
+    },
+    {
+      "electoral_district_code": "11",
+      "electoral_district_name": "La Pampa",
+      "province_2010_id": "42"
+    },
+    {
+      "electoral_district_code": "12",
+      "electoral_district_name": "La Rioja",
+      "province_2010_id": "46"
+    },
+    {
+      "electoral_district_code": "13",
+      "electoral_district_name": "Mendoza",
+      "province_2010_id": "50"
+    },
+    {
+      "electoral_district_code": "14",
+      "electoral_district_name": "Misiones",
+      "province_2010_id": "54"
+    },
+    {
+      "electoral_district_code": "15",
+      "electoral_district_name": "Neuquén",
+      "province_2010_id": "58"
+    },
+    {
+      "electoral_district_code": "16",
+      "electoral_district_name": "Río Negro",
+      "province_2010_id": "62"
+    },
+    {
+      "electoral_district_code": "17",
+      "electoral_district_name": "Salta",
+      "province_2010_id": "66"
+    },
+    {
+      "electoral_district_code": "18",
+      "electoral_district_name": "San Juan",
+      "province_2010_id": "70"
+    },
+    {
+      "electoral_district_code": "19",
+      "electoral_district_name": "San Luis",
+      "province_2010_id": "74"
+    },
+    {
+      "electoral_district_code": "20",
+      "electoral_district_name": "Santa Cruz",
+      "province_2010_id": "78"
+    },
+    {
+      "electoral_district_code": "21",
+      "electoral_district_name": "Santa Fe",
+      "province_2010_id": "82"
+    },
+    {
+      "electoral_district_code": "22",
+      "electoral_district_name": "Santiago del Estero",
+      "province_2010_id": "86"
+    },
+    {
+      "electoral_district_code": "23",
+      "electoral_district_name": "Tucumán",
+      "province_2010_id": "90"
+    },
+    {
+      "electoral_district_code": "24",
+      "electoral_district_name": "Tierra del Fuego",
+      "province_2010_id": "94"
+    }
+  ],
+  "historical_evidence": {
+    "repository": "matuteiglesias/censo2010-circuitos-electorales",
+    "commit_sha": "49d563434471a7a5416f7aa92890e0c70c849a3e",
+    "artifacts": {
+      "provinces": {
+        "path": "info/provs.csv",
+        "blob_sha": "40b0d6859132580d9238550429a598bbe962131f"
+      },
+      "section_department_crosswalk": {
+        "path": "info/secciones_departamentos-TTGL.csv",
+        "blob_sha": "03c8b974cf84f3081376b6686a210649eed6faa1"
+      },
+      "section_department_reference": {
+        "path": "info/dpto_CNE_IGN_ref.csv",
+        "blob_sha": "1e6dc2a0be1023daf90cf3189810ae2e0c5d8e11"
+      },
+      "radio_circuit_crosswalk": {
+        "path": "info/radio_circ_IGN.csv",
+        "blob_sha": "55b84114890bb5a1d6da799a2bdea95727c62a9a"
+      },
+      "notebook": {
+        "path": "02b - Interseccion espacial de Radios Censales a Circuitos CNE.ipynb",
+        "blob_sha": "ff69305b8a9ff3fd90ee9882744c965bc3610dc9"
+      }
+    },
+    "policies": [
+      {
+        "policy_id": "historical.largest-overlap.radio-to-circuit",
+        "status": "regression_only",
+        "description": "Historical notebook selected the single circuit with largest polygon intersection for each radio."
+      },
+      {
+        "policy_id": "historical.majority-circuit-count.section-to-department",
+        "status": "regression_only",
+        "description": "Historical code mapped an electoral section to the administrative department containing the largest count of its circuits."
+      },
+      {
+        "policy_id": "historical.majority-radio-count.section-to-department",
+        "status": "regression_only",
+        "description": "Historical code also explored/used the administrative department containing the largest count of intersecting Census radios for an electoral section."
+      }
+    ]
+  },
+  "elecciones_compatibility": {
+    "repository": "matuteiglesias/elecciones-ARG",
+    "commit_sha": "713565219cedd2ebb741c837262bd95e04f7f566",
+    "circuit_table_path": "canon/bd/csv/circuito_table.csv",
+    "circuit_table_blob_sha": "2bb897223ea4dfc9014cab12e21dfdcf2815fb80",
+    "district_table_path": "canon/bd/csv/distrito_table.csv",
+    "district_table_blob_sha": "25ae3f8978883fa218dff2265182610c2db30e87",
+    "section_table_path": "canon/bd/csv/seccion_table.csv",
+    "section_table_blob_sha": "8541e563d8a40adf5b226e6b7e29071737002723",
+    "interpretation": "Read-only consumer compatibility evidence. elecciones-ARG does not define argentina-geography electoral identities."
+  },
+  "policy_boundary": {
+    "relation_only": true,
+    "publish_crosswalk": false,
+    "geometry_repair": false,
+    "nearest_assignment": false,
+    "identity_rule": "Statistical/administrative and electoral identifiers remain separate authority namespaces even when territorial units correspond closely."
+  }
+}

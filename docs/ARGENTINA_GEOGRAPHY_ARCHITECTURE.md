@@ -1,299 +1,228 @@
-# Argentina Geography — architecture evolution
+# Argentina Geography — architecture
 
-Status: **seed architecture for the next development program**.
+Status: **active interoperability architecture**.
 
-This repository currently carries a historical Censo↔IGN reconciliation pipeline plus a bounded synthetic release. Its intended successor identity is **Argentina Geography**.
+`argentina-geography` is a data-product producer for reproducible Argentine geography
+releases, relations, and explicitly governed interpretations. Its public API is the
+artifacts, manifests, catalogs, and verification paths produced by the repository.
 
 ## Mission
 
-Provide a reproducible interoperability layer between Argentine geography authorities and research/application consumers.
+A researcher or downstream application should be able to answer:
 
-The project should let a researcher answer four questions without reconstructing old notebooks:
+1. what geography releases exist;
+2. which authority/source and exact snapshot each release represents;
+3. which relations between releases have already been computed;
+4. which ambiguities remain facts rather than being silently adjudicated; and
+5. how to verify an artifact without reproducing historical notebooks.
 
-1. **What geography releases are available?**
-2. **Where did each release come from and what exactly does it mean?**
-3. **What governed relations already exist between two geographies?**
-4. **How can I obtain and verify the relevant artifact without adopting a whole application stack?**
-
-The repository is therefore primarily a **data-product producer**. Python code exists to acquire, validate, normalize, relate and package geography products; the stable public boundary is the produced artifacts, their manifests and their catalogs.
-
-## Position in the ecosystem
+## Ecosystem boundary
 
 ```text
 empirical-data-contracts
-  identity / provenance / coverage / run envelopes
-                |
-                v
+        |
+        v
 spatial-data-foundation
-  CRS / geometry / indexed relations / generic QA mechanics
-                |
-                v
-+------------------------------------------+
-|           argentina-geography            |
-|                                          |
-|  INDEC / CEUR / IGN / Tartagalensis     |
-|  EPH geography                           |
-|                                          |
-|  source snapshots                        |
-|  normalized geography releases           |
-|  relation releases                       |
-|  governed crosswalks                     |
-|  Argentina/source-specific QA            |
-|  geography + relation catalogs           |
-+--------------------+---------------------+
-                     |
-        +------------+-------------+
-        |            |             |
-        v            v             v
- samplerCensoARG  income-modeling  elecciones-ARG
-        |            |             |
-        +------------+-------------+
-                     v
-            poverty / atlas / research
+  generic CRS / geometry / relation mechanics
+        |
+        v
++--------------------------------------------------+
+|               argentina-geography                |
+|                                                  |
+| source-faithful geography releases               |
+| derived hierarchy/footprint products             |
+| cross-authority relation releases                |
+| explicitly governed crosswalks when required     |
+| Argentina-specific identity + QA                 |
++--------------------------+-----------------------+
+                           |
+          +----------------+----------------+
+          |                |                |
+          v                v                v
+   samplerCensoARG   income-modeling   elecciones-ARG
 ```
 
-`argentina-geography` uses `spatial-data-foundation`; it is also an incubation zone for spatial helpers that might later become generic enough to move upstream. Promotion is by evidence, not by anticipation.
+The repository may incubate a helper that later belongs in `spatial-data-foundation`,
+but promotion is by repeated evidence, not anticipation.
 
 ## No single canonical geography
 
-The system MUST NOT collapse INDEC, CEUR-CONICET and IGN into a single purportedly true boundary system.
+INDEC Census, CEUR-CONICET, IGN, INDEC EPH, and electoral authorities/curators answer
+different questions. Their identifiers and boundaries must not be collapsed into a
+single allegedly canonical system.
 
-They answer different questions:
+A relation between two authorities is useful evidence precisely because the two
+authorities remain independently inspectable.
 
-- **INDEC Census geography** describes the statistical geography of a census operation.
-- **CEUR-CONICET harmonized census geography** is a research-oriented, corrected and longitudinally harmonized representation.
-- **IGN geography** is the national geographic/administrative reference maintained by the geographic authority.
-- **INDEC EPH geography** describes the spatial coverage/frame relevant to the survey.
-- **Tartagalensis circuit geography** is the adopted operational curated representation of electoral circuits, combining official source material and documented reconstruction where necessary.
+## Parallel statistical and electoral hierarchies
 
-Their differences are useful evidence. The glue layer publishes relations between authorities; it does not erase those differences.
-
-## Three product classes
-
-### 1. Geography release
-
-A source-specific normalized geography that remains semantically faithful to its provider.
-
-Examples:
+The electoral vertical is a first-class parallel territorial system.
 
 ```text
+statistical / administrative          electoral
+
+province                              electoral district
+  |                                    |
+department / partido / comuna        electoral section
+  |                                    |
+fraction                              electoral circuit
+  |                                    |
+radio                                 mesa / election facts
+```
+
+Similarity of level does **not** imply shared identity.
+
+In particular:
+
+- INDEC `province_2010_id` and electoral district codes are separate namespaces even
+  though a governed 24-row correspondence exists;
+- Tartagalensis `coddepto` is treated as a provider-native electoral-section component,
+  not as an INDEC/IGN department identifier;
+- electoral section ↔ administrative department correspondence is allowed to be N:M;
+- Census radio ↔ electoral circuit correspondence is allowed to be N:M;
+- election-event dimensions such as `eleccion_id`, vote totals, candidacies, mesas, and
+  `seccionprovincial_id` remain in election-domain systems unless an independent
+  geographic authority is acquired.
+
+`docs/ELECTORAL_VERTICAL.md` is the authoritative detailed contract for this vertical
+and supersedes the earlier narrow A9 interpretation.
+
+## Product classes
+
+### Geography release
+
+A source-specific normalized geography faithful to a provider/release. Examples:
+
+```text
+indec:census:2010:radio
 indec:census:2022:radio
-indec:census:2022:fraction
-ceur:census:2025-1:2010:radio
-ign:administrative:<snapshot>:department
+ceur:census:v2025-1:2010:radio
 indec:eph:<release>:radio
 tartagalensis:electoral:2021:circuit
 tartagalensis:electoral:2025:circuit
 ```
 
-### 2. Relation release
+Native identity and source limitations remain observable.
 
-Provider-neutral geometric facts between two explicit geography releases.
+### Relation release
 
-Example:
-
-```text
-source_geo_uid,target_geo_uid,overlap_area_m2,
-source_overlap_share,target_overlap_share,relation_status
-```
-
-A relation is allowed to remain many-to-many.
-
-### 3. Crosswalk / interpretation release
-
-An explicit domain policy that turns candidate relations into an operational mapping when a consumer truly needs one.
-
-Example:
+Provider-neutral facts between two explicit geographies or derived footprints.
 
 ```text
-source_geo_uid,selected_target_geo_uid,policy_id,
-winner_share,candidate_count,assignment_status
+source_uid
+target_uid
+overlap_area_m2
+overlap_share_of_source
+overlap_share_of_target
+relation_status
 ```
 
-The distinction is fundamental:
+Relations may remain many-to-many. Ambiguity, unmatched units, invalid geometry, and
+coverage gaps are data.
+
+### Crosswalk / interpretation release
+
+A crosswalk is a separate policy product that selects or interprets relation candidates
+for a concrete consumer. For example, “largest overlap” is not relation truth.
 
 ```text
-relation fact:  A overlaps B 62% and C 38%
-interpretation: under policy P, A is assigned to B
+relation fact:  radio R overlaps circuits A and B
+policy fact:    under policy P, R is assigned to A
 ```
+
+No crosswalk exists merely because historical code once chose a target.
 
 ## Bronze / Silver / Gold
 
-### Bronze — source evidence
+**Bronze** preserves exact source evidence: provider, release/commit, URL, file/layer,
+hash, retrieval evidence, license, citation, and documentation.
 
-Keep the exact provenance needed to reconstruct a source snapshot:
+**Silver** normalizes one source/release at a time while preserving native identity and
+source geometry meaning.
 
-- provider and title;
-- source release/date/commit when available;
-- origin URL or repository;
-- acquisition method;
-- file/layer identity;
-- SHA-256 and byte size;
-- retrieval time;
-- licensing/attribution state;
-- source documentation links.
+**Gold** publishes interoperability: relations, hierarchy/coverage evidence, explicit
+compatibility declarations, and separately governed crosswalks.
 
-Bronze does not imply that source bytes must be redistributed by this repository.
+Gold never deletes the Silver evidence from which it derives.
 
-### Silver — normalized source geography
+## Derived footprints are not new authorities
 
-One provider/release at a time. Preserve native identity while adding a stable interoperable identity.
+A higher-level footprint may be derived by unioning lower-level source geometry for a
+specific relation question, for example:
 
-Typical columns:
+- Census 2010 department footprints derived from exact official Census radios;
+- electoral section footprints derived from assigned Tartagalensis circuits.
 
-```text
-geo_uid
-provider
-source_release
-scheme
-vintage
-level
-native_id
-<source-native identity components>
-geometry
-geometry_role
-source_snapshot_id
-```
-
-Silver normalization may standardize type, zero-preserving identifiers, geometry column naming, storage CRS and metadata. It must not silently change substantive geometry meaning.
-
-### Gold — interoperability products
-
-Cross-source outputs:
-
-- geography relations;
-- explicitly governed crosswalks;
-- cross-vintage relations;
-- coverage/comparison products;
-- compatibility declarations.
-
-Gold never deletes the Silver source evidence from which it derives.
-
-## Canonical storage
-
-Preferred analytical boundaries:
-
-```text
-GeoParquet  -> canonical geography geometry artifacts
-Parquet     -> relation and crosswalk artifacts
-JSON        -> manifests, QA and compact catalogs
-GeoJSON     -> optional exchange/presentation derivative
-```
-
-Do not require a downstream tabular consumer to load geometry merely to obtain IDs or mappings.
+Such a footprint must be named as derived. It is not silently promoted to an official
+administrative or electoral boundary. If the source is incomplete or nonstandard,
+that limitation remains visible.
 
 ## Identity
 
-A common `geo_uid` is an interoperability key, not a replacement for native identifiers.
+`geo_uid` and other interoperability IDs do not replace native provider identifiers.
+Every product must preserve enough native identity to trace a row back to its source.
 
-Every release preserves enough provider-native identity to let a researcher check a row against source material.
-
-Illustrative identity:
-
-```text
-geo_uid = indec:2022:census:radio:020010101
-native_id = 020010101
-province_code = 02
-department_code = 001
-fraction_code = 01
-radio_code = 01
-```
-
-Exact encoding belongs in the versioned product schema, not in undocumented string slicing scattered across consumers.
-
-## Catalogs as discovery APIs
-
-Two small first-class artifacts make the system discoverable.
-
-### Geography catalog
-
-At minimum:
+Electoral source fields remain source-native:
 
 ```text
-geography_id
-provider
-scheme
-vintage
-level
-source_release
-release_version
-feature_count
-native_id_fields
-geometry_types
-storage_crs
-authority_status
-coverage_status
-artifact_ref
-manifest_ref
+codprov
+coddepto
+circuito
 ```
 
-### Relation catalog
-
-At minimum:
+Semantic hierarchy artifacts may additionally expose:
 
 ```text
-relation_id
-source_geography_id
-target_geography_id
-relation_type
-policy_id_or_null
-matched_count
-ambiguous_count
-unmatched_count
-coverage_share
-artifact_ref
-manifest_ref
+electoral_district_code
+electoral_section_code
+electoral_circuit_code
 ```
 
-These catalogs make the collection behave as a geography graph rather than as a pile of files.
+Those aliases do not convert them into Census/IGN codes.
+
+## Catalogs
+
+Geography and relation catalogs are discovery APIs. They identify exact parents,
+release versions, authority status, relation type, ambiguity/unmatched counts, and
+artifact references. A catalog must list only products actually built.
 
 ## QA ownership
 
 ### `spatial-data-foundation`
 
-Generic geometric facts:
-
 - CRS/unit discipline;
-- geometry validity mechanics;
-- spatial membership/overlap;
-- candidate relations;
-- generic geometry roles;
-- generic presentation helpers.
+- validity mechanics;
+- spatial overlap/membership;
+- generic relation candidates and geometry roles.
 
 ### `argentina-geography`
 
-Source/domain facts:
-
-- INDEC identifier structure;
-- provider schema drift;
-- known source adjustment units;
-- circuit composite keys;
+- INDEC/CEUR/IGN/Tartagalensis source semantics;
+- native identifier structure;
+- electoral composite identity;
+- explicit namespace bridges;
 - source-vintage compatibility;
-- authority/curation labels;
-- source-specific coverage interpretation.
+- Argentina-specific coverage and multiplicity QA;
+- historical-policy regression evidence.
 
 ### downstream applications
 
-Scientific validity:
+- whether an estimand is supported by coverage;
+- which circuit vintage an election may use;
+- whether a one-target mapping is scientifically/operationally acceptable;
+- election-event and vote semantics.
 
-- whether coverage supports an estimand;
-- whether an election can use a particular circuit vintage;
-- whether a poverty output should be reported for a geography;
-- whether modeled estimates may be interpreted at a requested level.
+## Legacy migration principle
+
+Historical repositories may be frozen or decommissioned when their durable geography
+capabilities are reproduced here with exact provenance and verification. Their notebooks
+may remain as regression/archive evidence. Specialized application behavior should not
+be imported merely to make a legacy repository empty.
 
 ## Researcher-facing principle
 
-A researcher should be able to use a release without:
+A user should not need to clone sibling repositories, reproduce notebook state, guess a
+CRS, equate authority codes, or rewrite a spatial join already governed here.
 
-- cloning sibling repositories;
-- reproducing notebook state;
-- guessing a CRS;
-- re-parsing native identifiers;
-- deciding which source is the "real" one;
-- writing a spatial join that the producer has already governed.
-
-## Evolution principle
-
-Prefer deletion of duplicated geographic work downstream over addition of convenience layers here.
-
-The architecture succeeds when `samplerCensoARG`, `income-modeling-eph`, `indice-pobreza-UBA` and `elecciones-ARG` become simpler because they consume explicit geography identities and releases.
+Prefer deletion of duplicated geography work downstream over addition of hidden
+convenience policy inside this repository.
