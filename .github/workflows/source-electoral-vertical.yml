@@ -1,0 +1,141 @@
+name: source-proof-electoral-vertical
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["feat/census-electoral-relations"]
+    paths:
+      - "config/electoral/electoral_vertical.json"
+      - "src/argentina_geography/electoral/**"
+      - "tests/test_electoral_vertical.py"
+      - "docs/ELECTORAL_VERTICAL.md"
+      - "docs/ARGENTINA_GEOGRAPHY_ARCHITECTURE.md"
+      - ".github/workflows/source-electoral-vertical.yml"
+
+concurrency:
+  group: source-proof-electoral-vertical-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source-proof:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install
+        run: python -m pip install -e ".[dev]"
+
+      - name: Offline contract tests
+        run: |
+          python -m pytest -q tests/test_electoral_vertical.py
+          python -m ruff check src/argentina_geography/electoral tests/test_electoral_vertical.py
+
+      - name: Materialize exact official Census 2010 parent
+        run: |
+          mkdir -p /tmp/indec-2010-source
+          python -m argentina_geography.sources.indec_2010_radio materialize \
+            --source-dir /tmp/indec-2010-source \
+            --output /tmp/indec-2010-radio
+          python -m argentina_geography.sources.indec_2010_radio verify \
+            --release /tmp/indec-2010-radio
+
+      - name: Materialize exact Tartagalensis parents
+        run: |
+          python -m argentina_geography.sources.tartagalensis_circuits materialize \
+            --vintage 2021 \
+            --output /tmp/circuits-2021
+          python -m argentina_geography.sources.tartagalensis_circuits materialize \
+            --vintage 2025 \
+            --output /tmp/circuits-2025
+
+      - name: Download pinned regression and consumer evidence
+        run: |
+          curl --fail --location --retry 3 \
+            "https://raw.githubusercontent.com/matuteiglesias/censo2010-circuitos-electorales/49d563434471a7a5416f7aa92890e0c70c849a3e/info/radio_circ_IGN.csv" \
+            -o /tmp/historical-radio-circuit.csv
+          curl --fail --location --retry 3 \
+            "https://raw.githubusercontent.com/matuteiglesias/censo2010-circuitos-electorales/49d563434471a7a5416f7aa92890e0c70c849a3e/info/secciones_departamentos-TTGL.csv" \
+            -o /tmp/historical-section-department.csv
+          curl --fail --location --retry 3 \
+            "https://raw.githubusercontent.com/matuteiglesias/elecciones-ARG/713565219cedd2ebb741c837262bd95e04f7f566/canon/bd/csv/circuito_table.csv" \
+            -o /tmp/elecciones-circuito-table.csv
+          sha256sum /tmp/historical-radio-circuit.csv
+          sha256sum /tmp/historical-section-department.csv
+          sha256sum /tmp/elecciones-circuito-table.csv
+
+      - name: Materialize 2021 electoral vertical
+        run: |
+          python -m argentina_geography.electoral.vertical materialize \
+            --census-release /tmp/indec-2010-radio \
+            --circuit-release /tmp/circuits-2021 \
+            --vintage 2021 \
+            --historical-radio-crosswalk /tmp/historical-radio-circuit.csv \
+            --historical-section-crosswalk /tmp/historical-section-department.csv \
+            --elecciones-circuit-table /tmp/elecciones-circuito-table.csv \
+            --output /tmp/electoral-vertical-2021
+
+      - name: Materialize 2025 electoral vertical
+        run: |
+          python -m argentina_geography.electoral.vertical materialize \
+            --census-release /tmp/indec-2010-radio \
+            --circuit-release /tmp/circuits-2025 \
+            --vintage 2025 \
+            --historical-radio-crosswalk /tmp/historical-radio-circuit.csv \
+            --historical-section-crosswalk /tmp/historical-section-department.csv \
+            --elecciones-circuit-table /tmp/elecciones-circuito-table.csv \
+            --output /tmp/electoral-vertical-2025
+
+      - name: Detached verification
+        run: |
+          cp -R /tmp/electoral-vertical-2021 /tmp/electoral-vertical-2021-detached
+          cp -R /tmp/electoral-vertical-2025 /tmp/electoral-vertical-2025-detached
+          python -m argentina_geography.electoral.vertical verify \
+            --release /tmp/electoral-vertical-2021-detached
+          python -m argentina_geography.electoral.vertical verify \
+            --release /tmp/electoral-vertical-2025-detached
+
+      - name: Emit exact identities and QA
+        run: |
+          mkdir -p /tmp/electoral-evidence
+          python -m argentina_geography.electoral.vertical release-identity \
+            --release /tmp/electoral-vertical-2021 \
+            --output /tmp/electoral-evidence/release-2021.json
+          python -m argentina_geography.electoral.vertical release-identity \
+            --release /tmp/electoral-vertical-2025 \
+            --output /tmp/electoral-evidence/release-2025.json
+          cp /tmp/electoral-vertical-2021/manifest.json /tmp/electoral-evidence/manifest-2021.json
+          cp /tmp/electoral-vertical-2025/manifest.json /tmp/electoral-evidence/manifest-2025.json
+          cp /tmp/electoral-vertical-2021/qa.json /tmp/electoral-evidence/qa-2021.json
+          cp /tmp/electoral-vertical-2025/qa.json /tmp/electoral-evidence/qa-2025.json
+          cp /tmp/electoral-vertical-2021/summary.md /tmp/electoral-evidence/summary-2021.md
+          cp /tmp/electoral-vertical-2025/summary.md /tmp/electoral-evidence/summary-2025.md
+          cp /tmp/electoral-vertical-2021/province_qa.parquet /tmp/electoral-evidence/province-qa-2021.parquet
+          cp /tmp/electoral-vertical-2025/province_qa.parquet /tmp/electoral-evidence/province-qa-2025.parquet
+          cp /tmp/electoral-vertical-2021/historical_radio_comparison.json /tmp/electoral-evidence/
+          cp /tmp/electoral-vertical-2021/historical_section_comparison.json /tmp/electoral-evidence/
+          cp /tmp/electoral-vertical-2021/elecciones_compatibility.json /tmp/electoral-evidence/
+          cp /tmp/electoral-vertical-2025/historical_radio_comparison.json /tmp/electoral-evidence/historical_radio_comparison_2025.json
+          cp /tmp/electoral-vertical-2025/historical_section_comparison.json /tmp/electoral-evidence/historical_section_comparison_2025.json
+          cp /tmp/electoral-vertical-2025/elecciones_compatibility.json /tmp/electoral-evidence/elecciones_compatibility_2025.json
+          cat /tmp/electoral-evidence/release-2021.json
+          cat /tmp/electoral-evidence/release-2025.json
+          python - <<'PY'
+          import pandas as pd
+          for vintage in ("2021", "2025"):
+              path = f"/tmp/electoral-vertical-{vintage}/province_qa.parquet"
+              print(f"=== PROVINCE_QA_{vintage} ===")
+              print(pd.read_parquet(path).to_csv(index=False))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: electoral-vertical-source-proof
+          path: /tmp/electoral-evidence
+          if-no-files-found: error
