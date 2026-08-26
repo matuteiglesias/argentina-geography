@@ -1,0 +1,27 @@
+{
+  "source_id": "ceur-census-2022-radio-v2025-1",
+  "provider": "CEUR-CONICET",
+  "authority_status": "curated_research",
+  "resource_title": "Cartografía de radios censales de Argentina corregidos, completados y estandarizados de 1991, 2001, 2010 y 2022",
+  "record_uri": "http://hdl.handle.net/11336/149711",
+  "record_url": "https://ri.conicet.gov.ar/handle/11336/149711",
+  "release": "V2025-1",
+  "file_name": "RADIOS_2022_V2025-1.zip",
+  "download_url": "https://ri.conicet.gov.ar/bitstream/handle/11336/149711/RADIOS_2022_V2025-1.zip?isAllowed=y&sequence=2",
+  "distribution_mode": "redistributed_snapshot",
+  "license_spdx_equivalent": "CC-BY-2.5",
+  "license_name": "Creative Commons Attribution 2.5 Unported",
+  "license_url": "https://creativecommons.org/licenses/by/2.5/",
+  "license_evidence": "CONICET Digital record 11336/149711 states that, except where explicitly noted, the item is published under Creative Commons Attribution 2.5 Unported (CC BY 2.5).",
+  "attribution": "Rodriguez, Gonzalo Martin; Consejo Nacional de Investigaciones Científicas y Técnicas (CONICET), CEUR.",
+  "citation": "Rodriguez, Gonzalo Martin; (2022): Cartografía de radios censales de Argentina corregidos, completados y estandarizados de 1991, 2001, 2010 y 2022. Consejo Nacional de Investigaciones Científicas y Técnicas. (dataset). http://hdl.handle.net/11336/149711",
+  "methodology": "Curated longitudinal research cartography. The record describes backward harmonization using 2022 geometry as the basis for 2010, 2010 for 2001, and 2001 for 1991, together with corrections/completions and standardized unchanged boundaries.",
+  "target_vintage": "2022",
+  "target_level": "radio",
+  "known_limitations": [
+    "CEUR is a curated-research geography and must not be represented as byte-equivalent official INDEC census-operation cartography.",
+    "The dataset deliberately corrects, completes and standardizes census-radio geometry for research use.",
+    "Native schema and identifier authority must be characterized from the exact V2025-1 file before normalization.",
+    "No INDEC-versus-CEUR preference or winner policy is implied by adopting this source as an independent geography authority."
+  ]
+}

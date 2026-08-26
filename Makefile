@@ -1,6 +1,6 @@
 PYTHON ?= python
 
-.PHONY: install check test smoke release-fixture product-smoke product-fixture build materialize-indec-2022-radio materialize-indec-2022-fraction
+.PHONY: install check test smoke release-fixture product-smoke product-fixture build materialize-indec-2022-radio materialize-indec-2022-fraction materialize-ceur-2022-radio
 install:
 	$(PYTHON) -m pip install -e ".[dev]"
 check:
@@ -9,6 +9,7 @@ check:
 	$(PYTHON) -m json.tool config/reconciliation_policy.json >/dev/null
 	$(PYTHON) -m json.tool config/sources/indec_census_2022_radio.json >/dev/null
 	$(PYTHON) -m json.tool config/sources/indec_census_2022_fraction.json >/dev/null
+	$(PYTHON) -m json.tool config/sources/ceur_census_2022_radio_v2025_1.json >/dev/null
 	$(PYTHON) -m censo_geo.release --check
 	$(PYTHON) -m argentina_geography.fixture --check
 	$(PYTHON) -m ruff check src tests
@@ -27,5 +28,7 @@ materialize-indec-2022-radio:
 	$(PYTHON) -m argentina_geography.sources.indec_2022_radio materialize --output build/indec-2022-radio
 materialize-indec-2022-fraction:
 	$(PYTHON) -m argentina_geography.sources.indec_2022_fraction materialize --output build/indec-2022-fraction
+materialize-ceur-2022-radio:
+	$(PYTHON) -m argentina_geography.sources.ceur_2022_v2025_1 materialize --output build/ceur-2022-v2025-1-radio
 build:
 	$(PYTHON) -m build
