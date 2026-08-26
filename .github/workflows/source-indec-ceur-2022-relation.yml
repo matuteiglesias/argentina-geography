@@ -1,0 +1,77 @@
+name: source-proof-indec-ceur-2022-relation
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["feat/indec-ceur-2022-relation"]
+    paths:
+      - "config/relations/indec_ceur_census_2022_radio.json"
+      - "src/argentina_geography/relations/indec_ceur_2022.py"
+      - "tests/test_indec_ceur_2022_relation.py"
+      - ".github/workflows/source-indec-ceur-2022-relation.yml"
+
+concurrency:
+  group: source-proof-indec-ceur-2022-relation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  national-relation-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install
+        run: python -m pip install -e ".[dev]"
+      - name: Acquire exact current INDEC source bytes
+        run: |
+          python -m argentina_geography.sources.indec_2022_radio_probe \
+            --source-out /tmp/indec-radios-2022.zip \
+            --output /tmp/indec-2022-radio-raw-evidence.json
+      - name: Acquire exact current CEUR V2025-1 source bytes
+        run: |
+          python -m argentina_geography.sources.ceur_2022_v2025_1_probe \
+            --source-out /tmp/RADIOS_2022_V2025-1.zip \
+            --output /tmp/ceur-2022-v2025-1-raw-evidence.json
+      - name: Materialize exact INDEC parent release
+        run: |
+          python -m argentina_geography.sources.indec_2022_radio materialize \
+            --source /tmp/indec-radios-2022.zip \
+            --output /tmp/indec-2022-radio
+      - name: Materialize exact CEUR parent release
+        run: |
+          python -m argentina_geography.sources.ceur_2022_v2025_1 materialize \
+            --source /tmp/RADIOS_2022_V2025-1.zip \
+            --output /tmp/ceur-2022-v2025-1
+      - name: Materialize exact national relation
+        run: |
+          python -m argentina_geography.relations.indec_ceur_2022 materialize \
+            --indec-release /tmp/indec-2022-radio \
+            --ceur-release /tmp/ceur-2022-v2025-1 \
+            --output /tmp/indec-ceur-2022-relation
+      - name: Verify detached relation
+        run: |
+          cp -R /tmp/indec-ceur-2022-relation /tmp/indec-ceur-2022-relation-detached
+          python -m argentina_geography.relations.indec_ceur_2022 verify \
+            --release /tmp/indec-ceur-2022-relation-detached
+      - name: Prepare non-geometric relation evidence
+        run: |
+          mkdir -p /tmp/relation-evidence
+          cp /tmp/indec-2022-radio/manifest.json \
+            /tmp/relation-evidence/indec-parent-manifest.json
+          cp /tmp/ceur-2022-v2025-1/manifest.json \
+            /tmp/relation-evidence/ceur-parent-manifest.json
+          cp /tmp/indec-ceur-2022-relation/manifest.json /tmp/relation-evidence/
+          cp /tmp/indec-ceur-2022-relation/qa.json /tmp/relation-evidence/
+          cp /tmp/indec-ceur-2022-relation/comparison_summary.json \
+            /tmp/relation-evidence/
+          cp /tmp/indec-ceur-2022-relation/comparison_summary.md \
+            /tmp/relation-evidence/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: indec-ceur-2022-relation-source-evidence
+          path: /tmp/relation-evidence
+          if-no-files-found: error
