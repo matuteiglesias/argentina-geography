@@ -176,15 +176,21 @@ def test_relation_keeps_explicit_two_sided_nm_facts_and_coverage():
     split = relation.loc[relation["source_geo_uid"].eq("ceur:2010:split")]
     assert len(split) == 2
     assert set(split["source_candidate_count"].astype(int)) == {2}
-    assert sorted(split["overlap_share_of_source"].astype(float)) == pytest.approx([0.5, 0.5])
+    assert sorted(split["overlap_share_of_source"].astype(float)) == pytest.approx(
+        [0.5, 0.5]
+    )
     assert set(split["target_candidate_count"].astype(int)) == {1}
-    assert set(split["overlap_share_of_target"].astype(float)) == pytest.approx({1.0})
+    assert sorted(split["overlap_share_of_target"].astype(float)) == pytest.approx(
+        [1.0, 1.0]
+    )
 
     merge = relation.loc[relation["target_geo_uid"].eq("ceur:2022:merge")]
     assert len(merge) == 2
     assert set(merge["source_candidate_count"].astype(int)) == {1}
     assert set(merge["target_candidate_count"].astype(int)) == {2}
-    assert sorted(merge["overlap_share_of_target"].astype(float)) == pytest.approx([0.5, 0.5])
+    assert sorted(merge["overlap_share_of_target"].astype(float)) == pytest.approx(
+        [0.5, 0.5]
+    )
 
     unmatched = relation.loc[
         relation["source_geo_uid"].eq("ceur:2010:unmatched")
