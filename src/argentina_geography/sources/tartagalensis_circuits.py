@@ -11,9 +11,6 @@ from urllib.request import Request, urlopen
 
 import geopandas as gpd
 import pandas as pd
-from shapely.errors import GEOSException
-from shapely.geometry import shape
-
 from empirical_contracts import (
     AuthorityLevel,
     DataLayer,
@@ -25,6 +22,8 @@ from empirical_contracts import (
     SourceFileRef,
     SourceSnapshotRef,
 )
+from shapely.errors import GEOSException
+from shapely.geometry import shape
 
 from argentina_geography.product_writer import package_version
 from argentina_geography.products import (
