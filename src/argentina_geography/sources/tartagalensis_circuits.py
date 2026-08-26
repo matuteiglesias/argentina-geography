@@ -293,6 +293,7 @@ def _native_id(codprov: str, coddepto: object, circuito: str) -> str:
 def _feature_uid(
     vintage: str,
     source_path: str,
+    source_feature_index: int,
     codprov: str,
     coddepto: str | None,
     circuito: str,
@@ -301,6 +302,7 @@ def _feature_uid(
     payload = {
         "vintage": vintage,
         "source_path": source_path,
+        "source_feature_index": int(source_feature_index),
         "codprov": codprov,
         "coddepto": None if pd.isna(coddepto) else str(coddepto),
         "circuito": circuito,
@@ -402,17 +404,41 @@ def normalize_source(
         )
     ]
 
+    duplicate_content_fields = [
+        "source_path",
+        "codprov",
+        "coddepto",
+        "circuito",
+        "source_geometry_sha256",
+    ]
+    duplicate_content = result.duplicated(duplicate_content_fields, keep=False)
+    duplicate_source_feature_count = int(duplicate_content.sum())
+    duplicate_source_feature_group_count = int(
+        result.loc[duplicate_content]
+        .groupby(duplicate_content_fields, dropna=False)
+        .ngroups
+    )
+
     result["geo_uid"] = [
         _feature_uid(
             vintage,
             source_path,
+            source_feature_index,
             codprov,
             coddepto,
             circuito,
             source_geometry_sha256,
         )
-        for source_path, codprov, coddepto, circuito, source_geometry_sha256 in zip(
+        for (
+            source_path,
+            source_feature_index,
+            codprov,
+            coddepto,
+            circuito,
+            source_geometry_sha256,
+        ) in zip(
             result["source_path"],
+            result["source_feature_index"],
             result["codprov"],
             result["coddepto"],
             result["circuito"],
@@ -421,11 +447,7 @@ def normalize_source(
         )
     ]
     if result["geo_uid"].duplicated().any():
-        duplicates = sorted(result.loc[result["geo_uid"].duplicated(False), "geo_uid"].unique())
-        raise ValueError(
-            "Tartagalensis source contains feature-identical duplicate rows that cannot be "
-            f"given row-order-independent geo_uid values: {duplicates[:10]}"
-        )
+        raise ValueError("Tartagalensis source-feature geo_uid must be unique")
 
     readable = result["source_geometry_parse_status"].eq("parsed")
     valid_mask = pd.Series(False, index=result.index)
@@ -500,6 +522,17 @@ def normalize_source(
         )
 
     qa_warnings: list[dict] = []
+    if duplicate_source_feature_count:
+        qa_warnings.append(
+            _warning(
+                "duplicate_source_feature_content",
+                "Feature-identical source rows are retained as distinct pinned source features; "
+                "source_path plus source_feature_index distinguishes them without assigning "
+                "electoral equivalence semantics.",
+                affected_rows=duplicate_source_feature_count,
+                duplicate_groups=duplicate_source_feature_group_count,
+            )
+        )
     nonstandard_count = int((~standard).sum())
     if nonstandard_count:
         qa_warnings.append(
@@ -612,6 +645,8 @@ def normalize_source(
         "source_status_counts": dict(sorted(status_counts.items())),
         "identity_status_counts": dict(sorted(identity_counts.items())),
         "null_coddepto_feature_count": null_coddepto,
+        "duplicate_source_feature_count": duplicate_source_feature_count,
+        "duplicate_source_feature_group_count": duplicate_source_feature_group_count,
         "geometry_types": geometry_types,
         "source_geometry_types": source_geometry_types,
         "geometry_role_counts": dict(sorted(geometry_role_counts.items())),
@@ -919,6 +954,7 @@ def _expected_feature_uid(row: pd.Series, vintage: str) -> str:
     return _feature_uid(
         vintage,
         str(row["source_path"]),
+        int(row["source_feature_index"]),
         str(row["codprov"]),
         coddepto,
         str(row["circuito"]),
