@@ -5,7 +5,6 @@ import shutil
 import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
-from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 import geopandas as gpd
@@ -48,28 +47,16 @@ def load_config(path: Path = DEFAULT_CONFIG) -> dict:
     return read_json(path)
 
 
-def build_wfs_url(config: dict) -> str:
-    params = {
-        "service": "WFS",
-        "version": config["wfs_version"],
-        "request": "GetFeature",
-        "typeNames": config["layer_name"],
-        "outputFormat": config["wfs_output_format"],
-        "srsName": config["requested_crs"],
-    }
-    return f"{config['wfs_url']}?{urlencode(params)}"
-
-
 def download_source(destination: Path, config: dict) -> Path:
     destination.parent.mkdir(parents=True, exist_ok=True)
     request = Request(
-        build_wfs_url(config),
+        config["source_url"],
         headers={"User-Agent": "argentina-geography/0.1 research-data-client"},
     )
     with urlopen(request, timeout=300) as response, destination.open("wb") as output:
         shutil.copyfileobj(response, output)
     if destination.stat().st_size == 0:
-        raise ValueError("IGN WFS returned an empty source file")
+        raise ValueError("IGN department archive download returned an empty file")
     return destination
 
 
@@ -82,8 +69,13 @@ def _identity_text(value: object, *, field: str, width: int) -> str:
     return text
 
 
-def _read_source(path: Path) -> gpd.GeoDataFrame:
-    return gpd.read_file(path, engine="pyogrio", use_arrow=True)
+def _read_source(path: Path, config: dict) -> gpd.GeoDataFrame:
+    if path.suffix.lower() == ".zip":
+        member = config["archive_member"]
+        source = f"/vsizip/{path.resolve()}/{member}"
+    else:
+        source = str(path)
+    return gpd.read_file(source, engine="pyogrio", use_arrow=True)
 
 
 def _warning(code: str, message: str, **metrics: object) -> dict:
@@ -119,17 +111,23 @@ def normalize_source(
             f"IGN department native IDs must be unique; duplicates include {duplicates[:10]}"
         )
 
-    object_values = set(result["objeto"].dropna().astype(str).str.strip().unique())
+    secondary_id = config["secondary_source_identifier"]
+    if result[secondary_id].isna().any() or result[secondary_id].duplicated().any():
+        raise ValueError(f"IGN department {secondary_id} must be non-missing and unique")
+
+    object_field = config["object_field"]
+    object_values = set(result[object_field].dropna().astype(str).str.strip().unique())
     if object_values != {config["expected_object_value"]}:
         raise ValueError(
-            "IGN department objeto field drifted: "
-            f"expected {config['expected_object_value']!r}, found {sorted(object_values)}"
+            f"IGN department {object_field} field drifted: expected "
+            f"{config['expected_object_value']!r}, found {sorted(object_values)}"
         )
-    gna_values = set(result["gna"].dropna().astype(str).str.strip().unique())
+    gna_field = config["gna_field"]
+    gna_values = set(result[gna_field].dropna().astype(str).str.strip().unique())
     expected_gna = set(config["expected_gna_values"])
     if gna_values != expected_gna:
         raise ValueError(
-            f"IGN department gna vocabulary drifted: expected {sorted(expected_gna)}, "
+            f"IGN department {gna_field} vocabulary drifted: expected {sorted(expected_gna)}, "
             f"found {sorted(gna_values)}"
         )
 
@@ -178,14 +176,7 @@ def normalize_source(
     columns = [
         "geo_uid",
         "native_id",
-        "gid",
-        "objeto",
-        "fna",
-        "gna",
-        "nam",
-        "in1",
-        "fdc",
-        "sag",
+        *config["preserved_native_fields"],
         "source_unit_status",
         "geometry_valid",
         "geometry_role",
@@ -199,7 +190,7 @@ def normalize_source(
         "accepted_warnings": warnings,
         "feature_count": len(result),
         "unique_native_id_count": int(result["native_id"].nunique()),
-        "unique_gid_count": int(result["gid"].nunique(dropna=True)),
+        "unique_secondary_source_id_count": int(result[secondary_id].nunique(dropna=True)),
         "crs": result.crs.to_string(),
         "geometry_types": sorted(result.geom_type.unique().tolist()),
         "missing_identity_count": int(result["native_id"].isna().sum()),
@@ -212,10 +203,9 @@ def normalize_source(
         "source_invalid_geometry_count": invalid_geometry,
         "gna_values": sorted(gna_values),
         "object_values": sorted(object_values),
-        "source_lineage_value_count": int(result["fdc"].nunique(dropna=True)),
-        "source_agency_values": sorted(
-            result["sag"].dropna().astype(str).str.strip().unique().tolist()
-        ),
+        "source_lineage_value_count": int(result["SAG"].nunique(dropna=True)),
+        "source_capture_method_value_count": int(result["FDC"].nunique(dropna=True)),
+        "source_capture_method_null_count": int(result["FDC"].isna().sum()),
         "bbox": [float(value) for value in result.total_bounds.tolist()],
     }
     return result, audit
@@ -249,13 +239,20 @@ def materialize_from_source(
 ) -> dict:
     config = load_config(config_path)
     source_sha256, source_size = _verify_source_snapshot(source_path, config)
-    frame = _read_source(source_path)
+    frame = _read_source(source_path, config)
     normalized, audit = normalize_source(frame, config, source_sha256=source_sha256)
 
     output.mkdir(parents=True, exist_ok=True)
     geography_path = output / "geography.parquet"
     normalized.to_parquet(geography_path, index=False)
     content_sha256 = sha256_file(geography_path)
+    expected_content = config.get("expected_normalized_content_sha256")
+    if expected_content and content_sha256 != expected_content:
+        raise ValueError(
+            "IGN normalized geography content drift: "
+            f"expected {expected_content}, found {content_sha256}"
+        )
+
     release_version = _release_version(config, source_sha256)
     geography_version = f"{config['snapshot_retrieved_at_utc'][:10]}-{source_sha256[:12]}"
     geography = GeographySpec(
@@ -278,7 +275,7 @@ def materialize_from_source(
         source=config["source_id"],
         release=f"retrieved:{config['snapshot_retrieved_at_utc']}",
         snapshot_id=f"sha256:{source_sha256}",
-        origin=build_wfs_url(config),
+        origin=config["source_url"],
         storage_mode="external_immutable",
         files=(
             SourceFileRef(
@@ -293,9 +290,9 @@ def materialize_from_source(
         check_id="ign_department_source_contract",
         state=qa_state,
         message=(
-            "Exact IGN department snapshot is stageable with explicit geometry warnings."
+            "Exact IGN department archive is stageable with explicit geometry warnings."
             if qa_state == "YELLOW"
-            else "Exact IGN department snapshot satisfies the normalized geography boundary."
+            else "Exact IGN department archive satisfies the normalized geography boundary."
         ),
         metrics={
             "feature_count": audit["feature_count"],
@@ -314,8 +311,8 @@ def materialize_from_source(
         finished_at=now,
         inputs=(source_snapshot,),
         parameters={
-            "layer_name": config["layer_name"],
-            "request_url": build_wfs_url(config),
+            "source_url": config["source_url"],
+            "archive_member": config["archive_member"],
             "snapshot_retrieved_at_utc": config["snapshot_retrieved_at_utc"],
             "identity_field": config["identity_field"],
             "geometry_repair_applied": False,
@@ -328,7 +325,7 @@ def materialize_from_source(
 
     source_metadata = {
         **config,
-        "acquisition_url": build_wfs_url(config),
+        "acquisition_url": config["source_url"],
         "retrieved_file_sha256": source_sha256,
         "retrieved_file_size_bytes": source_size,
         "received_crs": audit["crs"],
@@ -349,17 +346,19 @@ def materialize_from_source(
                 "schema_version": dataset.schema_version,
                 "provider": "ign",
                 "scheme": "administrative",
-                "vintage": config["snapshot_retrieved_at_utc"],
+                "vintage": config["source_data_vintage_statement"],
                 "level": "department",
-                "source_release": f"wfs-snapshot:{source_sha256}",
+                "source_release": f"archive-sha256:{source_sha256}",
                 "authority_status": "official",
                 "feature_count": audit["feature_count"],
                 "analytical_feature_count": audit["analytical_geometry_count"],
-                "native_id_fields": "in1",
-                "source_identity_fields": "in1,gid",
+                "native_id_fields": config["identity_field"],
+                "source_identity_fields": ",".join(
+                    [config["identity_field"], config["secondary_source_identifier"]]
+                ),
                 "geometry_types": ",".join(audit["geometry_types"]),
                 "storage_crs": audit["crs"],
-                "coverage_status": "source_layer_as_retrieved",
+                "coverage_status": "source_archive_as_retrieved",
                 "qa_state": qa_state,
                 "stage_decision": audit["stage_decision"],
                 "artifact_ref": "geography.parquet",
@@ -405,7 +404,7 @@ def acquire_and_materialize(
     if source is not None:
         return materialize_from_source(source, output, config_path)
     with tempfile.TemporaryDirectory(prefix="arggeo-ign-department-") as temporary:
-        source_path = Path(temporary) / "ign-departamento.geojson"
+        source_path = Path(temporary) / "ign_departamento.zip"
         download_source(source_path, config)
         return materialize_from_source(source_path, output, config_path)
 
@@ -425,10 +424,10 @@ def verify_release(output: Path) -> None:
         raise ValueError("IGN department geo_uid must be non-missing and unique")
     if frame["native_id"].isna().any() or frame["native_id"].duplicated().any():
         raise ValueError("IGN department native_id must be non-missing and unique")
-    if frame["native_id"].ne(frame["in1"]).any():
-        raise ValueError("IGN department native_id must preserve source in1")
-    if frame["gid"].isna().any() or frame["gid"].duplicated().any():
-        raise ValueError("IGN department source gid must be non-missing and unique")
+    if frame["native_id"].ne(frame["IN1"]).any():
+        raise ValueError("IGN department native_id must preserve source IN1")
+    if frame["OBJECTID"].isna().any() or frame["OBJECTID"].duplicated().any():
+        raise ValueError("IGN department source OBJECTID must be non-missing and unique")
     if frame.geometry.isna().any() or frame.geometry.is_empty.any():
         raise ValueError("IGN department release contains missing or empty geometry")
     non_areal = ~frame.geometry.geom_type.isin(["Polygon", "MultiPolygon"])
@@ -453,7 +452,7 @@ def verify_release(output: Path) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Materialize or verify the exact IGN department geography snapshot."
+        description="Materialize or verify the exact IGN department archive Geography Release."
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
     materialize = subparsers.add_parser("materialize")
