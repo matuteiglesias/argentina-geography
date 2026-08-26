@@ -13,13 +13,11 @@ concurrency:
 jobs:
   probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Install probe dependencies
-        run: python -m pip install "geopandas>=1.1" "pyogrio>=0.10" "pyarrow>=15"
       - name: Probe exact IGN department WFS request
         shell: bash
         run: |
@@ -34,8 +32,6 @@ jobs:
           from datetime import datetime, timezone
           from pathlib import Path
 
-          import geopandas as gpd
-
           url = os.environ["URL"]
           retrieved_at = datetime.now(timezone.utc).isoformat()
           request = urllib.request.Request(
@@ -47,20 +43,30 @@ jobs:
               content_type = response.headers.get("Content-Type")
           path = Path("/tmp/ign-departamento.geojson")
           path.write_bytes(raw)
-          frame = gpd.read_file(path, engine="pyogrio", use_arrow=True)
-          geometry = frame.geometry
+          payload = json.loads(raw)
+          features = payload.get("features", [])
+          property_fields = sorted({key for feature in features for key in feature.get("properties", {})})
           profiles = {}
-          for field in frame.columns:
-              if field == geometry.name:
-                  continue
-              values = frame[field]
-              text = values.dropna().map(lambda v: str(v).strip())
+          for field in property_fields:
+              values = [feature.get("properties", {}).get(field) for feature in features]
+              non_null = [value for value in values if value is not None]
+              text = [str(value).strip() for value in non_null]
+              samples = []
+              for value in text:
+                  if value not in samples:
+                      samples.append(value)
+                  if len(samples) == 12:
+                      break
               profiles[field] = {
-                  "dtype": str(values.dtype),
-                  "null_count": int(values.isna().sum()),
-                  "unique_count": int(values.nunique(dropna=True)),
-                  "sample_values": text.drop_duplicates().head(12).tolist(),
+                  "null_count": len(values) - len(non_null),
+                  "unique_count": len(set(text)),
+                  "sample_values": samples,
               }
+          geometry_types = sorted({
+              feature.get("geometry", {}).get("type")
+              for feature in features
+              if feature.get("geometry") is not None
+          })
           evidence = {
               "provider": "Instituto Geografico Nacional (IGN)",
               "layer": "ign:departamento",
@@ -69,15 +75,13 @@ jobs:
               "http_content_type": content_type,
               "source_sha256": hashlib.sha256(raw).hexdigest(),
               "source_size_bytes": len(raw),
-              "feature_count": len(frame),
-              "columns": frame.columns.tolist(),
-              "crs": None if frame.crs is None else frame.crs.to_string(),
+              "feature_count": len(features),
+              "property_fields": property_fields,
               "field_profiles": profiles,
-              "geometry_types": sorted(geometry.geom_type.dropna().unique().tolist()),
-              "missing_geometry_count": int(geometry.isna().sum()),
-              "empty_geometry_count": int(geometry.is_empty.sum()),
-              "invalid_geometry_count_after_driver_read": int((geometry.notna() & ~geometry.is_valid).sum()),
-              "bbox": [float(v) for v in frame.total_bounds.tolist()],
+              "geometry_types": geometry_types,
+              "missing_geometry_count": sum(feature.get("geometry") is None for feature in features),
+              "geojson_crs": payload.get("crs"),
+              "bbox": payload.get("bbox"),
           }
           out = Path("/tmp/ign-department-probe.json")
           out.write_text(json.dumps(evidence, indent=2, ensure_ascii=False, sort_keys=True) + "\n")
