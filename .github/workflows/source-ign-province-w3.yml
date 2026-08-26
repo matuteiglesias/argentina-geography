@@ -1,0 +1,105 @@
+name: source-proof-ign-province-w3
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["feat/ign-province-release"]
+    paths:
+      - "config/sources/ign_administrative_province.json"
+      - "src/argentina_geography/sources/ign_province.py"
+      - "tests/test_ign_province.py"
+      - "docs/source-evidence/ign-province-2026-08-26.json"
+      - ".github/workflows/source-ign-province-w3.yml"
+
+concurrency:
+  group: source-proof-ign-province-w3-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install project
+        run: python -m pip install -e ".[dev]"
+      - name: Probe current official IGN province archive
+        run: |
+          python - <<'PY'
+          from __future__ import annotations
+
+          import hashlib
+          import json
+          import urllib.request
+          import zipfile
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          import geopandas as gpd
+
+          url = "https://www.ign.gob.ar/descargas/geodatos/SHAPES/ign_provincia.zip"
+          path = Path("/tmp/ign_provincia.zip")
+          request = urllib.request.Request(
+              url,
+              headers={"User-Agent": "argentina-geography/0.1 research-data-client"},
+          )
+          with urllib.request.urlopen(request, timeout=300) as response:
+              data = response.read()
+          path.write_bytes(data)
+
+          with zipfile.ZipFile(path) as archive:
+              shp_members = [name for name in archive.namelist() if name.lower().endswith(".shp")]
+              if len(shp_members) != 1:
+                  raise RuntimeError(f"expected one shapefile, found {shp_members}")
+              member = shp_members[0]
+              member_times = {
+                  item.filename: "%04d-%02d-%02dT%02d:%02d:%02d" % item.date_time
+                  for item in archive.infolist()
+              }
+
+          frame = gpd.read_file(f"/vsizip/{path.resolve()}/{member}", engine="pyogrio", use_arrow=True)
+          in1 = frame["IN1"].astype(str).str.strip().str.zfill(2)
+          result = {
+              "source_url": url,
+              "retrieved_at_utc": datetime.now(UTC).isoformat(),
+              "source_sha256": hashlib.sha256(data).hexdigest(),
+              "source_size_bytes": len(data),
+              "archive_member": member,
+              "archive_member_timestamps": member_times,
+              "feature_count": len(frame),
+              "columns": list(frame.columns),
+              "crs": frame.crs.to_string() if frame.crs else None,
+              "geometry_types": sorted(frame.geom_type.unique().tolist()),
+              "missing_geometry_count": int(frame.geometry.isna().sum()),
+              "empty_geometry_count": int(frame.geometry.is_empty.sum()),
+              "invalid_geometry_count": int((~frame.geometry.is_valid).sum()),
+              "in1_values": sorted(in1.tolist()),
+              "in1_unique_count": int(in1.nunique()),
+              "bbox": [float(value) for value in frame.total_bounds.tolist()],
+          }
+          print(json.dumps(result, indent=2, ensure_ascii=False, sort_keys=True))
+          PY
+      - name: Test province adapter
+        if: ${{ hashFiles('tests/test_ign_province.py') != '' }}
+        run: python -m pytest -q tests/test_ign_province.py
+      - name: Materialize exact IGN province Geography Release
+        if: ${{ hashFiles('src/argentina_geography/sources/ign_province.py') != '' }}
+        run: |
+          python -m argentina_geography.sources.ign_province materialize \
+            --output /tmp/ign-province-release
+      - name: Verify detached Geography Release
+        if: ${{ hashFiles('src/argentina_geography/sources/ign_province.py') != '' }}
+        run: |
+          cp -R /tmp/ign-province-release /tmp/ign-province-release-detached
+          python -m argentina_geography.sources.ign_province verify \
+            --release /tmp/ign-province-release-detached
+      - name: Emit QA and release identity
+        if: ${{ hashFiles('src/argentina_geography/sources/ign_province.py') != '' }}
+        run: |
+          cat /tmp/ign-province-release/manifest.json
+          cat /tmp/ign-province-release/qa.json
+          cat /tmp/ign-province-release/source_metadata.json
