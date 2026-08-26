@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import json
 import shutil
 import tempfile
 from datetime import UTC, datetime
@@ -86,9 +85,12 @@ def _normalize_digits(value: object, width: int, field: str) -> str:
     return text.zfill(width)
 
 
-def _read_source(path: Path) -> gpd.GeoDataFrame:
+def _read_source(path: Path, *, encoding: str | None = None) -> gpd.GeoDataFrame:
     source = f"zip://{path.resolve()}" if path.suffix.lower() == ".zip" else str(path)
-    return gpd.read_file(source, engine="pyogrio", use_arrow=True)
+    kwargs = {"engine": "pyogrio", "use_arrow": True}
+    if encoding and path.suffix.lower() == ".zip":
+        kwargs["encoding"] = encoding
+    return gpd.read_file(source, **kwargs)
 
 
 def _normalized_name(value: object) -> str:
@@ -109,12 +111,20 @@ def normalize_source(frame: gpd.GeoDataFrame, config: dict) -> tuple[gpd.GeoData
             lambda value, field=field, width=width: _normalize_digits(value, width, field)
         )
 
-    reconstructed = result["cpr"] + result["cde"] + result["cfn"] + result["cro"]
+    department_prefix_mismatch = ~result["cde"].str.startswith(result["cpr"])
+    if department_prefix_mismatch.any():
+        sample = result.loc[department_prefix_mismatch, ["cpr", "cde", "dpto"]].head(5)
+        raise ValueError(
+            "cde does not preserve its jurisdiction prefix; source identity drift detected: "
+            f"{sample.to_dict(orient='records')}"
+        )
+
+    reconstructed = result["cde"] + result["cfn"] + result["cro"]
     mismatch = reconstructed.ne(result["cod_indec"])
     if mismatch.any():
         sample = result.loc[mismatch, ["cpr", "cde", "cfn", "cro", "cod_indec"]].head(5)
         raise ValueError(
-            "cod_indec is inconsistent with its native components; source identity drift detected: "
+            "cod_indec is inconsistent with cde+cfn+cro; source identity drift detected: "
             f"{sample.to_dict(orient='records')}"
         )
     if result["cod_indec"].duplicated().any():
@@ -158,32 +168,21 @@ def normalize_source(frame: gpd.GeoDataFrame, config: dict) -> tuple[gpd.GeoData
     result.loc[zero_code, "source_unit_status"] = "adjustment_no_census_data"
     result["geometry_role"] = "analytical"
 
-    preserved = [
-        field for field in config["optional_preserved_fields"] if field in result.columns
-    ]
+    preserved = [field for field in config["optional_preserved_fields"] if field in result.columns]
     columns = [
-        "geo_uid",
-        "native_id",
-        "jur",
-        "cpr",
-        "cde",
-        "dpto",
-        "cfn",
-        "cro",
-        "tro",
-        "cod_indec",
-        *preserved,
-        "source_unit_status",
-        "geometry_role",
-        result.geometry.name,
+        "geo_uid", "native_id", "jur", "cpr", "cde", "dpto", "cfn", "cro", "tro",
+        "cod_indec", *preserved, "source_unit_status", "geometry_role", result.geometry.name,
     ]
     result = result[columns].sort_values("geo_uid", ignore_index=True)
-    bounds = result.total_bounds.tolist()
     adjustment = result["source_unit_status"].eq("adjustment_no_census_data")
     adjustment_by_jurisdiction = (
         result.loc[adjustment].groupby(["cpr", "jur"], dropna=False).size().astype(int).to_dict()
     )
+    accepted_warnings = config.get("accepted_qa_warnings", [])
     audit = {
+        "stage_decision": "PASS_WITH_WARNINGS" if accepted_warnings else "PASS",
+        "accepted_warning_count": len(accepted_warnings),
+        "accepted_warnings": accepted_warnings,
         "feature_count": len(result),
         "unique_native_id_count": int(result["native_id"].nunique()),
         "crs": result.crs.to_string(),
@@ -199,7 +198,7 @@ def normalize_source(frame: gpd.GeoDataFrame, config: dict) -> tuple[gpd.GeoData
             {"cpr": key[0], "jur": key[1], "count": value}
             for key, value in sorted(adjustment_by_jurisdiction.items())
         ],
-        "bbox": [float(value) for value in bounds],
+        "bbox": [float(value) for value in result.total_bounds.tolist()],
     }
     return result, audit
 
@@ -209,11 +208,13 @@ def _release_version(config: dict, source_sha256: str) -> str:
     return f"2022-national-{date}-{source_sha256[:12]}"
 
 
-def materialize_from_source(source_path: Path, output: Path, config_path: Path = DEFAULT_CONFIG) -> dict:
+def materialize_from_source(
+    source_path: Path, output: Path, config_path: Path = DEFAULT_CONFIG
+) -> dict:
     config = load_config(config_path)
     source_sha256 = sha256_file(source_path)
     source_size = source_path.stat().st_size
-    frame = _read_source(source_path)
+    frame = _read_source(source_path, encoding=config.get("source_encoding"))
     normalized, audit = normalize_source(frame, config)
 
     output.mkdir(parents=True, exist_ok=True)
@@ -238,23 +239,23 @@ def materialize_from_source(source_path: Path, output: Path, config_path: Path =
         snapshot_id=f"sha256:{source_sha256}",
         origin=build_wfs_url(config),
         storage_mode="external_immutable",
-        files=(
-            SourceFileRef(
-                path=source_path.name,
-                sha256=source_sha256,
-                size_bytes=source_size,
-            ),
-        ),
+        files=(SourceFileRef(path=source_path.name, sha256=source_sha256, size_bytes=source_size),),
     )
+    qa_state = "YELLOW" if audit["stage_decision"] == "PASS_WITH_WARNINGS" else "GREEN"
     qa_result = QAResult(
         check_id="indec_2022_radio_source_contract",
-        state="GREEN",
-        message="Official INDEC 2022 radio source satisfies the normalized geography boundary.",
+        state=qa_state,
+        message=(
+            "Official INDEC 2022 radio source is stageable with recorded non-blocking warnings."
+            if qa_state == "YELLOW"
+            else "Official INDEC 2022 radio source satisfies the normalized geography boundary."
+        ),
         metrics={
             "feature_count": audit["feature_count"],
             "unique_native_id_count": audit["unique_native_id_count"],
             "invalid_geometry_count": audit["invalid_geometry_count"],
             "adjustment_feature_count": audit["adjustment_feature_count"],
+            "accepted_warning_count": audit["accepted_warning_count"],
             "crs": audit["crs"],
         },
     )
@@ -269,8 +270,12 @@ def materialize_from_source(source_path: Path, output: Path, config_path: Path =
         parameters={
             "distribution_mode": config["distribution_mode"],
             "metadata_url": config["metadata_url"],
+            "coding_note_url": config["coding_note_url"],
             "source_crs": audit["crs"],
+            "source_encoding": config.get("source_encoding"),
             "geometry_repair_applied": False,
+            "stage_decision": audit["stage_decision"],
+            "accepted_qa_warnings": config.get("accepted_qa_warnings", []),
         },
         outputs=(dataset,),
         qa=(qa_result,),
@@ -286,32 +291,33 @@ def materialize_from_source(source_path: Path, output: Path, config_path: Path =
         "dataset_id": dataset.dataset_id,
         "release_version": release_version,
         "items": config["known_limitations"],
+        "accepted_qa_warnings": config.get("accepted_qa_warnings", []),
         "adjustment_unit_semantics": config["documented_adjustment_semantics"],
     }
-    catalog = pd.DataFrame(
-        [
-            {
-                "geography_id": geography.id,
-                "dataset_id": dataset.dataset_id,
-                "release_version": dataset.version,
-                "schema_version": dataset.schema_version,
-                "provider": "indec",
-                "scheme": "census",
-                "vintage": "2022",
-                "level": "radio",
-                "source_release": config["metadata_publication_date"],
-                "authority_status": "official",
-                "feature_count": audit["feature_count"],
-                "native_id_fields": "cod_indec,cpr,cde,cfn,cro",
-                "geometry_types": ",".join(audit["geometry_types"]),
-                "storage_crs": audit["crs"],
-                "coverage_status": "source_layer_as_retrieved",
-                "artifact_ref": "geography.parquet",
-                "manifest_ref": "manifest.json",
-                "distribution_mode": config["distribution_mode"],
-            }
-        ]
-    )
+    catalog = pd.DataFrame([
+        {
+            "geography_id": geography.id,
+            "dataset_id": dataset.dataset_id,
+            "release_version": dataset.version,
+            "schema_version": dataset.schema_version,
+            "provider": "indec",
+            "scheme": "census",
+            "vintage": "2022",
+            "level": "radio",
+            "source_release": config["metadata_publication_date"],
+            "authority_status": "official",
+            "feature_count": audit["feature_count"],
+            "native_id_fields": "cod_indec,cpr,cde,cfn,cro",
+            "geometry_types": ",".join(audit["geometry_types"]),
+            "storage_crs": audit["crs"],
+            "coverage_status": "source_layer_as_retrieved",
+            "qa_state": qa_state,
+            "stage_decision": audit["stage_decision"],
+            "artifact_ref": "geography.parquet",
+            "manifest_ref": "manifest.json",
+            "distribution_mode": config["distribution_mode"],
+        }
+    ])
     catalog.to_parquet(output / "geography_catalog.parquet", index=False)
     write_json(output / "qa.json", audit)
     write_json(output / "source_metadata.json", source_metadata)
@@ -320,6 +326,7 @@ def materialize_from_source(source_path: Path, output: Path, config_path: Path =
         "product_type": "geography",
         "authority_status": "official",
         "distribution_mode": config["distribution_mode"],
+        "stage_decision": audit["stage_decision"],
         "dataset": dataset.model_dump(mode="json"),
         "run": run.model_dump(mode="json"),
         "row_count": len(normalized),
@@ -337,7 +344,9 @@ def materialize_from_source(source_path: Path, output: Path, config_path: Path =
     return manifest
 
 
-def acquire_and_materialize(output: Path, *, source: Path | None = None, config_path: Path = DEFAULT_CONFIG) -> dict:
+def acquire_and_materialize(
+    output: Path, *, source: Path | None = None, config_path: Path = DEFAULT_CONFIG
+) -> dict:
     config = load_config(config_path)
     if source is not None:
         return materialize_from_source(source, output, config_path)
@@ -371,7 +380,9 @@ def verify_release(output: Path) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Materialize the official INDEC 2022 national census-radio geography.")
+    parser = argparse.ArgumentParser(
+        description="Materialize the official INDEC 2022 national census-radio geography."
+    )
     subparsers = parser.add_subparsers(dest="command", required=True)
     materialize = subparsers.add_parser("materialize")
     materialize.add_argument("--output", type=Path, required=True)

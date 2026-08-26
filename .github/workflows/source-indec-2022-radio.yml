@@ -4,6 +4,15 @@ on:
   workflow_dispatch:
   push:
     branches: ["feat/indec-2022-radio-geography"]
+    paths:
+      - "config/sources/indec_census_2022_radio.json"
+      - "src/argentina_geography/sources/indec_2022_radio.py"
+      - "src/argentina_geography/sources/indec_2022_radio_probe.py"
+      - ".github/workflows/source-indec-2022-radio.yml"
+
+concurrency:
+  group: source-proof-indec-2022-radio-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   materialize-source-proof:
