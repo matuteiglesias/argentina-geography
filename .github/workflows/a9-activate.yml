@@ -20,8 +20,7 @@ jobs:
           python-version: '3.12'
       - name: Expand prepared A9 implementation
         run: |
-          file .bootstrap/a9-electoral-vertical.tar.gz
-          tar -xf .bootstrap/a9-electoral-vertical.tar.gz
+          cat .bootstrap/a9.part* | base64 --decode | gzip --decompress --stdout | tar -x
           rm -rf .bootstrap
       - name: Install and validate
         run: |
