@@ -1,77 +1,71 @@
-# Argentina Geography
+# Geografías de Argentina
 
-**Argentina Geography** is evolving into a reusable infrastructure for versioned Argentine geography authorities, normalized releases and cross-geography relations.
+**Argentina Geography** publica geografías argentinas reproducibles y versionadas, junto con relaciones espaciales explícitas entre fuentes oficiales y curadas.
 
-The repository began as `censo-ign-geografias`, a historical Censo↔IGN preparation project. The old notebooks and `fixture-v1` remain preserved as evidence/regression material, but the active architecture is now broader: explicit provider geographies, reproducible source snapshots, relation products and policy-separated crosswalks.
+El proyecto integra evidencia de **INDEC**, **IGN**, **CEUR-CONICET**, la geografía oficial de **EPH-INDEC** y circuitos electorales curados por **Tartagalensis** sin convertirlas en una única frontera “verdadera”. Cada producto conserva su proveedor, versión o snapshot, identificadores nativos, limitaciones y controles de calidad.
 
-Development authority:
+## Qué publica este repositorio
 
-1. [`docs/ARGENTINA_GEOGRAPHY_ARCHITECTURE.md`](docs/ARGENTINA_GEOGRAPHY_ARCHITECTURE.md)
-2. [`docs/SOURCE_AUTHORITY_MATRIX.md`](docs/SOURCE_AUTHORITY_MATRIX.md)
-3. [`docs/PRODUCT_MODEL.md`](docs/PRODUCT_MODEL.md)
-4. [`docs/BUILD_PACK_ARG_GEO_V1.md`](docs/BUILD_PACK_ARG_GEO_V1.md)
-5. [`docs/AGENT_EXECUTION_PACK.md`](docs/AGENT_EXECUTION_PACK.md)
-6. [`AGENTS.md`](AGENTS.md)
+La interfaz pública estable son **artefactos versionados con manifiestos y catálogos**. Los consumidores no necesitan importar el código de este repositorio ni reconstruir geometrías por su cuenta.
 
-The target layer sits between domain-agnostic `spatial-data-foundation` and simple downstream applications. INDEC, CEUR-CONICET, IGN, INDEC EPH geography and Tartagalensis circuit geography are treated as explicit, versioned authorities rather than inputs to one manufactured "true" national geometry.
+- **Geography Release**: una geografía de una fuente y versión exactas, normalizada sin cambiar silenciosamente su significado.
+- **Relation Release**: hechos espaciales entre dos releases exactas. Una relación N:M sigue siendo N:M.
+- **Crosswalk Release**: una interpretación opcional, sólo cuando existe una política explícita que necesita resolver una relación hacia un destino determinado.
 
-## Current executable product kernel
+GeoParquet es el formato analítico preferido para geometrías; Parquet para relaciones tabulares; GeoJSON puede publicarse como derivado de intercambio o visualización.
 
-Wave A1 established a synthetic release surface, `product-fixture-v1`, proving two independent Geography Releases, a many-to-many Relation Release through `spatial-data-foundation`, and a separate policy-bound Crosswalk Release.
+## Familias de productos actuales
+
+La arquitectura actual cubre, entre otros productos:
+
+- radios censales oficiales de INDEC 2022;
+- geografías censales 2010 y 2022 de CEUR-CONICET, mantenidas como autoridades independientes;
+- geografía oficial de referencia EPH basada en radios del Censo 2010;
+- departamentos administrativos de IGN vinculados a una geografía censal exacta mediante hechos de relación;
+- circuitos electorales 2021 y 2025 de Tartagalensis;
+- relaciones Censo ↔ circuitos electorales sin adjudicar silenciosamente un “ganador”;
+- relaciones entre releases censales y entre proveedores, preservando diferencias y ambigüedades.
+
+Los identificadores exactos de release, hashes, fuentes, QA y limitaciones viven en los catálogos, manifiestos y documentos de producto bajo `docs/` y `releases/`.
+
+## Principios
+
+1. **No existe una geografía canónica única de Argentina.** Una geometría de IGN no “corrige” una de INDEC, ni viceversa.
+2. **La procedencia es parte del dato.** Fuente, vintage, snapshot, hashes e identificadores nativos se conservan.
+3. **Las relaciones no son adjudicaciones.** Superposición, multiplicidad, huecos y ambigüedad se publican como hechos inspeccionables.
+4. **No hay reparación espacial silenciosa.** Buffer, snapping, nearest-neighbour, centroides, `make_valid` sustantivo o umbrales requieren una política explícita y observable.
+5. **Los consumidores reciben artefactos.** La lógica científica de pobreza, muestreo, modelos de ingreso o resultados electorales pertenece a los repositorios consumidores.
+
+## Uso y verificación
+
+Para desarrollar o verificar la superficie actual:
 
 ```bash
 python -m pip install -e ".[dev]"
 make check
 make test
-make product-smoke
 ```
 
-## First official source product: INDEC 2022 census radios
+Los comandos que acceden a fuentes reales son explícitos y separados de los tests offline. Cada fuente tiene reglas propias de distribución: que el repositorio pueda recuperar y verificar una fuente no implica que pueda redistribuirla.
 
-Wave A2 adds a provider-specific producer for the official national INDEC 2022 census-radio layer. The source is fetched explicitly from INDEC GeoNode or supplied as a local snapshot; ordinary tests never depend on the network.
+## Documentación técnica
 
-Because the current GeoNode metadata reports no license, the adopted distribution mode is `official_remote_fetch`: Argentina Geography materializes and verifies a local GeoParquet release but does not redistribute the official geometry.
+Para entender la arquitectura y los límites de autoridad, leer:
 
-```bash
-make materialize-indec-2022-radio
-```
+1. [`docs/ARGENTINA_GEOGRAPHY_ARCHITECTURE.md`](docs/ARGENTINA_GEOGRAPHY_ARCHITECTURE.md)
+2. [`docs/SOURCE_AUTHORITY_MATRIX.md`](docs/SOURCE_AUTHORITY_MATRIX.md)
+3. [`docs/PRODUCT_MODEL.md`](docs/PRODUCT_MODEL.md)
+4. [`docs/MIGRATION_AND_REPO_CONSOLIDATION.md`](docs/MIGRATION_AND_REPO_CONSOLIDATION.md)
+5. documentos de producto, handoffs y evidencia de fuente bajo [`docs/`](docs/)
 
-The successful 2026-08-26 national source proof materialized **66,515** unique `cod_indec` radios from a pinned WFS snapshot. `cod_indec` is the authoritative native identity; source `cpr`, `cde`, `cfn` and `cro` remain preserved for audit. The source contains 5 rows using a local three-digit `cde` representation, 3 source-invalid polygons, and 26 documented adjustment radios in Entre Ríos/Misiones. No rows are dropped and no substantive geometry repair is performed.
+`AGENTS.md` y los execution packs describen el contrato de trabajo interno para cambios automatizados; no son necesarios para consumir releases publicados.
 
-The release therefore stages as **`PASS_WITH_WARNINGS` / QA `YELLOW`**: 66,512 rows are immediately eligible for `geometry_role=analytical`, while the 3 invalid source polygons remain visible as `geometry_role=source_invalid`. See [`docs/INDEC_2022_RADIO_PRODUCT.md`](docs/INDEC_2022_RADIO_PRODUCT.md) and the pinned [`source-proof evidence`](docs/source-evidence/indec-2022-radio-2026-08-26.md).
+## Historia del proyecto
 
-## Product boundaries
+El repositorio comenzó como `censo-ign-geografias`, un flujo exploratorio para combinar geografía censal e IGN. Esos notebooks y snapshots históricos se preservan como evidencia y material de regresión, pero no constituyen la interfaz productiva actual ni autoridad silenciosa sobre decisiones modernas.
 
-Argentina Geography publishes artifacts rather than requiring downstream repositories to import its implementation.
+La arquitectura vigente separa explícitamente proveedores, fuentes, releases y relaciones. `empirical-data-contracts` aporta vocabulario compartido de identidad/procedencia y `spatial-data-foundation` aporta mecánicas espaciales neutrales; este repositorio concentra el conocimiento específico de fuentes y geografías argentinas.
 
-- **Geography Release:** one explicit provider/source geography normalized without silently changing its substantive meaning.
-- **Relation Release:** geometric facts between two exact geography releases. N:M relationships remain N:M.
-- **Crosswalk Release:** an optional interpretation created only when an explicit policy needs one target per source.
+## Alcance y responsabilidad
 
-`empirical-data-contracts` owns shared provenance/identity envelopes. `spatial-data-foundation` owns provider-neutral spatial mechanics. This repository owns Argentine source knowledge, native identifier semantics, source-specific QA and approved Argentina-specific interpretations.
-
-## Historical executable state: `fixture-v1`
-
-The historical bounded release remains supported as regression evidence. Its normative inputs and decisions are `config/source_registry.json` and `config/reconciliation_policy.json`; it is not suitable for substantive analysis.
-
-Legacy commands remain available:
-
-```bash
-make smoke
-make release-fixture
-```
-
-## Historical product and evidence
-
-The old notebooks intended to generate `radios_IGN_<year>` outputs combining province, department, fraction and radio identifiers/geometries. No such final directories are committed. The historical **52,401** figure is evidenced by the record count in the committed 2010 radio shapefile DBF header, but uniqueness is not independently proven and its lookup CSV count differs. It must not be read as a current-boundary feature count.
-
-Read historical evidence in this order:
-
-1. `docs/GEOGRAPHY_CHARACTERIZATION.md`;
-2. `docs/HISTORICAL_GEOGRAPHY_INPUTS.md`;
-3. the historical source registry and reconciliation policy;
-4. the old fixture manifest and reports.
-
-## Current limitations and stop points
-
-Only synthetic geometry is committed. Real source products are materialized locally from explicit authorities; source distribution rights remain provider-specific. QA warnings may stage when they are explicit and source-faithful, but identity ambiguity, lost units, silent substantive geometry repair or unsupported domain interpretation remain stop conditions.
+Argentina Geography no publica estadísticas oficiales ni elige por defecto una frontera “correcta”. Su objetivo es que geografías y relaciones relevantes para investigación y aplicaciones argentinas sean **descubribles, reproducibles, verificables e interoperables**.
