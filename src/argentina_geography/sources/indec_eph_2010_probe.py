@@ -22,7 +22,10 @@ def load_config(path: Path = DEFAULT_CONFIG) -> dict:
 
 def download_file(url: str, destination: Path) -> Path:
     destination.parent.mkdir(parents=True, exist_ok=True)
-    request = Request(url, headers={"User-Agent": "argentina-geography/0.1 research-data-client"})
+    request = Request(
+        url,
+        headers={"User-Agent": "argentina-geography/0.1 research-data-client"},
+    )
     with urlopen(request, timeout=300) as response, destination.open("wb") as output:
         while chunk := response.read(1024 * 1024):
             output.write(chunk)
@@ -44,13 +47,22 @@ def _field_profile(frame: gpd.GeoDataFrame, field: str) -> dict:
         "dtype": str(series.dtype),
         "null_count": int(series.isna().sum()),
         "unique_count": int(series.nunique(dropna=True)),
-        "length_counts": {str(int(length)): int(count) for length, count in lengths.items()},
+        "length_counts": {
+            str(int(length)): int(count) for length, count in lengths.items()
+        },
         "sample_values": values.drop_duplicates().head(15).tolist(),
     }
 
 
 def _direct_identity_profile(frame: gpd.GeoDataFrame) -> dict:
-    required = {"codprov", "coddepto", "frac2010", "radio2010", "eph_codagl", "eph_aglome"}
+    required = {
+        "codprov",
+        "coddepto",
+        "frac2010",
+        "radio2010",
+        "eph_codagl",
+        "eph_aglome",
+    }
     missing = sorted(required - set(frame.columns))
     if missing:
         return {"available": False, "missing_fields": missing}
@@ -69,22 +81,32 @@ def _direct_identity_profile(frame: gpd.GeoDataFrame) -> dict:
             "geometry_present": frame.geometry.notna(),
         }
     )
-    duplicate_mask = radio_id.duplicated(False)
     grouped = relation.groupby("radio_2010_id", sort=True)
-    group_summary = grouped.agg(
+    summary = grouped.agg(
         source_row_count=("radio_2010_id", "size"),
         agglomerate_code_count=("eph_agglomerate_id", "nunique"),
         agglomerate_name_count=("eph_agglomerate_name", "nunique"),
         geometry_present_count=("geometry_present", "sum"),
     )
-    duplicate_groups = group_summary.loc[group_summary["source_row_count"] > 1]
-    conflicts = group_summary.loc[group_summary["agglomerate_code_count"] > 1]
-    name_conflicts = group_summary.loc[group_summary["agglomerate_name_count"] > 1]
-    all_geometry_missing = group_summary.loc[group_summary["geometry_present_count"] == 0]
-    partial_geometry_missing = group_summary.loc[
-        (group_summary["geometry_present_count"] > 0)
-        & (group_summary["geometry_present_count"] < group_summary["source_row_count"])
+    duplicate_groups = summary.loc[summary["source_row_count"] > 1]
+    conflicts = summary.loc[summary["agglomerate_code_count"] > 1]
+    name_conflicts = summary.loc[summary["agglomerate_name_count"] > 1]
+    all_geometry_missing = summary.loc[summary["geometry_present_count"] == 0]
+    partial_geometry_missing = summary.loc[
+        (summary["geometry_present_count"] > 0)
+        & (summary["geometry_present_count"] < summary["source_row_count"])
     ]
+
+    relation_pairs = (
+        relation[["radio_2010_id", "eph_agglomerate_id"]]
+        .drop_duplicates()
+        .sort_values(["radio_2010_id", "eph_agglomerate_id"])
+    )
+    payload = "\n".join(
+        f"{row.radio_2010_id}\t{row.eph_agglomerate_id}"
+        for row in relation_pairs.itertuples()
+    )
+    relation_sha256 = hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
     conflict_records = []
     for radio in conflicts.index.tolist():
@@ -92,8 +114,12 @@ def _direct_identity_profile(frame: gpd.GeoDataFrame) -> dict:
         conflict_records.append(
             {
                 "radio_2010_id": radio,
-                "eph_agglomerate_ids": sorted(rows["eph_agglomerate_id"].unique().tolist()),
-                "eph_agglomerate_names": sorted(rows["eph_agglomerate_name"].unique().tolist()),
+                "eph_agglomerate_ids": sorted(
+                    rows["eph_agglomerate_id"].unique().tolist()
+                ),
+                "eph_agglomerate_names": sorted(
+                    rows["eph_agglomerate_name"].unique().tolist()
+                ),
             }
         )
 
@@ -105,33 +131,35 @@ def _direct_identity_profile(frame: gpd.GeoDataFrame) -> dict:
         .agg(list)
     )
     row_counts = relation["eph_agglomerate_id"].value_counts().sort_index()
-    relation_pairs = relation[["radio_2010_id", "eph_agglomerate_id"]].drop_duplicates()
-    relation_payload = "\n".join(
-        f"{row.radio_2010_id}\t{row.eph_agglomerate_id}"
-        for row in relation_pairs.sort_values(["radio_2010_id", "eph_agglomerate_id"]).itertuples()
-    )
-    relation_sha256 = hashlib.sha256(relation_payload.encode("utf-8")).hexdigest()
-
     return {
         "available": True,
         "candidate_composition": "codprov+coddepto+frac2010+radio2010",
         "candidate_radio_2010_id_count": int(radio_id.nunique()),
         "candidate_width_counts": {
-            str(int(width)): int(count) for width, count in radio_id.str.len().value_counts().sort_index().items()
+            str(int(width)): int(count)
+            for width, count in radio_id.str.len().value_counts().sort_index().items()
         },
-        "duplicate_candidate_radio_2010_id_row_count": int(duplicate_mask.sum()),
-        "duplicate_radio_group_count": int(len(duplicate_groups)),
-        "extra_source_rows_beyond_unique_radio_grain": int(len(frame) - radio_id.nunique()),
-        "max_source_rows_per_radio": int(group_summary["source_row_count"].max()),
-        "radio_to_agglomerate_relation_pair_count": int(len(relation_pairs)),
+        "duplicate_candidate_radio_2010_id_row_count": int(
+            radio_id.duplicated(False).sum()
+        ),
+        "duplicate_radio_group_count": len(duplicate_groups),
+        "extra_source_rows_beyond_unique_radio_grain": int(
+            len(frame) - radio_id.nunique()
+        ),
+        "max_source_rows_per_radio": int(summary["source_row_count"].max()),
+        "radio_to_agglomerate_relation_pair_count": len(relation_pairs),
         "radio_to_agglomerate_relation_sha256": relation_sha256,
-        "radio_with_multiple_agglomerate_code_count": int(len(conflicts)),
+        "radio_with_multiple_agglomerate_code_count": len(conflicts),
         "radio_with_multiple_agglomerate_codes": conflict_records,
-        "radio_with_multiple_agglomerate_name_count": int(len(name_conflicts)),
-        "all_geometry_missing_radio_count": int(len(all_geometry_missing)),
-        "all_geometry_missing_radio_2010_ids": sorted(all_geometry_missing.index.tolist()),
-        "partial_geometry_missing_radio_count": int(len(partial_geometry_missing)),
-        "partial_geometry_missing_radio_2010_ids": sorted(partial_geometry_missing.index.tolist()),
+        "radio_with_multiple_agglomerate_name_count": len(name_conflicts),
+        "all_geometry_missing_radio_count": len(all_geometry_missing),
+        "all_geometry_missing_radio_2010_ids": sorted(
+            all_geometry_missing.index.tolist()
+        ),
+        "partial_geometry_missing_radio_count": len(partial_geometry_missing),
+        "partial_geometry_missing_radio_2010_ids": sorted(
+            partial_geometry_missing.index.tolist()
+        ),
         "duplicate_radio_sample": [
             {
                 "radio_2010_id": str(index),
@@ -142,9 +170,12 @@ def _direct_identity_profile(frame: gpd.GeoDataFrame) -> dict:
             for index, row in duplicate_groups.head(25).iterrows()
         ],
         "agglomerate_code_count": int(relation["eph_agglomerate_id"].nunique()),
-        "agglomerate_codes": sorted(relation["eph_agglomerate_id"].unique().tolist()),
+        "agglomerate_codes": sorted(
+            relation["eph_agglomerate_id"].unique().tolist()
+        ),
         "agglomerate_code_to_names": {
-            str(code): [str(name) for name in names] for code, names in agglomerate_names.items()
+            str(code): [str(name) for name in names]
+            for code, names in agglomerate_names.items()
         },
         "agglomerate_codes_with_multiple_names": {
             str(code): [str(name) for name in names]
@@ -162,19 +193,19 @@ def _profile_vector(path: Path, label: str) -> dict:
         raise ValueError(f"{label} is not the expected ZIP archive: {path}")
     source = f"zip://{path.resolve()}"
     layers = gpd.list_layers(source)
-    layer_records = layers.astype(object).where(layers.notna(), None).to_dict(orient="records")
+    records = layers.astype(object).where(layers.notna(), None).to_dict(orient="records")
     if len(layers) != 1:
-        raise ValueError(f"{label} expected one vector layer; observed {layer_records}")
-    layer_name = str(layers.iloc[0]["name"])
-    read_kwargs: dict[str, object] = {"engine": "pyogrio", "use_arrow": False}
+        raise ValueError(f"{label} expected one vector layer; observed {records}")
+    layer = str(layers.iloc[0]["name"])
+    kwargs: dict[str, object] = {"engine": "pyogrio", "use_arrow": False}
     if label == "shapefile":
-        read_kwargs["encoding"] = "CP1252"
-    frame = gpd.read_file(source, layer=layer_name, **read_kwargs)
+        kwargs["encoding"] = "CP1252"
+    frame = gpd.read_file(source, layer=layer, **kwargs)
     geometry_name = frame.geometry.name
     fields = [column for column in frame.columns if column != geometry_name]
     geometry = frame.geometry
-    preview = frame[fields].head(12).copy()
-    preview = preview.astype(object).where(preview.notna(), "<NA>")
+    preview = frame[fields].head(12).astype(object)
+    preview = preview.where(preview.notna(), "<NA>")
     profiles = {field: _field_profile(frame, field) for field in fields}
     return {
         "label": label,
@@ -183,8 +214,8 @@ def _profile_vector(path: Path, label: str) -> dict:
         "source_size_bytes": path.stat().st_size,
         "source_encoding_override": "CP1252" if label == "shapefile" else None,
         "zip_members": _zip_members(path),
-        "layers": layer_records,
-        "layer_name": layer_name,
+        "layers": records,
+        "layer_name": layer,
         "feature_count": len(frame),
         "columns": frame.columns.tolist(),
         "field_profiles": profiles,
@@ -199,7 +230,9 @@ def _profile_vector(path: Path, label: str) -> dict:
         "geometry_types": sorted(geometry.geom_type.dropna().unique().tolist()),
         "missing_geometry_count": int(geometry.isna().sum()),
         "empty_geometry_count": int(geometry.is_empty.sum()),
-        "invalid_geometry_count": int((geometry.notna() & ~geometry.is_valid).sum()),
+        "invalid_geometry_count": int(
+            (geometry.notna() & ~geometry.is_valid).sum()
+        ),
         "bbox": [float(value) for value in frame.total_bounds.tolist()],
     }
 
@@ -209,7 +242,8 @@ def _profile_workbook(path: Path, label: str) -> dict:
     sheets = []
     for sheet_name in workbook.sheet_names:
         frame = pd.read_excel(path, sheet_name=sheet_name, header=None, dtype=object)
-        preview = frame.head(30).astype(object).where(frame.head(30).notna(), "<NA>")
+        preview = frame.head(30).astype(object)
+        preview = preview.where(preview.notna(), "<NA>")
         sheets.append(
             {
                 "sheet_name": str(sheet_name),
@@ -228,43 +262,47 @@ def _profile_workbook(path: Path, label: str) -> dict:
     }
 
 
-def probe(source_dir: Path, output: Path, config_path: Path = DEFAULT_CONFIG) -> dict:
+def probe(
+    source_dir: Path,
+    output: Path,
+    config_path: Path = DEFAULT_CONFIG,
+) -> dict:
     config = load_config(config_path)
     source_dir.mkdir(parents=True, exist_ok=True)
 
-    vector_evidence = {}
+    vectors = {}
     for label, spec in config["radio_sources"].items():
-        path = source_dir / spec["file_name"]
-        download_file(spec["download_url"], path)
-        vector_evidence[label] = _profile_vector(path, label)
+        path = download_file(spec["download_url"], source_dir / spec["file_name"])
+        vectors[label] = _profile_vector(path, label)
 
-    document_evidence = {}
+    documentation = {}
     for label, spec in config["documentation_sources"].items():
-        path = source_dir / spec["file_name"]
-        download_file(spec["download_url"], path)
-        document_evidence[label] = _profile_workbook(path, label)
+        path = download_file(spec["download_url"], source_dir / spec["file_name"])
+        documentation[label] = _profile_workbook(path, label)
 
-    vector_signatures = {
+    signatures = {
         label: {
             "feature_count": item["feature_count"],
             "crs": item["crs"],
             "candidate_radio_2010_id_count": item["direct_identity_profile"].get(
                 "candidate_radio_2010_id_count"
             ),
-            "agglomerate_code_count": item["direct_identity_profile"].get("agglomerate_code_count"),
+            "agglomerate_code_count": item["direct_identity_profile"].get(
+                "agglomerate_code_count"
+            ),
             "relation_pair_count": item["direct_identity_profile"].get(
                 "radio_to_agglomerate_relation_pair_count"
             ),
             "relation_sha256": item["direct_identity_profile"].get(
                 "radio_to_agglomerate_relation_sha256"
             ),
-            "radio_with_multiple_agglomerate_code_count": item["direct_identity_profile"].get(
-                "radio_with_multiple_agglomerate_code_count"
-            ),
+            "radio_with_multiple_agglomerate_code_count": item[
+                "direct_identity_profile"
+            ].get("radio_with_multiple_agglomerate_code_count"),
             "missing_geometry_count": item["missing_geometry_count"],
             "invalid_geometry_count": item["invalid_geometry_count"],
         }
-        for label, item in vector_evidence.items()
+        for label, item in vectors.items()
     }
     evidence = {
         "source_id": config["source_id"],
@@ -274,11 +312,14 @@ def probe(source_dir: Path, output: Path, config_path: Path = DEFAULT_CONFIG) ->
         "release": config["release"],
         "census_basis": config["census_basis"],
         "parent_census_2010": config["parent_census_2010"],
-        "vectors": vector_evidence,
-        "documentation": document_evidence,
-        "vector_semantic_signatures": vector_signatures,
+        "vectors": vectors,
+        "documentation": documentation,
+        "vector_semantic_signatures": signatures,
         "vector_semantic_signature_equivalent": len(
-            {json.dumps(value, sort_keys=True, ensure_ascii=False) for value in vector_signatures.values()}
+            {
+                json.dumps(value, sort_keys=True, ensure_ascii=False)
+                for value in signatures.values()
+            }
         )
         == 1,
     }
@@ -288,7 +329,10 @@ def probe(source_dir: Path, output: Path, config_path: Path = DEFAULT_CONFIG) ->
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Characterize the official INDEC EPH Census-2010-based radio coverage before normalization."
+        description=(
+            "Characterize official INDEC EPH Census-2010-based radio coverage "
+            "before normalization."
+        )
     )
     parser.add_argument("--source-dir", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
