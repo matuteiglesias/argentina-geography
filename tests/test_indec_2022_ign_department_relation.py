@@ -16,6 +16,8 @@ from argentina_geography.relations.indec_2022_ign_department import (
 )
 from argentina_geography.sources.ign_department import (
     load_config as load_ign_config,
+)
+from argentina_geography.sources.ign_department import (
     materialize_from_source as materialize_ign,
 )
 from argentina_geography.sources.indec_2022_radio import (
