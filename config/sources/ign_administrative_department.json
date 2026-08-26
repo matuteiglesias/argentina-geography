@@ -10,7 +10,7 @@
   "snapshot_retrieved_at_utc": "2026-08-26T04:21:30+00:00",
   "expected_source_sha256": "33871350bd2da7e146e3daa9f696351b167c5feabeee0673d43b6671e10cb42c",
   "expected_source_size_bytes": 23697566,
-  "expected_normalized_content_sha256": null,
+  "expected_normalized_content_sha256": "b54381bf3dedaf67746824dad80b60020f93aca5a98c2b2f4a1385c745eb6f0a",
   "expected_feature_count": 529,
   "distribution_mode": "official_remote_fetch",
   "source_data_vintage_statement": "official archive retrieved 2026-08-26; embedded shapefile members dated 2019-11; provider does not expose a formal release identifier in the archive name",
