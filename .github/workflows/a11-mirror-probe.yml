@@ -12,20 +12,23 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Probe public S3 listing and candidate objects
+      - name: Probe alternate exact-source surfaces
         shell: bash
         run: |
           set +e
-          echo '== bucket listing =='
-          curl -fsSL 'https://arg-fulbright-data.s3.us-east-2.amazonaws.com/?list-type=2&max-keys=1000' | head -c 20000
-          echo
-          echo '== candidate HEADs =='
+          echo '== CONICET dataset bundle endpoint =='
+          for url in \
+            'https://ri.conicet.gov.ar/rest/dataset/11336/149711' \
+            'https://ri.conicet.gov.ar/rest/dataset/11336/149711?metadata=false' \
+            'https://ri.conicet.gov.ar/rest/dataset/11336/149711?download=true'; do
+            echo "-- $url"
+            curl -sSIL --max-time 30 "$url" | sed -n '1,20p'
+          done
+          echo '== public S3 known/candidate objects =='
           for url in \
             'https://arg-fulbright-data.s3.us-east-2.amazonaws.com/censo-argentino-2022/radios-2022.parquet' \
-            'https://arg-fulbright-data.s3.us-east-2.amazonaws.com/censo-argentino-2022/radios.parquet' \
             'https://arg-fulbright-data.s3.us-east-2.amazonaws.com/censo-argentino-2010/radios-2010.parquet' \
-            'https://arg-fulbright-data.s3.us-east-2.amazonaws.com/censo-argentino-2010/radios.parquet' \
-            'https://arg-fulbright-data.s3.us-east-2.amazonaws.com/censo-argentino-2010/radios_2010.parquet'; do
+            'https://arg-fulbright-data.s3.us-east-2.amazonaws.com/censo-argentino-2010/radios.parquet'; do
             echo "-- $url"
             curl -sSIL --max-time 20 "$url" | sed -n '1,12p'
           done
