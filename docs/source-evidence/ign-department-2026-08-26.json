@@ -1,0 +1,95 @@
+{
+  "source_id": "ign-administrative-department-archive-20260826",
+  "provider": "Instituto Geográfico Nacional (IGN)",
+  "official_download_url": "https://www.ign.gob.ar/descargas/geodatos/SHAPES/ign_departamento.zip",
+  "archive_member": "ign_departamento/ign_departamento.shp",
+  "retrieved_at_utc": "2026-08-26T04:21:30+00:00",
+  "source_sha256": "33871350bd2da7e146e3daa9f696351b167c5feabeee0673d43b6671e10cb42c",
+  "source_size_bytes": 23697566,
+  "repeated_download_byte_identity": true,
+  "embedded_member_date_note": "The archive's shapefile members carry November 2019 timestamps. Retrieval in 2026 is not treated as a 2026 geometry vintage.",
+  "feature_count": 529,
+  "source_fields": [
+    "OBJECTID",
+    "Entidad",
+    "Objeto",
+    "FNA",
+    "GNA",
+    "NAM",
+    "SAG",
+    "FDC",
+    "IN1",
+    "SHAPE_STAr",
+    "SHAPE_STLe"
+  ],
+  "identity_observations": {
+    "IN1": {
+      "null_count": 0,
+      "unique_count": 529,
+      "format": "five-digit administrative code",
+      "normalized_role": "native_id"
+    },
+    "OBJECTID": {
+      "null_count": 0,
+      "unique_count": 529,
+      "normalized_role": "preserved source feature identifier"
+    },
+    "FNA_unique_count": 473,
+    "NAM_unique_count": 449
+  },
+  "source_vocabularies": {
+    "Objeto": [
+      "Departamento"
+    ],
+    "GNA": [
+      "Comuna",
+      "Departamento",
+      "Partido"
+    ],
+    "SAG_unique_count": 22,
+    "FDC_unique_count": 3,
+    "FDC_null_count": 477
+  },
+  "crs": "EPSG:4326",
+  "geometry_types": [
+    "MultiPolygon",
+    "Polygon"
+  ],
+  "missing_geometry_count": 0,
+  "empty_geometry_count": 0,
+  "invalid_geometry_count": 0,
+  "bbox": [
+    -73.99999999999994,
+    -90.00000001699999,
+    -24.999999999999943,
+    -21.781134793999968
+  ],
+  "normalized_release": {
+    "dataset_id": "arggeo.ign.administrative.department",
+    "release_version": "snapshot-20260826-33871350bd2d",
+    "geography_version": "2026-08-26-33871350bd2d",
+    "content_sha256": "b54381bf3dedaf67746824dad80b60020f93aca5a98c2b2f4a1385c745eb6f0a",
+    "analytical_feature_count": 529,
+    "stage_decision": "PASS"
+  },
+  "materialization_proof": {
+    "workflow_run_id": 32930155612,
+    "artifact_id": 9592928768,
+    "source_adapter_tests": "9 passed",
+    "detached_release_verification": true
+  },
+  "corroborating_wfs": {
+    "request_url": "https://wms.ign.gob.ar/geoserver/ign/ows?service=WFS&version=2.0.0&request=GetFeature&typeNames=ign%3Adepartamento&outputFormat=application%2Fjson&srsName=EPSG%3A4326",
+    "observed_at_utc": "2026-08-26T04:12:53.487083+00:00",
+    "feature_count": 529,
+    "first_raw_sha256": "e8a7065c26e45df58dc050f288063021ae1ce375ebfc02b797eac1685b245012",
+    "second_raw_sha256": "ad3bfd62d6443013c91f9d7274064a54d67b8c6c5804764debbd55896ca43513",
+    "release_role": "corroborating only because repeated WFS serialization is not byte-stable"
+  },
+  "notes": [
+    "The exact source release anchor is the official SHAPE archive plus retrieval time and raw SHA-256.",
+    "The normalized release adds a separately pinned GeoParquet content SHA-256.",
+    "Raw source bytes and normalized geometry are not committed to the repository; workflows re-fetch and verify them.",
+    "Names are not identity. IN1 and OBJECTID remain independently inspectable in the normalized Geography Release."
+  ]
+}

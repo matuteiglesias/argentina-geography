@@ -1,0 +1,36 @@
+{
+  "relation_id": "arggeo.relation.indec-2022-radio-ign-department",
+  "source_role": "indec_official_census_2022_radio",
+  "target_role": "ign_official_department_archive_snapshot",
+  "source_parent": {
+    "dataset_id": "arggeo.indec.census.2022.radio",
+    "release_version": "2022-national-20260320-a390c8403850",
+    "source_snapshot_sha256": "a390c84038509eb3e6125a5968c72f57fbfae757cda2a2344a14defb5ac18a7b",
+    "content_sha256": "6a4b0bc3db5a92567eed7d643670e06c9916f4640a5247c5bfc022c1fb93dbce"
+  },
+  "target_parent": {
+    "dataset_id": "arggeo.ign.administrative.department",
+    "release_version": "snapshot-20260826-33871350bd2d",
+    "source_snapshot_sha256": "33871350bd2da7e146e3daa9f696351b167c5feabeee0673d43b6671e10cb42c",
+    "content_sha256": "b54381bf3dedaf67746824dad80b60020f93aca5a98c2b2f4a1385c745eb6f0a"
+  },
+  "foundation": {
+    "repository": "matuteiglesias/spatial-data-foundation",
+    "commit_sha": "92080025305e634deb6fec45b20068ef513c64b2",
+    "overlap_blob_sha": "5825f248beb30fc693de346d9d430b0b73bd6b37",
+    "callable": "spatial_foundation.geography.relate_areal_objects"
+  },
+  "analysis_crs": "EPSG:6933",
+  "minimum_overlap_area_m2": 0.0,
+  "coverage_tolerance": 0.000001,
+  "relation_semantics": "positive-area geometric relation facts between exact parent Geography Releases",
+  "interpretation": "A row states that one exact Census 2022 radio geometry and one exact IGN department geometry have positive overlap in the configured equal-area CRS. Multiple target matches, unmatched sources and unreferenced targets remain explicit facts.",
+  "known_limitations": [
+    "The IGN parent is an official archive retrieved on 2026-08-26 whose embedded shapefile members carry November 2019 timestamps; no 2026 geometry vintage is inferred.",
+    "The IGN target layer includes Departamento, Partido and Comuna source labels under one second-order administrative layer and extends to the bicontinental/Antarctic representation.",
+    "Census radios are statistical units and IGN departments are administrative units. Positive overlap does not imply equal identity, legal hierarchy, or a preferred provider.",
+    "The relation uses geometry only. It does not allocate population or other Census measures across administrative units.",
+    "Source-invalid Census geometry remains observable through relation status rather than being silently repaired.",
+    "Two-sided overlap shares are quantitative geometry diagnostics; they are not assignment weights or a boundary-choice rule."
+  ]
+}
