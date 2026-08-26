@@ -10,32 +10,47 @@ on:
 jobs:
   probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
-      - name: Probe official CONICET dataset content negotiation
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install project
+        run: python -m pip install -e ".[dev]"
+      - name: Download surviving V2025-1 geometry distributions
         shell: bash
         run: |
-          set +e
-          base='https://ri.conicet.gov.ar/rest/dataset/11336/149711'
-          for accept in \
-            'application/json' \
-            'application/zip' \
-            'application/octet-stream' \
-            'application/x-zip-compressed'; do
-            echo "== Accept: $accept =="
-            code=$(curl -sSL -H "Accept: $accept" -o /tmp/out -D /tmp/h \
-              -w '%{http_code}' --max-time 60 "$base")
-            echo "HTTP $code bytes=$(wc -c </tmp/out) type=$(file -b --mime-type /tmp/out)"
-            sed -n '1,20p' /tmp/h
-            sha256sum /tmp/out
-            head -c 300 /tmp/out; echo
-          done
-          for query in 'format=zip' 'download=zip' 'type=zip' 'bundle=true' 'files=true'; do
-            echo "== $query =="
-            code=$(curl -sSL -o /tmp/out -D /tmp/h -w '%{http_code}' --max-time 60 "$base?$query")
-            echo "HTTP $code bytes=$(wc -c </tmp/out) type=$(file -b --mime-type /tmp/out)"
-            sed -n '1,12p' /tmp/h
-            sha256sum /tmp/out
-            head -c 300 /tmp/out; echo
-          done
-          exit 0
+          set -euo pipefail
+          curl --fail --location --retry 3 --retry-all-errors \
+            'https://data.source.coop/nlebovits/censo-argentino/2010/radios.parquet' \
+            --output /tmp/radios-2010.parquet
+          curl --fail --location --retry 3 --retry-all-errors \
+            'https://data.source.coop/nlebovits/censo-argentino/2022/radios.parquet' \
+            --output /tmp/radios-2022.parquet
+          sha256sum /tmp/radios-2010.parquet /tmp/radios-2022.parquet
+          ls -lh /tmp/radios-2010.parquet /tmp/radios-2022.parquet
+      - name: Inspect schema identity and geometry
+        run: |
+          python - <<'PY'
+          import geopandas as gpd
+          from pathlib import Path
+          for vintage in (2010, 2022):
+              path = Path(f'/tmp/radios-{vintage}.parquet')
+              frame = gpd.read_parquet(path)
+              print(f'== {vintage} ==')
+              print('rows', len(frame))
+              print('crs', frame.crs)
+              print('geometry', frame.geometry.name)
+              print('columns', list(frame.columns))
+              print('geometry_types', frame.geometry.geom_type.value_counts(dropna=False).to_dict())
+              print('missing_geometry', int(frame.geometry.isna().sum()))
+              print('invalid_geometry', int((frame.geometry.notna() & ~frame.geometry.is_valid).sum()))
+              for candidate in (f'COD_{vintage}', 'COD_2010', 'COD_2022'):
+                  if candidate in frame.columns:
+                      values = frame[candidate].astype(str)
+                      print('id_field', candidate, 'unique', values.nunique(), 'widths', values.str.len().value_counts().sort_index().to_dict())
+                      break
+              print(frame.head(2).to_string())
+          PY
