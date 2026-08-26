@@ -4,7 +4,7 @@
   "authority_status": "official",
   "resource_title": "Cobertura geográfica de la EPH a nivel de radio censal",
   "source_page": "https://www.indec.gob.ar/Institucional/Indec/BasesDeDatos",
-  "release": "current-published-census2010-based-frame",
+  "release": "observed-2026-08-26-census2010-based-frame",
   "census_basis": "Censo Nacional de Población, Hogares y Viviendas 2010",
   "target_level": "survey-frame radio",
   "distribution_mode": "official_remote_fetch",
@@ -13,23 +13,33 @@
   "radio_sources": {
     "shapefile": {
       "file_name": "radios_eph.zip",
-      "download_url": "https://www.indec.gob.ar/ftp/cuadros/geoestadistica/radios_eph.zip"
+      "download_url": "https://www.indec.gob.ar/ftp/cuadros/geoestadistica/radios_eph.zip",
+      "expected_sha256": "9624b4022e9caa98e33cb7c06bdf4d1a90f876e8d1a213da9aa293bf6f4e84ab",
+      "expected_size_bytes": 4737135
     },
     "geojson": {
       "file_name": "radios_eph_json.zip",
-      "download_url": "https://www.indec.gob.ar/ftp/cuadros/geoestadistica/radios_eph_json.zip"
+      "download_url": "https://www.indec.gob.ar/ftp/cuadros/geoestadistica/radios_eph_json.zip",
+      "expected_sha256": "39066cc54aec04349cf87455de8d37da00327d922170383a39ca81bc987080ed",
+      "expected_size_bytes": 4341661
     }
   },
   "documentation_sources": {
     "structure": {
       "file_name": "estructura_radios_eph.xls",
-      "download_url": "https://www.indec.gob.ar/ftp/cuadros/geoestadistica/estructura_radios_eph.xls"
+      "download_url": "https://www.indec.gob.ar/ftp/cuadros/geoestadistica/estructura_radios_eph.xls",
+      "expected_sha256": "bbc8a51ad1cdb60700c7da2798f6979a45595db8654896c6cca868abade8ec94",
+      "expected_size_bytes": 61440
     },
     "agglomerate_localities": {
       "file_name": "localidades_aglomerados_eph.xls",
-      "download_url": "https://www.indec.gob.ar/ftp/cuadros/geoestadistica/localidades_aglomerados_eph.xls"
+      "download_url": "https://www.indec.gob.ar/ftp/cuadros/geoestadistica/localidades_aglomerados_eph.xls",
+      "expected_sha256": "9ac67ae607795c48c666b3e7a1ead8644aac82f853460a87ad34daa0ce1d0be1",
+      "expected_size_bytes": 40960
     }
   },
+  "expected_snapshot_sha256": "9b372c33aa6827705e354f9be3545bf80bd668e44acfb602b6b63aabbe2704b8",
+  "expected_radio_to_agglomerate_relation_sha256": "2fdf263982639b6dc7ebfbeeaec3cecc971801debe8adde6ba48043e48641052",
   "parent_census_2010": {
     "dataset_id": "arggeo.indec.census.2010.radio",
     "release_version": "2010-national-c9184f47fd46",
@@ -41,10 +51,18 @@
     "repository_tree_sha": "c5df2c2e5077b8d1aeadf3c4db4bf57112a26747",
     "note": "Historical notebooks are regression evidence only. They spatially reconstructed radio-to-agglomerate membership and are not authority for A7."
   },
+  "consumer_evidence": {
+    "repository": "matuteiglesias/income-modeling-eph",
+    "repository_commit": "48cf614fc6e05c1b4b0b595dfe949dcbe8b1e138",
+    "consumer_column": "AGLOMERADO",
+    "note": "Read-only compatibility target: existing optional AGLOMERADO geography column can reference native EPH agglomerate codes without GIS logic."
+  },
   "known_limitations": [
     "The published radio coverage is explicitly based on Census 2010 cartography; it is not a Census 2022 geography.",
-    "EPH agglomerate/frame definitions have survey-design history and may have temporal limitations; the exact official documentation must be carried into the release rather than generalized across all quarters.",
+    "The published layer is a survey-frame geography, not a claim that the same frame definition applies unchanged to every historical EPH quarter.",
+    "INDEC documentation reports review of geographic coverage after 2016 and incorporation of previously missing areas into regular fieldwork during 2018, affecting estimates from first quarter 2019; users must match survey vintage to applicable frame documentation.",
     "The official radio source directly carries agglomerate membership and must be preferred over a reconstructed spatial overlay.",
-    "The source page currently exposes Shapefile and GeoJSON variants; A7 must pin the exact adopted bytes and characterize whether they are semantically equivalent before choosing the normalized parent."
+    "Three official radio identities have no geometry in either distributed vector format and remain valid tabular frame rows.",
+    "Native agglomerate code 38 is published with two spelling variants; the release preserves source name values rather than inventing a canonical spelling."
   ]
 }
