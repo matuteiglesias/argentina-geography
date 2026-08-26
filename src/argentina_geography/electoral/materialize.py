@@ -23,6 +23,7 @@ from argentina_geography.electoral.evidence import (
     compare_historical_section_crosswalk,
     elecciones_compatibility,
 )
+from argentina_geography.electoral.input_status import append_relation_analysis_inputs
 from argentina_geography.product_writer import package_version
 from argentina_geography.products import sha256_file, write_checksums, write_json
 
@@ -42,6 +43,7 @@ CORE_OUTPUT_FILES = [
     "summary.md",
     "manifest.json",
 ]
+
 
 def materialize_vertical(
     census_release: Path,
@@ -65,6 +67,15 @@ def materialize_vertical(
     ) = _load_parents(census_release, circuit_release, vintage, config)
 
     products = build_products(census, circuits, vintage, config)
+    products["input_status"] = append_relation_analysis_inputs(
+        products["input_status"],
+        census,
+        circuits,
+        products["circuit_footprints"],
+        products["sections"],
+        vintage,
+        config,
+    )
     output.mkdir(parents=True, exist_ok=True)
 
     artifact_frames = {
