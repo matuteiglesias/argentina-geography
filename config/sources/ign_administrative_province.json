@@ -11,7 +11,9 @@
   "snapshot_retrieved_at_utc": "2026-08-26T11:26:10.513047+00:00",
   "expected_source_sha256": "b9fcf6f90f28f1bdfcc713a47ad4ed63e2db0b000c4642611597d4ea8b897c55",
   "expected_source_size_bytes": 10520464,
-  "expected_normalized_content_sha256": null,
+  "expected_normalized_content_sha256": "3907e1e0e256f2ea768a66e14874266a576787fe724dad0d35eb9308ddc6dd7b",
+  "expected_display_geojson_sha256": "c49be97fef429c9bc473681e6677135bf19307da1141b1d7f6f12c50df366ed3",
+  "expected_crs": "EPSG:4326",
   "expected_feature_count": 24,
   "expected_native_ids": [
     "02",
