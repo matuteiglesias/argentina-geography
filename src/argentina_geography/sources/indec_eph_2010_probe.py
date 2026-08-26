@@ -57,7 +57,10 @@ def _profile_vector(path: Path, label: str) -> dict:
     if len(layers) != 1:
         raise ValueError(f"{label} expected one vector layer; observed {layer_records}")
     layer_name = str(layers.iloc[0]["name"])
-    frame = gpd.read_file(source, layer=layer_name, engine="pyogrio", use_arrow=True)
+    read_kwargs: dict[str, object] = {"engine": "pyogrio", "use_arrow": False}
+    if label == "shapefile":
+        read_kwargs["encoding"] = "CP1252"
+    frame = gpd.read_file(source, layer=layer_name, **read_kwargs)
     geometry_name = frame.geometry.name
     fields = [column for column in frame.columns if column != geometry_name]
     geometry = frame.geometry
@@ -69,6 +72,7 @@ def _profile_vector(path: Path, label: str) -> dict:
         "file_name": path.name,
         "source_sha256": sha256_file(path),
         "source_size_bytes": path.stat().st_size,
+        "source_encoding_override": "CP1252" if label == "shapefile" else None,
         "zip_members": _zip_members(path),
         "layers": layer_records,
         "layer_name": layer_name,
