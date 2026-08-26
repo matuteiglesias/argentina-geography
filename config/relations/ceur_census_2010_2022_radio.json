@@ -36,6 +36,61 @@
     "Positive area and overlap shares are geometric facts in EPSG:6933, not population allocation, transfer weights, ownership shares, or statistical weights.",
     "Equal COD_2010/COD_2022 strings are recorded as an identity coincidence only; geometry agreement is evaluated separately from two-sided overlap shares.",
     "The examples artifact is a versioned derived interpretation for inspection. It is not a crosswalk, exhaustive transition taxonomy, or assignment policy.",
-    "No make_valid, snapping, buffering, nearest assignment, canonical-boundary choice, or geometry substitution is applied."
-  ]
+    "No make_valid, snapping, buffering, nearest assignment, canonical-boundary choice, or geometry substitution is applied.",
+    "During the A11 execution on 2026-08-26 the original CONICET Digital bitstream URLs returned 404. The computation therefore uses separately hash-pinned Source Cooperative GeoParquet copies as execution geometry distributions while preserving the exact released CEUR parent dataset/source/content identities as lineage; the fallback distribution hashes are recorded independently and are not represented as the original ZIP bytes."
+  ],
+  "fallback_distributions": {
+    "reason": "The exact CEUR V2025-1 parent releases remain the scientific lineage, but the original CONICET Digital bitstream URLs returned 404 during the A11 run. Pinned surviving Source Cooperative GeoParquet copies are used only as execution geometry distributions and are checked against the released native identity/geometry-role evidence.",
+    "2010": {
+      "url": "https://data.source.coop/nlebovits/censo-argentino/2010/radios.parquet",
+      "sha256": "0dc28dd11936f894ae5ccdd92e9f4466e60bb5d3c439eee30b61a2485b5036bd",
+      "size_bytes": 61119526,
+      "expected_rows": 52406,
+      "received_crs": "OGC:CRS84",
+      "normalization_crs": "EPSG:3857",
+      "expected_invalid_native_ids": [
+        "060353103",
+        "062940205",
+        "062940210",
+        "065951901",
+        "100420304",
+        "141400501",
+        "740210406",
+        "740490303",
+        "820420308",
+        "820560213",
+        "900700301",
+        "949999999"
+      ],
+      "original_record_uri": "http://hdl.handle.net/11336/149711",
+      "original_bitstream_status": "broken_404_rechecked_2026-08-26",
+      "original_bitstream_url": "https://ri.conicet.gov.ar/bitstream/handle/11336/149711/RADIOS_2010_V2025-1.zip?sequence=14&isAllowed=y"
+    },
+    "2022": {
+      "url": "https://data.source.coop/nlebovits/censo-argentino/2022/radios.parquet",
+      "sha256": "b1e88552ee823aeda29a276d733ef762005e0082f79085a7ba9c9f76fce29849",
+      "size_bytes": 65281775,
+      "expected_rows": 66502,
+      "received_crs": "OGC:CRS84",
+      "normalization_crs": "EPSG:3857",
+      "expected_invalid_native_ids": [
+        "060353103",
+        "062660601",
+        "062940205",
+        "062940210",
+        "100420302",
+        "140981003",
+        "660350201",
+        "820420308",
+        "820560213",
+        "821190101",
+        "860700401",
+        "900490102",
+        "940210101"
+      ],
+      "original_record_uri": "http://hdl.handle.net/11336/149711",
+      "original_bitstream_status": "broken_404_rechecked_2026-08-26",
+      "original_bitstream_url": "https://ri.conicet.gov.ar/bitstream/handle/11336/149711/RADIOS_2022_V2025-1.zip?sequence=2&isAllowed=y"
+    }
+  }
 }
