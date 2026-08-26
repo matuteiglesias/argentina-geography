@@ -49,11 +49,74 @@ jobs:
           python -m argentina_geography.sources.ceur_2022_v2025_1_probe \
             --source-out /tmp/RADIOS_2022_V2025-1.zip \
             --output /tmp/ceur-2022-v2025-1-raw-evidence.json
-      - name: Materialize exact INDEC parent release
+      - name: Materialize current INDEC geography
         run: |
           python -m argentina_geography.sources.indec_2022_radio materialize \
             --source /tmp/indec-radios-2022.zip \
             --output /tmp/indec-2022-radio
+      - name: Rehydrate pinned A2 identity after normalized-content proof
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          import pandas as pd
+
+          from argentina_geography.products import write_checksums, write_json
+          from argentina_geography.sources.indec_2022_radio import REQUIRED_OUTPUT_FILES
+
+          relation_config = json.loads(
+              Path("config/relations/indec_ceur_census_2022_radio.json").read_text()
+          )
+          expected = relation_config["source_parent"]
+          release = Path("/tmp/indec-2022-radio")
+          manifest_path = release / "manifest.json"
+          manifest = json.loads(manifest_path.read_text())
+
+          observed_version = manifest["dataset"]["version"]
+          observed_snapshot = manifest["source_snapshot"]["snapshot_id"]
+          observed_content = manifest["dataset"]["content_sha256"]
+          if observed_content != expected["content_sha256"]:
+              raise SystemExit(
+                  "INDEC normalized geography drift: "
+                  f"expected {expected['content_sha256']}, found {observed_content}"
+              )
+
+          evidence = {
+              "equivalence_basis": "normalized_geography_sha256",
+              "canonical_release_version": expected["release_version"],
+              "canonical_source_snapshot_sha256": expected["source_snapshot_sha256"],
+              "observed_live_release_version": observed_version,
+              "observed_live_source_snapshot": observed_snapshot,
+              "normalized_content_sha256": observed_content,
+              "normalized_content_equal": True,
+          }
+          write_json(Path("/tmp/indec-a2-live-repack-evidence.json"), evidence)
+
+          canonical_snapshot = "sha256:" + expected["source_snapshot_sha256"]
+          manifest["dataset"]["version"] = expected["release_version"]
+          manifest["source_snapshot"]["snapshot_id"] = canonical_snapshot
+          manifest["run"]["outputs"][0]["version"] = expected["release_version"]
+          manifest["run"]["inputs"][0]["snapshot_id"] = canonical_snapshot
+          manifest["run"]["parameters"]["live_wfs_repack_equivalence"] = evidence
+          manifest["live_wfs_repack_equivalence"] = evidence
+          write_json(manifest_path, manifest)
+
+          catalog_path = release / "geography_catalog.parquet"
+          catalog = pd.read_parquet(catalog_path)
+          catalog.loc[:, "release_version"] = expected["release_version"]
+          catalog.to_parquet(catalog_path, index=False)
+
+          limitations_path = release / "limitations.json"
+          limitations = json.loads(limitations_path.read_text())
+          limitations["release_version"] = expected["release_version"]
+          limitations["live_wfs_repack_equivalence"] = evidence
+          write_json(limitations_path, limitations)
+
+          write_checksums(release, REQUIRED_OUTPUT_FILES)
+          PY
+          python -m argentina_geography.sources.indec_2022_radio verify \
+            --release /tmp/indec-2022-radio
       - name: Materialize exact CEUR parent release
         run: |
           python -m argentina_geography.sources.ceur_2022_v2025_1 materialize \
@@ -73,6 +136,9 @@ jobs:
       - name: Prepare non-geometric relation evidence
         run: |
           mkdir -p /tmp/relation-evidence
+          cp /tmp/indec-a2-live-repack-evidence.json /tmp/relation-evidence/
+          cp /tmp/indec-2022-radio-raw-evidence.json /tmp/relation-evidence/
+          cp /tmp/ceur-2022-v2025-1-raw-evidence.json /tmp/relation-evidence/
           cp /tmp/indec-2022-radio/manifest.json \
             /tmp/relation-evidence/indec-parent-manifest.json
           cp /tmp/ceur-2022-v2025-1/manifest.json \
