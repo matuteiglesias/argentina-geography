@@ -79,6 +79,16 @@ jobs:
               "invalid_geometry_count": int((~frame.geometry.is_valid).sum()),
               "in1_values": sorted(in1.tolist()),
               "in1_unique_count": int(in1.nunique()),
+              "objectid_null_count": int(frame["OBJECTID"].isna().sum()),
+              "objectid_unique_count": int(frame["OBJECTID"].nunique(dropna=True)),
+              "entidad_values": sorted(frame["Entidad"].dropna().astype(str).str.strip().unique().tolist()),
+              "objeto_values": sorted(frame["Objeto"].dropna().astype(str).str.strip().unique().tolist()),
+              "gna_values": sorted(frame["GNA"].dropna().astype(str).str.strip().unique().tolist()),
+              "fna_unique_count": int(frame["FNA"].nunique(dropna=True)),
+              "nam_unique_count": int(frame["NAM"].nunique(dropna=True)),
+              "sag_unique_count": int(frame["SAG"].nunique(dropna=True)),
+              "fdc_unique_count": int(frame["FDC"].nunique(dropna=True)),
+              "fdc_null_count": int(frame["FDC"].isna().sum()),
               "bbox": [float(value) for value in frame.total_bounds.tolist()],
           }
           print(json.dumps(result, indent=2, ensure_ascii=False, sort_keys=True))
