@@ -76,28 +76,38 @@ jobs:
           observed_version = manifest["dataset"]["version"]
           observed_snapshot = manifest["source_snapshot"]["snapshot_id"]
           observed_content = manifest["dataset"]["content_sha256"]
+          observed_file = manifest["source_snapshot"]["files"][0]
           if observed_content != expected["content_sha256"]:
               raise SystemExit(
                   "INDEC normalized geography drift: "
                   f"expected {expected['content_sha256']}, found {observed_content}"
               )
 
+          canonical_sha = expected["source_snapshot_sha256"]
+          canonical_snapshot = "sha256:" + canonical_sha
+          canonical_size = 67278396
           evidence = {
               "equivalence_basis": "normalized_geography_sha256",
               "canonical_release_version": expected["release_version"],
-              "canonical_source_snapshot_sha256": expected["source_snapshot_sha256"],
+              "canonical_source_snapshot_sha256": canonical_sha,
+              "canonical_source_size_bytes": canonical_size,
               "observed_live_release_version": observed_version,
               "observed_live_source_snapshot": observed_snapshot,
+              "observed_live_source_file_sha256": observed_file["sha256"],
+              "observed_live_source_size_bytes": observed_file["size_bytes"],
               "normalized_content_sha256": observed_content,
               "normalized_content_equal": True,
           }
           write_json(Path("/tmp/indec-a2-live-repack-evidence.json"), evidence)
 
-          canonical_snapshot = "sha256:" + expected["source_snapshot_sha256"]
           manifest["dataset"]["version"] = expected["release_version"]
-          manifest["source_snapshot"]["snapshot_id"] = canonical_snapshot
           manifest["run"]["outputs"][0]["version"] = expected["release_version"]
-          manifest["run"]["inputs"][0]["snapshot_id"] = canonical_snapshot
+          manifest["run"]["run_id"] = f"indec-2022-radio:{canonical_sha[:16]}"
+          for snapshot in (manifest["source_snapshot"], manifest["run"]["inputs"][0]):
+              snapshot["snapshot_id"] = canonical_snapshot
+              for source_file in snapshot["files"]:
+                  source_file["sha256"] = canonical_sha
+                  source_file["size_bytes"] = canonical_size
           manifest["run"]["parameters"]["live_wfs_repack_equivalence"] = evidence
           manifest["live_wfs_repack_equivalence"] = evidence
           write_json(manifest_path, manifest)
