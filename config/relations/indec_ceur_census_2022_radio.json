@@ -14,6 +14,12 @@
     "source_snapshot_sha256": "d3a6f4c951022130d19a894984eb1315b0c9096314afb1fe2ac79eb9c85da3c8",
     "content_sha256": "6ff1fc751585a9c94a7ed73c32b8337d05f0a31cc833b8958425fb4dbb7cb6fe"
   },
+  "foundation_kernel": {
+    "repository": "matuteiglesias/spatial-data-foundation",
+    "commit_sha": "92080025305e634deb6fec45b20068ef513c64b2",
+    "overlap_blob_sha": "5825f248beb30fc693de346d9d430b0b73bd6b37",
+    "callable": "spatial_foundation.geography.relate_areal_objects"
+  },
   "analysis_crs": "EPSG:6933",
   "minimum_overlap_area_m2": 0.0,
   "mutual_full_overlap_tolerance": 1e-09,
