@@ -1,0 +1,90 @@
+name: A8 source feature identity fix v2
+
+on:
+  push:
+    branches:
+      - feat/tartagalensis-circuit-geographies
+    paths:
+      - ".github/workflows/a8-source-feature-identity-fix-v2.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/tartagalensis-circuit-geographies
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Preserve exact source-feature identity
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          source = Path('src/argentina_geography/sources/tartagalensis_circuits.py')
+          text = source.read_text()
+
+          old = '''def _feature_uid(\n    vintage: str,\n    source_path: str,\n    codprov: str,\n    coddepto: str | None,\n    circuito: str,\n    source_geometry_sha256: str,\n) -> str:\n    payload = {\n        "vintage": vintage,\n        "source_path": source_path,\n        "codprov": codprov,\n        "coddepto": None if pd.isna(coddepto) else str(coddepto),\n        "circuito": circuito,\n        "source_geometry_sha256": source_geometry_sha256,\n    }\n'''
+          new = '''def _feature_uid(\n    vintage: str,\n    source_path: str,\n    source_feature_index: int,\n    codprov: str,\n    coddepto: str | None,\n    circuito: str,\n    source_geometry_sha256: str,\n) -> str:\n    payload = {\n        "vintage": vintage,\n        "source_path": source_path,\n        "source_feature_index": int(source_feature_index),\n        "codprov": codprov,\n        "coddepto": None if pd.isna(coddepto) else str(coddepto),\n        "circuito": circuito,\n        "source_geometry_sha256": source_geometry_sha256,\n    }\n'''
+          if old not in text:
+              raise SystemExit('feature uid definition block not found')
+          text = text.replace(old, new, 1)
+
+          old = '''    result["geo_uid"] = [\n        _feature_uid(\n            vintage,\n            source_path,\n            codprov,\n            coddepto,\n            circuito,\n            source_geometry_sha256,\n        )\n        for source_path, codprov, coddepto, circuito, source_geometry_sha256 in zip(\n            result["source_path"],\n            result["codprov"],\n            result["coddepto"],\n            result["circuito"],\n            result["source_geometry_sha256"],\n            strict=True,\n        )\n    ]\n    if result["geo_uid"].duplicated().any():\n        duplicates = sorted(result.loc[result["geo_uid"].duplicated(False), "geo_uid"].unique())\n        raise ValueError(\n            "Tartagalensis source contains feature-identical duplicate rows that cannot be "\n            f"given row-order-independent geo_uid values: {duplicates[:10]}"\n        )\n\n'''
+          new = '''    duplicate_content_fields = [\n        "source_path",\n        "codprov",\n        "coddepto",\n        "circuito",\n        "source_geometry_sha256",\n    ]\n    duplicate_content = result.duplicated(duplicate_content_fields, keep=False)\n    duplicate_source_feature_count = int(duplicate_content.sum())\n    duplicate_source_feature_group_count = int(\n        result.loc[duplicate_content]\n        .groupby(duplicate_content_fields, dropna=False)\n        .ngroups\n    )\n\n    result["geo_uid"] = [\n        _feature_uid(\n            vintage,\n            source_path,\n            source_feature_index,\n            codprov,\n            coddepto,\n            circuito,\n            source_geometry_sha256,\n        )\n        for (\n            source_path,\n            source_feature_index,\n            codprov,\n            coddepto,\n            circuito,\n            source_geometry_sha256,\n        ) in zip(\n            result["source_path"],\n            result["source_feature_index"],\n            result["codprov"],\n            result["coddepto"],\n            result["circuito"],\n            result["source_geometry_sha256"],\n            strict=True,\n        )\n    ]\n    if result["geo_uid"].duplicated().any():\n        raise ValueError("Tartagalensis source-feature geo_uid must be unique")\n\n'''
+          if old not in text:
+              raise SystemExit('geo uid construction block not found')
+          text = text.replace(old, new, 1)
+
+          old = '''    return _feature_uid(\n        vintage,\n        str(row["source_path"]),\n        str(row["codprov"]),\n        coddepto,\n        str(row["circuito"]),\n        str(row["source_geometry_sha256"]),\n    )\n'''
+          new = '''    return _feature_uid(\n        vintage,\n        str(row["source_path"]),\n        int(row["source_feature_index"]),\n        str(row["codprov"]),\n        coddepto,\n        str(row["circuito"]),\n        str(row["source_geometry_sha256"]),\n    )\n'''
+          if old not in text:
+              raise SystemExit('detached feature uid verifier block not found')
+          text = text.replace(old, new, 1)
+
+          marker = '''    qa_warnings: list[dict] = []\n    nonstandard_count = int((~standard).sum())\n'''
+          insert = '''    qa_warnings: list[dict] = []\n    if duplicate_source_feature_count:\n        qa_warnings.append(\n            _warning(\n                "duplicate_source_feature_content",\n                "Feature-identical source rows are retained as distinct pinned source features; "\n                "source_path plus source_feature_index distinguishes them without assigning "\n                "electoral equivalence semantics.",\n                affected_rows=duplicate_source_feature_count,\n                duplicate_groups=duplicate_source_feature_group_count,\n            )\n        )\n    nonstandard_count = int((~standard).sum())\n'''
+          if marker not in text:
+              raise SystemExit('qa warning marker not found')
+          text = text.replace(marker, insert, 1)
+
+          marker = '''        "null_coddepto_feature_count": null_coddepto,\n        "geometry_types": geometry_types,\n'''
+          insert = '''        "null_coddepto_feature_count": null_coddepto,\n        "duplicate_source_feature_count": duplicate_source_feature_count,\n        "duplicate_source_feature_group_count": duplicate_source_feature_group_count,\n        "geometry_types": geometry_types,\n'''
+          if marker not in text:
+              raise SystemExit('audit marker not found')
+          text = text.replace(marker, insert, 1)
+          source.write_text(text)
+
+          tests = Path('tests/test_tartagalensis_circuits.py')
+          text = tests.read_text()
+          old = '"geometry": _square(-70 + index + 0.3, -40 + index / 10),'
+          new = '"geometry": _square(-70 + index, -40 + index / 10),'
+          if old not in text:
+              raise SystemExit('CABA multipart test geometry not found')
+          tests.write_text(text.replace(old, new, 1))
+
+          config = Path('config/sources/tartagalensis_electoral_circuits.json')
+          text = config.read_text()
+          marker = '    "coddepto is preserved as the source-native string, including source-native width; A8 does not pad, truncate, or reinterpret it as a Census department code.",\n'
+          addition = '    "Feature-identical duplicate rows are preserved at pinned source-feature grain; source_path plus source_feature_index is part of physical feature identity and does not imply distinct logical circuits.",\n'
+          if marker not in text:
+              raise SystemExit('known limitation marker not found')
+          config.write_text(text.replace(marker, marker + addition, 1))
+          PY
+          python -m pip install -e ".[dev]"
+          make check
+          python -m pytest -q tests/test_tartagalensis_circuits.py
+          rm .github/workflows/a8-source-feature-identity-fix.yml
+          rm .github/workflows/a8-source-feature-identity-fix-v2.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --check
+          git commit -m "fix: preserve duplicate Tartagalensis source features"
+          git push origin HEAD:feat/tartagalensis-circuit-geographies
