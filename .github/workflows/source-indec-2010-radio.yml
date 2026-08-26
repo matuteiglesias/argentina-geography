@@ -1,0 +1,109 @@
+name: source-proof-indec-2010-radio
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["feat/census-2010-geography-backbone"]
+    paths:
+      - "config/sources/indec_census_2010_radio.json"
+      - "src/argentina_geography/sources/indec_2010_radio_probe.py"
+      - "src/argentina_geography/sources/indec_2010_radio.py"
+      - "tests/test_indec_2010_radio.py"
+      - ".github/workflows/source-indec-2010-radio.yml"
+
+concurrency:
+  group: source-proof-indec-2010-radio-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  probe-source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install
+        run: python -m pip install -e ".[dev]"
+      - name: Probe official INDEC 2010 radio sources
+        run: |
+          python -m argentina_geography.sources.indec_2010_radio_probe \
+            --source-dir /tmp/indec-2010-source \
+            --output /tmp/indec-2010-raw-evidence.json \
+            --summary-output /tmp/indec-2010-source-summary.json
+          cat /tmp/indec-2010-source-summary.json
+      - name: Characterize historical 2010 evidence
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import geopandas as gpd
+          import pandas as pd
+
+          lookup = pd.read_csv(
+              "censos_db_ref/2010/RADIO.csv",
+              sep=";",
+              dtype=str,
+              keep_default_na=False,
+          )
+          old = gpd.read_file(
+              "censos_shp_CONICET/2010_RADIOS ARGENTINA/2010_RADIOS ARGENTINA.shp"
+          )
+          evidence = {
+              "lookup_row_count": int(len(lookup)),
+              "lookup_columns": lookup.columns.tolist(),
+              "lookup_unique_counts": {
+                  column: int(lookup[column].nunique(dropna=False))
+                  for column in lookup.columns
+              },
+              "historical_conicet_feature_count": int(len(old)),
+              "historical_conicet_columns": old.columns.tolist(),
+              "historical_conicet_crs": None if old.crs is None else old.crs.to_string(),
+          }
+          Path("/tmp/indec-2010-historical-evidence.json").write_text(
+              json.dumps(evidence, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          print(json.dumps(evidence, ensure_ascii=False, indent=2))
+          PY
+      - name: Upload raw source evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: indec-2010-radio-raw-evidence
+          path: |
+            /tmp/indec-2010-raw-evidence.json
+            /tmp/indec-2010-source-summary.json
+            /tmp/indec-2010-historical-evidence.json
+          if-no-files-found: error
+      - name: Materialize exact probed snapshot
+        if: ${{ hashFiles('src/argentina_geography/sources/indec_2010_radio.py') != '' }}
+        run: |
+          python -m argentina_geography.sources.indec_2010_radio materialize \
+            --source-dir /tmp/indec-2010-source \
+            --output /tmp/indec-2010-radio
+      - name: Verify detached product
+        if: ${{ hashFiles('src/argentina_geography/sources/indec_2010_radio.py') != '' }}
+        run: |
+          cp -R /tmp/indec-2010-radio /tmp/indec-2010-radio-detached
+          python -m argentina_geography.sources.indec_2010_radio verify \
+            --release /tmp/indec-2010-radio-detached
+      - name: Prepare non-geometric release evidence
+        if: ${{ hashFiles('src/argentina_geography/sources/indec_2010_radio.py') != '' }}
+        run: |
+          mkdir -p /tmp/source-evidence
+          cp /tmp/indec-2010-radio/manifest.json /tmp/source-evidence/
+          cp /tmp/indec-2010-radio/qa.json /tmp/source-evidence/
+          cp /tmp/indec-2010-radio/source_metadata.json /tmp/source-evidence/
+          cp /tmp/indec-2010-radio/limitations.json /tmp/source-evidence/
+          cp /tmp/indec-2010-radio/identity_contract.json /tmp/source-evidence/
+          cat /tmp/indec-2010-radio/source_metadata.json
+          cat /tmp/indec-2010-radio/qa.json
+          cat /tmp/indec-2010-radio/identity_contract.json
+      - name: Upload release evidence
+        if: ${{ hashFiles('src/argentina_geography/sources/indec_2010_radio.py') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: indec-2010-radio-source-evidence
+          path: /tmp/source-evidence
+          if-no-files-found: error
