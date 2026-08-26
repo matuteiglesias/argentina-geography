@@ -12,30 +12,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Probe official CONICET dataset content negotiation
-        shell: bash
-        run: |
-          set +e
-          base='https://ri.conicet.gov.ar/rest/dataset/11336/149711'
-          for accept in \
-            'application/json' \
-            'application/zip' \
-            'application/octet-stream' \
-            'application/x-zip-compressed'; do
-            echo "== Accept: $accept =="
-            code=$(curl -sSL -H "Accept: $accept" -o /tmp/out -D /tmp/h \
-              -w '%{http_code}' --max-time 60 "$base")
-            echo "HTTP $code bytes=$(wc -c </tmp/out) type=$(file -b --mime-type /tmp/out)"
-            sed -n '1,20p' /tmp/h
-            sha256sum /tmp/out
-            head -c 300 /tmp/out; echo
-          done
-          for query in 'format=zip' 'download=zip' 'type=zip' 'bundle=true' 'files=true'; do
-            echo "== $query =="
-            code=$(curl -sSL -o /tmp/out -D /tmp/h -w '%{http_code}' --max-time 60 "$base?$query")
-            echo "HTTP $code bytes=$(wc -c </tmp/out) type=$(file -b --mime-type /tmp/out)"
-            sed -n '1,12p' /tmp/h
-            sha256sum /tmp/out
-            head -c 300 /tmp/out; echo
-          done
-          exit 0
+      - uses: actions/checkout@v4
+      - uses: actions/upload-artifact@v4
+        with:
+          name: a11-working-source
+          path: |
+            src/argentina_geography/relations/ceur_2010_2022.py
+            src/argentina_geography/sources/ceur_2010_v2025_1.py
+            src/argentina_geography/sources/ceur_2022_v2025_1.py
+            config/relations/ceur_census_2010_2022_radio.json
+            tests/test_ceur_2010_2022_relation.py
+            .github/workflows/source-ceur-2010-2022-relation.yml
