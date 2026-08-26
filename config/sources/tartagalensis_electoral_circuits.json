@@ -265,6 +265,7 @@
     "Some logical circuits are represented by multiple source features because their territory is non-contiguous; A8 preserves source features and exposes a separate composite circuit_uid when the native composite key is complete.",
     "Twenty-nine 2021 source features have null coddepto according to the pinned README; those rows are preserved with explicit incomplete-identity status rather than imputed.",
     "coddepto is preserved as the source-native string, including source-native width; A8 does not pad, truncate, or reinterpret it as a Census department code.",
+    "Feature-identical duplicate rows are preserved at pinned source-feature grain; source_path plus source_feature_index is part of physical feature identity and does not imply distinct logical circuits.",
     "Documented no-data and grey-zone polygons represent real territory without an assigned circuit and are preserved rather than filtered.",
     "San Juan contains source GeometryCollection features; A8 preserves source geometry types and does not silently coerce or repair them.",
     "Santa Fe and Tierra del Fuego changed circuit nomenclature between 2021 and 2025. A8 records aggregate code-compatibility evidence only and publishes no cross-vintage equivalence.",
