@@ -330,8 +330,10 @@ def build_pattern_examples(relation: pd.DataFrame, config: dict) -> dict:
                     (
                         rank,
                         component,
-                        "1x1 connected component with both overlap shares at or above "
-                        f"{stable_min}; equal native IDs are not sufficient by themselves.",
+                        (
+                            "1x1 connected component with both overlap shares at or above "
+                            f"{stable_min}; equal native IDs are not sufficient by themselves."
+                        ),
                     )
                 )
             else:
@@ -348,8 +350,10 @@ def build_pattern_examples(relation: pd.DataFrame, config: dict) -> dict:
                 (
                     rank,
                     component,
-                    "One 2010 source is connected by positive area to multiple 2022 targets; "
-                    "the label is a versioned structural interpretation, not allocation.",
+                    (
+                        "One 2010 source is connected by positive area to multiple 2022 targets; "
+                        "the label is a versioned structural interpretation, not allocation."
+                    ),
                 )
             )
         elif shape == "Nx1":
@@ -364,8 +368,10 @@ def build_pattern_examples(relation: pd.DataFrame, config: dict) -> dict:
                 (
                     rank,
                     component,
-                    "Multiple 2010 sources are connected by positive area to one 2022 target; "
-                    "the label is a versioned structural interpretation, not allocation.",
+                    (
+                        "Multiple 2010 sources are connected by positive area to one 2022 target; "
+                        "the label is a versioned structural interpretation, not allocation."
+                    ),
                 )
             )
         else:
@@ -382,8 +388,10 @@ def build_pattern_examples(relation: pd.DataFrame, config: dict) -> dict:
                 (
                     rank,
                     component,
-                    "Connected positive-overlap component with multiple sources and multiple "
-                    "targets; this is genuinely N:M rather than a one-sided split or merge.",
+                    (
+                        "Connected positive-overlap component with multiple sources and multiple "
+                        "targets; this is genuinely N:M rather than a one-sided split or merge."
+                    ),
                 )
             )
 
