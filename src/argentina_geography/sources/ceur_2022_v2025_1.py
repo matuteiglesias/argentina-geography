@@ -309,7 +309,7 @@ def materialize_from_source(
         storage_mode="external_immutable",
         files=(
             SourceFileRef(
-                path=config["file_name"],
+                path=source_path.name,
                 sha256=source_sha256,
                 size_bytes=source_size,
             ),
