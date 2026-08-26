@@ -12,21 +12,30 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Discover official CONICET file API surface
+      - name: Probe official CONICET dataset content negotiation
         shell: bash
         run: |
           set +e
-          echo '== candidate REST endpoints =='
-          for suffix in files file bitstreams download contents resources; do
-            url="https://ri.conicet.gov.ar/rest/dataset/11336/149711/$suffix"
-            echo "-- $url"
-            code=$(curl -sSL -o /tmp/out -w '%{http_code}' --max-time 20 "$url")
+          base='https://ri.conicet.gov.ar/rest/dataset/11336/149711'
+          for accept in \
+            'application/json' \
+            'application/zip' \
+            'application/octet-stream' \
+            'application/x-zip-compressed'; do
+            echo "== Accept: $accept =="
+            code=$(curl -sSL -H "Accept: $accept" -o /tmp/out -D /tmp/h \
+              -w '%{http_code}' --max-time 60 "$base")
             echo "HTTP $code bytes=$(wc -c </tmp/out) type=$(file -b --mime-type /tmp/out)"
-            head -c 1200 /tmp/out; echo
+            sed -n '1,20p' /tmp/h
+            sha256sum /tmp/out
+            head -c 300 /tmp/out; echo
           done
-          echo '== page source endpoint clues =='
-          curl -fsSL --max-time 30 'https://ri.conicet.gov.ar/handle/11336/149711' -o /tmp/page.html
-          grep -Eo '(/rest/[^"<> ]+|/bitstream/[^"<> ]+|RADIOS_[^"<> ]+)' /tmp/page.html | head -80
-          echo '== script src =='
-          grep -Eo 'src="[^"]+\.js[^" ]*"' /tmp/page.html | head -40
+          for query in 'format=zip' 'download=zip' 'type=zip' 'bundle=true' 'files=true'; do
+            echo "== $query =="
+            code=$(curl -sSL -o /tmp/out -D /tmp/h -w '%{http_code}' --max-time 60 "$base?$query")
+            echo "HTTP $code bytes=$(wc -c </tmp/out) type=$(file -b --mime-type /tmp/out)"
+            sed -n '1,12p' /tmp/h
+            sha256sum /tmp/out
+            head -c 300 /tmp/out; echo
+          done
           exit 0
