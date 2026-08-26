@@ -58,16 +58,13 @@ def _parent_snapshot_sha(manifest: dict) -> str:
     return snapshot_id[len(prefix) :]
 
 
-def _load_parent(
-    release: Path,
+def _verify_parent_binding(
+    dataset: DatasetRef,
+    source_snapshot: dict,
     expected: dict,
     *,
-    verify,
     label: str,
-) -> tuple[gpd.GeoDataFrame, dict, DatasetRef]:
-    verify(release)
-    manifest = validate_manifest(release / "manifest.json")
-    dataset = DatasetRef.model_validate(manifest["dataset"])
+) -> None:
     if dataset.dataset_id != expected["dataset_id"]:
         raise ValueError(
             f"{label} dataset_id mismatch: expected {expected['dataset_id']}, "
@@ -78,12 +75,36 @@ def _load_parent(
             f"{label} release version mismatch: expected {expected['release_version']}, "
             f"found {dataset.version}"
         )
+    if dataset.content_sha256 != expected["content_sha256"]:
+        raise ValueError(
+            f"{label} content hash mismatch: expected {expected['content_sha256']}, "
+            f"found {dataset.content_sha256}"
+        )
+    manifest = {"source_snapshot": source_snapshot}
     source_sha = _parent_snapshot_sha(manifest)
     if source_sha != expected["source_snapshot_sha256"]:
         raise ValueError(
             f"{label} source snapshot mismatch: expected "
             f"{expected['source_snapshot_sha256']}, found {source_sha}"
         )
+
+
+def _load_parent(
+    release: Path,
+    expected: dict,
+    *,
+    verify,
+    label: str,
+) -> tuple[gpd.GeoDataFrame, dict, DatasetRef]:
+    verify(release)
+    manifest = validate_manifest(release / "manifest.json")
+    dataset = DatasetRef.model_validate(manifest["dataset"])
+    _verify_parent_binding(
+        dataset,
+        manifest["source_snapshot"],
+        expected,
+        label=label,
+    )
     frame = gpd.read_parquet(release / manifest["artifacts"]["geography"])
     return frame, manifest, dataset
 
@@ -101,6 +122,11 @@ def _quantiles(values: pd.Series) -> dict:
         "p99": float(numeric.quantile(0.99)),
         "max": float(numeric.max()),
     }
+
+
+def _multiplicity_distribution(values: pd.Series) -> dict[str, int]:
+    counts = values.astype(int).value_counts().sort_index()
+    return {str(int(k)): int(v) for k, v in counts.items()}
 
 
 def build_relation(
@@ -144,6 +170,9 @@ def build_relation(
         == relation.loc[positive, "target_native_id"].astype(str).to_numpy()
     )
 
+    # Foundation deliberately emits source-side share only. A5 also needs the target-side
+    # share to answer one concrete QA question: when IDs agree, do the two polygons cover
+    # each other mutually, or does one extend beyond the other?
     target_metric = target_analytical[
         ["target_geo_uid", target_analytical.geometry.name]
     ].to_crs(config["analysis_crs"])
@@ -203,8 +232,27 @@ def build_relation(
         .sum()
         .reindex(target_analytical["target_geo_uid"], fill_value=0.0)
     )
-    referenced_targets = int(positive_relation["target_geo_uid"].nunique())
 
+    source_candidate_counts = (
+        relation.groupby("source_geo_uid")["source_candidate_count"]
+        .first()
+        .reindex(source.loc[source_analytical, "source_geo_uid"], fill_value=0)
+        .astype(int)
+    )
+    target_candidate_counts = (
+        target_counts.reindex(target_analytical["target_geo_uid"], fill_value=0)
+        .astype(int)
+    )
+
+    tolerance = float(config.get("mutual_full_overlap_tolerance", 1e-9))
+    same_id = positive_relation["same_native_id"].fillna(False)
+    same_id_rows = positive_relation.loc[same_id]
+    mutual_full = (
+        same_id_rows["overlap_share_of_source"].astype(float).ge(1.0 - tolerance)
+        & same_id_rows["overlap_share_of_target"].astype(float).ge(1.0 - tolerance)
+    )
+
+    referenced_targets = int(positive_relation["target_geo_uid"].nunique())
     audit = {
         "stage_decision": (
             "PASS_WITH_WARNINGS"
@@ -227,13 +275,25 @@ def build_relation(
         "sources_with_positive_overlap": int(
             positive_relation["source_geo_uid"].nunique()
         ),
+        "source_multiplicity_distribution": _multiplicity_distribution(
+            source_candidate_counts
+        ),
         "referenced_analytical_targets": referenced_targets,
         "unreferenced_analytical_targets": len(target_analytical) - referenced_targets,
-        "positive_same_native_id_rows": int(
-            positive_relation["same_native_id"].fillna(False).sum()
+        "target_matched_single": int((target_candidate_counts == 1).sum()),
+        "target_matched_multiple": int((target_candidate_counts > 1).sum()),
+        "target_multiplicity_distribution": _multiplicity_distribution(
+            target_candidate_counts
         ),
-        "positive_different_native_id_rows": int(
-            (~positive_relation["same_native_id"].fillna(False)).sum()
+        "positive_same_native_id_rows": int(same_id.sum()),
+        "positive_different_native_id_rows": int((~same_id).sum()),
+        "same_native_id_mutual_full_overlap_rows": int(mutual_full.sum()),
+        "same_native_id_geometry_difference_rows": int((~mutual_full).sum()),
+        "mutual_full_overlap_tolerance": tolerance,
+        "target_side_overlap_share_required": True,
+        "target_side_overlap_share_qa_question": (
+            "When source and target native IDs agree, do both polygons mutually cover "
+            "each other, rather than only the source being fully contained in the target?"
         ),
         "source_total_overlap_share_quantiles": _quantiles(source_coverage),
         "target_total_overlap_share_quantiles": _quantiles(target_coverage),
@@ -257,6 +317,9 @@ def _relation_version(
         "target_dataset": target_dataset.model_dump(mode="json"),
         "analysis_crs": config["analysis_crs"],
         "minimum_overlap_area_m2": config["minimum_overlap_area_m2"],
+        "mutual_full_overlap_tolerance": config.get(
+            "mutual_full_overlap_tolerance", 1e-9
+        ),
     }
     digest = hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
@@ -265,7 +328,10 @@ def _relation_version(
 
 
 def _summary_markdown(
-    audit: dict, source_dataset: DatasetRef, target_dataset: DatasetRef
+    audit: dict,
+    source_dataset: DatasetRef,
+    target_dataset: DatasetRef,
+    config: dict,
 ) -> str:
     return f"""# INDEC ↔ CEUR Census 2022 relation summary
 
@@ -274,28 +340,55 @@ This release contains **geometric relation facts**, not a provider preference or
 ## Exact parents
 
 - Source: `{source_dataset.dataset_id}` `{source_dataset.version}`
+  - source snapshot SHA-256: `{config['source_parent']['source_snapshot_sha256']}`
+  - normalized geography SHA-256: `{source_dataset.content_sha256}`
 - Target: `{target_dataset.dataset_id}` `{target_dataset.version}`
+  - source snapshot SHA-256: `{config['target_parent']['source_snapshot_sha256']}`
+  - normalized geography SHA-256: `{target_dataset.content_sha256}`
 
-## Relation counts
+## Source-side relation counts
 
 - INDEC parent rows: **{audit['source_parent_rows']:,}**
 - INDEC analytical rows: **{audit['source_analytical_rows']:,}**
 - INDEC source-invalid rows: **{audit['source_invalid_geometry_rows']:,}**
-- CEUR parent rows: **{audit['target_parent_rows']:,}**
-- CEUR analytical rows: **{audit['target_analytical_rows']:,}**
-- CEUR source-invalid rows excluded as targets: **{audit['target_invalid_geometry_rows']:,}**
 - Positive relation rows: **{audit['positive_relation_rows']:,}**
 - INDEC matched to one CEUR target: **{audit['matched_single']:,}**
 - INDEC matched to multiple CEUR targets: **{audit['matched_multiple']:,}**
 - INDEC unmatched outside analytical CEUR targets: **{audit['unmatched_outside']:,}**
 - INDEC invalid source geometry: **{audit['invalid_source_geometry']:,}**
+- Source multiplicity distribution: `{json.dumps(audit['source_multiplicity_distribution'], sort_keys=True)}`
+
+## Target-side topology counts
+
+- CEUR parent rows: **{audit['target_parent_rows']:,}**
+- CEUR analytical rows: **{audit['target_analytical_rows']:,}**
+- CEUR source-invalid rows excluded as targets: **{audit['target_invalid_geometry_rows']:,}**
 - CEUR analytical targets referenced: **{audit['referenced_analytical_targets']:,}**
 - CEUR analytical targets unreferenced: **{audit['unreferenced_analytical_targets']:,}**
+- CEUR targets overlapped by one INDEC source: **{audit['target_matched_single']:,}**
+- CEUR targets overlapped by multiple INDEC sources: **{audit['target_matched_multiple']:,}**
+- Target multiplicity distribution: `{json.dumps(audit['target_multiplicity_distribution'], sort_keys=True)}`
 
-## Native-code agreement on positive overlaps
+## Identity differences
+
+Among positive overlap rows:
 
 - Same nine-digit native ID: **{audit['positive_same_native_id_rows']:,}**
 - Different native IDs: **{audit['positive_different_native_id_rows']:,}**
+
+A different native ID is an identity difference. It is not, by itself, evidence that either provider is
+wrong or that one geography should replace the other.
+
+## Geometry differences with the same native ID
+
+Among positive overlap rows whose native IDs agree:
+
+- Mutual full overlap within tolerance: **{audit['same_native_id_mutual_full_overlap_rows']:,}**
+- Geometry differs in at least one direction: **{audit['same_native_id_geometry_difference_rows']:,}**
+
+The QA-only mutual-full-overlap tolerance is `{audit['mutual_full_overlap_tolerance']}`.
+`overlap_share_of_target` is necessary here: source-side share alone cannot distinguish a mutually
+identical polygon from an INDEC polygon that is fully contained inside a larger CEUR polygon.
 
 ## Interpretation boundary
 
@@ -349,7 +442,10 @@ def materialize_relation(
             {
                 "code": "source_parent_invalid_geometry",
                 "affected_rows": audit["source_invalid_geometry_rows"],
-                "message": "INDEC source-invalid polygons remain visible as invalid source relation rows.",
+                "message": (
+                    "INDEC source-invalid polygons remain visible as invalid source "
+                    "relation rows."
+                ),
             }
         )
     if audit["target_invalid_geometry_rows"]:
@@ -357,7 +453,9 @@ def materialize_relation(
             {
                 "code": "target_parent_invalid_geometry_excluded",
                 "affected_rows": audit["target_invalid_geometry_rows"],
-                "message": "CEUR source-invalid polygons are excluded from the analytical target set.",
+                "message": (
+                    "CEUR source-invalid polygons are excluded from the analytical target set."
+                ),
             }
         )
 
@@ -366,7 +464,8 @@ def materialize_relation(
         check_id="indec_ceur_2022_radio_relation_contract",
         state=qa_state,
         message=(
-            "INDEC↔CEUR 2022 geometric relation is publishable with explicit parent-geometry warnings."
+            "INDEC↔CEUR 2022 geometric relation is publishable with explicit "
+            "parent-geometry warnings."
             if qa_state == "YELLOW"
             else "INDEC↔CEUR 2022 geometric relation satisfies the relation boundary."
         ),
@@ -379,6 +478,11 @@ def materialize_relation(
             "unmatched_outside": audit["unmatched_outside"],
             "invalid_source_geometry": audit["invalid_source_geometry"],
             "target_invalid_geometry_rows": audit["target_invalid_geometry_rows"],
+            "target_matched_single": audit["target_matched_single"],
+            "target_matched_multiple": audit["target_matched_multiple"],
+            "same_native_id_geometry_difference_rows": audit[
+                "same_native_id_geometry_difference_rows"
+            ],
         },
     )
     now = datetime.now(UTC)
@@ -393,6 +497,10 @@ def materialize_relation(
             "relation_method": "spatial_foundation.geography.relate_areal_objects",
             "analysis_crs": config["analysis_crs"],
             "minimum_overlap_area_m2": config["minimum_overlap_area_m2"],
+            "mutual_full_overlap_tolerance": config.get(
+                "mutual_full_overlap_tolerance", 1e-9
+            ),
+            "target_side_overlap_share": "local_a5_qa_fact",
             "adjudication_applied": False,
             "geometry_repair_applied": False,
             "stage_decision": audit["stage_decision"],
@@ -411,8 +519,10 @@ def materialize_relation(
                 "schema_version": dataset.schema_version,
                 "source_dataset_id": source_dataset.dataset_id,
                 "source_release_version": source_dataset.version,
+                "source_content_sha256": source_dataset.content_sha256,
                 "target_dataset_id": target_dataset.dataset_id,
                 "target_release_version": target_dataset.version,
+                "target_content_sha256": target_dataset.content_sha256,
                 "authority_status": "derived_geometric_fact",
                 "relation_method": "areal_positive_overlap",
                 "analysis_crs": config["analysis_crs"],
@@ -445,7 +555,7 @@ def materialize_relation(
         },
     )
     (output / "comparison_summary.md").write_text(
-        _summary_markdown(audit, source_dataset, target_dataset),
+        _summary_markdown(audit, source_dataset, target_dataset, config),
         encoding="utf-8",
     )
     manifest = {
@@ -462,6 +572,7 @@ def materialize_relation(
         },
         "relation_method": "spatial_foundation.geography.relate_areal_objects",
         "adjudication_applied": False,
+        "geometry_repair_applied": False,
         "row_count": len(relation),
         "positive_relation_rows": audit["positive_relation_rows"],
         "artifacts": {
@@ -484,12 +595,15 @@ def verify_relation(
     config = load_config(config_path)
     verify_checksums(output)
     manifest = validate_manifest(output / "manifest.json")
-    dataset = manifest["dataset"]
+    dataset = DatasetRef.model_validate(manifest["dataset"])
     relation = pd.read_parquet(output / manifest["artifacts"]["relations"])
 
-    if dataset["dataset_id"] != config["relation_id"]:
+    if dataset.dataset_id != config["relation_id"]:
         raise ValueError("relation dataset_id does not match configured relation")
-    if sha256_file(output / manifest["artifacts"]["relations"]) != dataset["content_sha256"]:
+    if (
+        sha256_file(output / manifest["artifacts"]["relations"])
+        != dataset.content_sha256
+    ):
         raise ValueError("relation content hash mismatch")
     if len(relation) != manifest["row_count"]:
         raise ValueError("relation row count does not match manifest")
@@ -522,6 +636,10 @@ def verify_relation(
             raise ValueError(f"{field} must be within (0, 1] on positive rows")
     if relation.loc[positive, "target_native_id"].isna().any():
         raise ValueError("positive relation rows require target_native_id")
+    if relation.loc[positive, "source_candidate_count"].astype(int).lt(1).any():
+        raise ValueError("positive relation rows require a positive source candidate count")
+    if relation.loc[positive, "target_candidate_count"].astype(int).lt(1).any():
+        raise ValueError("positive relation rows require a positive target candidate count")
 
     expected_same = (
         relation.loc[positive, "source_native_id"].astype(str).to_numpy()
@@ -534,10 +652,14 @@ def verify_relation(
         raise ValueError("same_native_id is inconsistent with native IDs")
 
     nonpositive = ~positive
-    if relation.loc[nonpositive, "overlap_area_m2"].notna().any():
-        raise ValueError("non-positive relation rows must not contain overlap area")
-    if relation.loc[nonpositive, "overlap_share_of_source"].notna().any():
-        raise ValueError("non-positive relation rows must not contain source overlap share")
+    for field in (
+        "overlap_area_m2",
+        "overlap_share_of_source",
+        "overlap_share_of_target",
+        "target_candidate_count",
+    ):
+        if relation.loc[nonpositive, field].notna().any():
+            raise ValueError(f"non-positive relation rows must not contain {field}")
     allowed_status = {
         "matched_single",
         "matched_multiple",
@@ -547,12 +669,32 @@ def verify_relation(
     if not set(relation["relation_status"]).issubset(allowed_status):
         raise ValueError("relation contains unsupported relation_status")
 
-    source_parent = manifest["parents"]["source_dataset"]
-    target_parent = manifest["parents"]["target_dataset"]
-    if source_parent["version"] != config["source_parent"]["release_version"]:
-        raise ValueError("relation source parent release changed")
-    if target_parent["version"] != config["target_parent"]["release_version"]:
-        raise ValueError("relation target parent release changed")
+    prohibited_tokens = ("winner", "selected", "canonical", "corrected", "nearest")
+    prohibited = [
+        column
+        for column in relation.columns
+        if any(token in column.lower() for token in prohibited_tokens)
+    ]
+    if prohibited:
+        raise ValueError(f"relation contains adjudication-like columns: {prohibited}")
+
+    _verify_parent_binding(
+        DatasetRef.model_validate(manifest["parents"]["source_dataset"]),
+        manifest["parents"]["source_snapshot"],
+        config["source_parent"],
+        label="relation source parent",
+    )
+    _verify_parent_binding(
+        DatasetRef.model_validate(manifest["parents"]["target_dataset"]),
+        manifest["parents"]["target_snapshot"],
+        config["target_parent"],
+        label="relation target parent",
+    )
+
+    if manifest.get("adjudication_applied") is not False:
+        raise ValueError("relation manifest must declare adjudication_applied=false")
+    if manifest.get("geometry_repair_applied") is not False:
+        raise ValueError("relation manifest must declare geometry_repair_applied=false")
 
 
 def main() -> None:
