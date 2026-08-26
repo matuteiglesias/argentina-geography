@@ -1,0 +1,33 @@
+{
+  "source_id": "indec-census-2022-fraction-national",
+  "provider": "INDEC",
+  "authority_status": "official",
+  "resource_title": "Fracciones censales",
+  "resource_uuid": "a3b7e165-5db5-42aa-893a-6f5d6dbf83dc",
+  "metadata_publication_date": "2025-01-16T14:39:00-03:00",
+  "metadata_url": "https://geonode.indec.gob.ar/layers/geonode_data:geonode:fracciones_censales",
+  "coding_note_url": "https://portalgeoestadistico.indec.gob.ar/maps/geoportal/nota_fracciones_censales.pdf",
+  "layer_name": "geonode:fracciones_censales",
+  "wfs_url": "https://geonode.indec.gob.ar/geoserver/wfs",
+  "wfs_version": "1.1.0",
+  "wfs_output_format": "SHAPE-ZIP",
+  "source_encoding": "CP1252",
+  "distribution_mode": "official_remote_fetch",
+  "license_status": "not_specified",
+  "attribution": "INDEC",
+  "citation": "Instituto Nacional de Estadística y Censos (2022). Cartografía y códigos geográficos del Sistema Estadístico Nacional. https://portalgeoestadistico.indec.gob.ar/",
+  "required_fields": ["jur", "cpr", "cde", "dpto", "cfn", "cod_indec"],
+  "optional_preserved_fields": ["fid", "id", "sag"],
+  "identity_field": "cod_indec",
+  "component_widths": {"cpr": 2, "cfn": 2, "cod_indec": 7},
+  "source_cde_max_width": 5,
+  "identity_composition": "cod_indec is authoritative. Parse department_code=cod_indec[0:5] and fraction_code=cod_indec[5:7]. Source cpr, cde and cfn are preserved as provider fields and audited rather than rewritten.",
+  "documented_adjustment_jurisdictions": ["Entre Ríos", "Misiones"],
+  "documented_adjustment_semantics": "INDEC documents fraction and radio 00 adjustment surfaces in Entre Ríos and Misiones that do not carry census data.",
+  "known_limitations": [
+    "The national layer is statistical census-operation geography and must not be silently substituted for another provider's administrative boundaries.",
+    "The GeoNode metadata currently reports License: Not Specified; Argentina Geography does not infer redistribution rights.",
+    "Provider-native code fields are preserved even when their textual representation differs from normalized slices derived from cod_indec.",
+    "Source-invalid polygons, if present, remain visible but are not eligible for analytical relation kernels without a separately governed repair policy."
+  ]
+}

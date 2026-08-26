@@ -1,0 +1,60 @@
+name: source-proof-indec-2022-fraction
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["feat/indec-2022-fraction-geography"]
+    paths:
+      - "config/sources/indec_census_2022_fraction.json"
+      - "src/argentina_geography/sources/indec_2022_fraction.py"
+      - "src/argentina_geography/sources/indec_2022_fraction_probe.py"
+      - ".github/workflows/source-indec-2022-fraction.yml"
+
+concurrency:
+  group: source-proof-indec-2022-fraction-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  materialize-source-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install
+        run: python -m pip install -e ".[dev]"
+      - name: Probe official INDEC source
+        run: |
+          python -m argentina_geography.sources.indec_2022_fraction_probe \
+            --source-out /tmp/indec-fracciones-2022.zip \
+            --output /tmp/indec-2022-fraction-raw-evidence.json
+      - name: Upload raw source evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: indec-2022-fraction-raw-evidence
+          path: /tmp/indec-2022-fraction-raw-evidence.json
+          if-no-files-found: error
+      - name: Materialize official INDEC source
+        run: |
+          python -m argentina_geography.sources.indec_2022_fraction materialize \
+            --source /tmp/indec-fracciones-2022.zip \
+            --output /tmp/indec-2022-fraction
+      - name: Verify detached product
+        run: |
+          cp -R /tmp/indec-2022-fraction /tmp/indec-2022-fraction-detached
+          python -m argentina_geography.sources.indec_2022_fraction verify \
+            --release /tmp/indec-2022-fraction-detached
+      - name: Prepare non-geometric source evidence
+        run: |
+          mkdir -p /tmp/source-evidence
+          cp /tmp/indec-2022-fraction/manifest.json /tmp/source-evidence/
+          cp /tmp/indec-2022-fraction/qa.json /tmp/source-evidence/
+          cp /tmp/indec-2022-fraction/source_metadata.json /tmp/source-evidence/
+          cp /tmp/indec-2022-fraction/limitations.json /tmp/source-evidence/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: indec-2022-fraction-source-evidence
+          path: /tmp/source-evidence
+          if-no-files-found: error
