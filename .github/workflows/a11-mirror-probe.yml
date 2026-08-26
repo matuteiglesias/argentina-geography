@@ -1,0 +1,41 @@
+name: a11-mirror-probe
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["feat/longitudinal-census-relation"]
+    paths:
+      - ".github/workflows/a11-mirror-probe.yml"
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Probe official CONICET dataset content negotiation
+        shell: bash
+        run: |
+          set +e
+          base='https://ri.conicet.gov.ar/rest/dataset/11336/149711'
+          for accept in \
+            'application/json' \
+            'application/zip' \
+            'application/octet-stream' \
+            'application/x-zip-compressed'; do
+            echo "== Accept: $accept =="
+            code=$(curl -sSL -H "Accept: $accept" -o /tmp/out -D /tmp/h \
+              -w '%{http_code}' --max-time 60 "$base")
+            echo "HTTP $code bytes=$(wc -c </tmp/out) type=$(file -b --mime-type /tmp/out)"
+            sed -n '1,20p' /tmp/h
+            sha256sum /tmp/out
+            head -c 300 /tmp/out; echo
+          done
+          for query in 'format=zip' 'download=zip' 'type=zip' 'bundle=true' 'files=true'; do
+            echo "== $query =="
+            code=$(curl -sSL -o /tmp/out -D /tmp/h -w '%{http_code}' --max-time 60 "$base?$query")
+            echo "HTTP $code bytes=$(wc -c </tmp/out) type=$(file -b --mime-type /tmp/out)"
+            sed -n '1,12p' /tmp/h
+            sha256sum /tmp/out
+            head -c 300 /tmp/out; echo
+          done
+          exit 0

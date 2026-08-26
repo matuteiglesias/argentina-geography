@@ -1,0 +1,41 @@
+{
+  "relation_id": "arggeo.relation.ceur.census.2010-2022.radio",
+  "source_role": "ceur_curated_2010_v2025_1_radio",
+  "target_role": "ceur_curated_2022_v2025_1_radio",
+  "source_parent": {
+    "dataset_id": "arggeo.ceur.census.2010.radio",
+    "release_version": "v2025-1-2010-464e9b4c265a",
+    "source_snapshot_sha256": "464e9b4c265a27f46a48e0c5914ef4e833c14e8977b8f0c9c1eaad672f374baa",
+    "content_sha256": "d2095144bc31a34bd09c8fc0a130a872f41016541a8b87daddd52aace759a23e"
+  },
+  "target_parent": {
+    "dataset_id": "arggeo.ceur.census.2022.radio",
+    "release_version": "v2025-1-2022-d3a6f4c95102",
+    "source_snapshot_sha256": "d3a6f4c951022130d19a894984eb1315b0c9096314afb1fe2ac79eb9c85da3c8",
+    "content_sha256": "6ff1fc751585a9c94a7ed73c32b8337d05f0a31cc833b8958425fb4dbb7cb6fe"
+  },
+  "foundation_kernel": {
+    "repository": "matuteiglesias/spatial-data-foundation",
+    "commit_sha": "0347b5f138d9ca62e903c28bbc7ba3c35ea891d5",
+    "callable": "spatial_foundation.geography.relate_areal_objects"
+  },
+  "analysis_crs": "EPSG:6933",
+  "minimum_overlap_area_m2": 0.0,
+  "coverage_tolerance": 1e-06,
+  "same_id_mutual_full_overlap_tolerance": 1e-09,
+  "derived_examples": {
+    "interpretation_version": "arggeo.ceur-longitudinal-pattern-examples/v1",
+    "stable_mutual_overlap_min": 0.999999,
+    "max_example_edges_preferred": 12
+  },
+  "policy": "geometric_relation_only",
+  "interpretation": "Retain every positive-area overlap from the exact CEUR 2010 V2025-1 source geography to the exact CEUR 2022 V2025-1 target geography. Multiplicity and two-sided overlap shares are facts; illustrative stable/split/merge/complex labels live only in the separately versioned examples artifact.",
+  "known_limitations": [
+    "Twelve source-invalid CEUR 2010 polygons remain visible as invalid source relation rows and are not repaired.",
+    "Thirteen source-invalid CEUR 2022 polygons are excluded from the analytical target set and counted explicitly in QA.",
+    "Positive area and overlap shares are geometric facts in EPSG:6933, not population allocation, transfer weights, ownership shares, or statistical weights.",
+    "Equal COD_2010/COD_2022 strings are recorded as an identity coincidence only; geometry agreement is evaluated separately from two-sided overlap shares.",
+    "The examples artifact is a versioned derived interpretation for inspection. It is not a crosswalk, exhaustive transition taxonomy, or assignment policy.",
+    "No make_valid, snapping, buffering, nearest assignment, canonical-boundary choice, or geometry substitution is applied."
+  ]
+}

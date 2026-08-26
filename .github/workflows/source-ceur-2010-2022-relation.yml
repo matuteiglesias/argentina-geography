@@ -1,0 +1,121 @@
+name: source-proof-ceur-2010-2022-relation
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["feat/longitudinal-census-relation"]
+    paths:
+      - "config/relations/ceur_census_2010_2022_radio.json"
+      - "src/argentina_geography/relations/ceur_2010_2022.py"
+      - "tests/test_ceur_2010_2022_relation.py"
+      - ".github/workflows/source-ceur-2010-2022-relation.yml"
+
+concurrency:
+  group: source-proof-ceur-2010-2022-relation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  national-relation-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out exact current foundation kernel
+        uses: actions/checkout@v4
+        with:
+          repository: matuteiglesias/spatial-data-foundation
+          ref: 0347b5f138d9ca62e903c28bbc7ba3c35ea891d5
+          path: _foundation/spatial-data-foundation
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install project
+        run: python -m pip install -e ".[dev]"
+      - name: Override with exact current foundation checkout
+        run: |
+          test "$(git -C _foundation/spatial-data-foundation rev-parse HEAD)" = \
+            "0347b5f138d9ca62e903c28bbc7ba3c35ea891d5"
+          python -m pip install --no-deps -e _foundation/spatial-data-foundation
+      - name: Confirm synthetic A11 contract
+        run: python -m pytest -q tests/test_ceur_2010_2022_relation.py
+      - name: Acquire exact CEUR 2010 V2025-1 source bytes
+        run: |
+          curl --fail --location --retry 3 --retry-all-errors \
+            --user-agent "Mozilla/5.0 argentina-geography/0.1" \
+            --referer "https://ri.conicet.gov.ar/handle/11336/149711" \
+            "https://ri.conicet.gov.ar/bitstream/handle/11336/149711/RADIOS_2010_V2025-1.zip?sequence=14&isAllowed=y" \
+            --output /tmp/RADIOS_2010_V2025-1.zip
+          echo "464e9b4c265a27f46a48e0c5914ef4e833c14e8977b8f0c9c1eaad672f374baa  /tmp/RADIOS_2010_V2025-1.zip" | sha256sum -c -
+          python - <<'PY'
+          from pathlib import Path
+          from argentina_geography.sources.ceur_2010_v2025_1_probe import profile_source
+          profile_source(
+              Path("/tmp/RADIOS_2010_V2025-1.zip"),
+              Path("/tmp/ceur-2010-v2025-1-raw-evidence.json"),
+          )
+          PY
+      - name: Acquire exact CEUR 2022 V2025-1 source bytes
+        run: |
+          curl --fail --location --retry 3 --retry-all-errors \
+            --user-agent "Mozilla/5.0 argentina-geography/0.1" \
+            --referer "https://ri.conicet.gov.ar/handle/11336/149711" \
+            "https://ri.conicet.gov.ar/bitstream/handle/11336/149711/RADIOS_2022_V2025-1.zip?sequence=2&isAllowed=y" \
+            --output /tmp/RADIOS_2022_V2025-1.zip
+          echo "d3a6f4c951022130d19a894984eb1315b0c9096314afb1fe2ac79eb9c85da3c8  /tmp/RADIOS_2022_V2025-1.zip" | sha256sum -c -
+          python - <<'PY'
+          from pathlib import Path
+          from argentina_geography.sources.ceur_2022_v2025_1_probe import profile_source
+          profile_source(
+              Path("/tmp/RADIOS_2022_V2025-1.zip"),
+              Path("/tmp/ceur-2022-v2025-1-raw-evidence.json"),
+          )
+          PY
+      - name: Materialize and verify exact CEUR 2010 parent
+        run: |
+          python -m argentina_geography.sources.ceur_2010_v2025_1 materialize \
+            --source /tmp/RADIOS_2010_V2025-1.zip \
+            --output /tmp/ceur-2010-v2025-1
+          python -m argentina_geography.sources.ceur_2010_v2025_1 verify \
+            --release /tmp/ceur-2010-v2025-1
+      - name: Materialize and verify exact CEUR 2022 parent
+        run: |
+          python -m argentina_geography.sources.ceur_2022_v2025_1 materialize \
+            --source /tmp/RADIOS_2022_V2025-1.zip \
+            --output /tmp/ceur-2022-v2025-1
+          python -m argentina_geography.sources.ceur_2022_v2025_1 verify \
+            --release /tmp/ceur-2022-v2025-1
+      - name: Materialize exact national longitudinal relation
+        run: |
+          python -m argentina_geography.relations.ceur_2010_2022 materialize \
+            --source-release /tmp/ceur-2010-v2025-1 \
+            --target-release /tmp/ceur-2022-v2025-1 \
+            --output /tmp/ceur-2010-2022-relation
+      - name: Verify detached relation
+        run: |
+          cp -R /tmp/ceur-2010-2022-relation /tmp/ceur-2010-2022-relation-detached
+          python -m argentina_geography.relations.ceur_2010_2022 verify \
+            --release /tmp/ceur-2010-2022-relation-detached
+      - name: Prepare quantitative evidence
+        run: |
+          mkdir -p /tmp/relation-evidence
+          cp /tmp/ceur-2010-v2025-1-raw-evidence.json /tmp/relation-evidence/
+          cp /tmp/ceur-2022-v2025-1-raw-evidence.json /tmp/relation-evidence/
+          cp /tmp/ceur-2010-v2025-1/manifest.json \
+            /tmp/relation-evidence/ceur-2010-parent-manifest.json
+          cp /tmp/ceur-2022-v2025-1/manifest.json \
+            /tmp/relation-evidence/ceur-2022-parent-manifest.json
+          cp /tmp/ceur-2010-2022-relation/manifest.json /tmp/relation-evidence/
+          cp /tmp/ceur-2010-2022-relation/qa.json /tmp/relation-evidence/
+          cp /tmp/ceur-2010-2022-relation/relation_summary.json /tmp/relation-evidence/
+          cp /tmp/ceur-2010-2022-relation/relation_summary.md /tmp/relation-evidence/
+          cp /tmp/ceur-2010-2022-relation/pattern_examples.json /tmp/relation-evidence/
+          cp /tmp/ceur-2010-2022-relation/pattern_examples.md /tmp/relation-evidence/
+          cp /tmp/ceur-2010-2022-relation/relation_catalog.parquet /tmp/relation-evidence/
+          cat /tmp/ceur-2010-2022-relation/relation_summary.md
+          cat /tmp/ceur-2010-2022-relation/pattern_examples.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ceur-2010-2022-relation-source-evidence
+          path: /tmp/relation-evidence
+          if-no-files-found: error

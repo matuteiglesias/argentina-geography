@@ -1,0 +1,42 @@
+name: a11-longitudinal-preflight
+
+on:
+  push:
+    branches: ["feat/longitudinal-census-relation"]
+    paths:
+      - "config/relations/ceur_census_2010_2022_radio.json"
+      - "src/argentina_geography/relations/ceur_2010_2022.py"
+      - "tests/test_ceur_2010_2022_relation.py"
+      - ".github/workflows/a11-preflight.yml"
+
+concurrency:
+  group: a11-longitudinal-preflight-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  synthetic-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out exact current foundation kernel
+        uses: actions/checkout@v4
+        with:
+          repository: matuteiglesias/spatial-data-foundation
+          ref: 0347b5f138d9ca62e903c28bbc7ba3c35ea891d5
+          path: _foundation/spatial-data-foundation
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install
+        run: |
+          python -m pip install -e ".[dev]"
+          python -m pip install --no-deps -e _foundation/spatial-data-foundation
+      - name: Static checks
+        run: |
+          python -m json.tool config/relations/ceur_census_2010_2022_radio.json >/dev/null
+          python -m compileall -q src/argentina_geography/relations/ceur_2010_2022.py tests/test_ceur_2010_2022_relation.py
+          python -m ruff check src/argentina_geography/relations/ceur_2010_2022.py tests/test_ceur_2010_2022_relation.py
+      - name: Synthetic A11 contract
+        run: python -m pytest -q tests/test_ceur_2010_2022_relation.py
