@@ -28,7 +28,6 @@ from argentina_geography.products import (
     write_checksums,
     write_json,
 )
-from argentina_geography.sources.ceur_2010_v2025_1_probe import download_source
 
 ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_CONFIG = ROOT / "config/sources/ceur_census_2010_radio_v2025_1.json"
