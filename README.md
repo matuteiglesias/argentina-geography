@@ -28,7 +28,7 @@ make product-smoke
 
 ## First official source product: INDEC 2022 census radios
 
-Wave A2 adds a provider-specific adapter for the official national INDEC 2022 census-radio layer. The source is fetched explicitly from INDEC GeoNode or supplied as a local snapshot; ordinary tests never depend on the network.
+Wave A2 adds a provider-specific producer for the official national INDEC 2022 census-radio layer. The source is fetched explicitly from INDEC GeoNode or supplied as a local snapshot; ordinary tests never depend on the network.
 
 Because the current GeoNode metadata reports no license, the adopted distribution mode is `official_remote_fetch`: Argentina Geography materializes and verifies a local GeoParquet release but does not redistribute the official geometry.
 
@@ -36,7 +36,9 @@ Because the current GeoNode metadata reports no license, the adopted distributio
 make materialize-indec-2022-radio
 ```
 
-The product preserves `cod_indec` and its native components, marks the INDEC-documented zero-code adjustment surfaces rather than dropping them, performs no geometry repair and fails closed on identity/schema/geometry drift. See [`docs/INDEC_2022_RADIO_PRODUCT.md`](docs/INDEC_2022_RADIO_PRODUCT.md).
+The successful 2026-08-26 national source proof materialized **66,515** unique `cod_indec` radios from a pinned WFS snapshot. `cod_indec` is the authoritative native identity; source `cpr`, `cde`, `cfn` and `cro` remain preserved for audit. The source contains 5 rows using a local three-digit `cde` representation, 3 source-invalid polygons, and 26 documented adjustment radios in Entre Ríos/Misiones. No rows are dropped and no substantive geometry repair is performed.
+
+The release therefore stages as **`PASS_WITH_WARNINGS` / QA `YELLOW`**: 66,512 rows are immediately eligible for `geometry_role=analytical`, while the 3 invalid source polygons remain visible as `geometry_role=source_invalid`. See [`docs/INDEC_2022_RADIO_PRODUCT.md`](docs/INDEC_2022_RADIO_PRODUCT.md) and the pinned [`source-proof evidence`](docs/source-evidence/indec-2022-radio-2026-08-26.md).
 
 ## Product boundaries
 
@@ -72,6 +74,4 @@ Read historical evidence in this order:
 
 ## Current limitations and stop points
 
-Only the synthetic product fixture is committed. Real source products are materialized locally from explicit authorities; source distribution rights remain provider-specific.
-
-Stop for review before changing a consumed identifier, silently repairing real geometry, selecting a substantive tie-break, dropping a real unmatched unit, making a population claim, replacing a provider's source identity or asserting redistribution rights not supported by source evidence.
+Only synthetic geometry is committed. Real source products are materialized locally from explicit authorities; source distribution rights remain provider-specific. QA warnings may stage when they are explicit and source-faithful, but identity ambiguity, lost units, silent substantive geometry repair or unsupported domain interpretation remain stop conditions.
