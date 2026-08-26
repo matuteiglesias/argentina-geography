@@ -115,3 +115,19 @@ An upstream proposal to `spatial-data-foundation` should include:
 - downstream migration plan.
 
 Do not create an upstream issue solely to reserve a future idea.
+
+## A11 promotion assessment — two-sided areal overlap facts
+
+A11 confirms that the `Two-sided areal overlap facts` hypothesis above is now a measured reuse case rather than a speculative one.
+
+The same neutral mechanics are implemented locally in three independent Argentina Geography products:
+
+- A5 INDEC 2022 ↔ CEUR 2022: target-side overlap share and target multiplicity are needed to distinguish mutual geometry agreement from one-sided containment;
+- A10 INDEC 2022 radio ↔ IGN department: target-side share, target multiplicity and two-sided coverage are needed for bounded administrative-relation QA;
+- A11 CEUR 2010 ↔ CEUR 2022: target-side share and target multiplicity are required to distinguish split, merge and genuinely N:M longitudinal structure.
+
+The repeated mechanic has no Argentine ontology: given positive areal overlap rows plus target polygon areas, compute `overlap_share_of_target` and target-side overlap counts. Synthetic fixtures cover the behavior. This therefore satisfies the policy's independent-reuse, generic-input, geometric-semantics, synthetic-contract and measured-need tests.
+
+**Assessment:** eligible for a future small `spatial-data-foundation` proposal, ideally as an extension of `relate_areal_objects` or a neutral post-processing helper that emits two-sided shares/counts. A11 deliberately keeps the implementation local because this thread does not own upstream foundation changes. Any promotion should separately benchmark the relation hot path and then replace the A5/A10/A11 local duplicates after a released foundation version is adopted.
+
+The connected-component inspection used only to select A11's human-readable `stable/split/merge/complex` examples is **not yet proposed for promotion**. It currently serves one longitudinal interpretation artifact and has not demonstrated independent reuse.
