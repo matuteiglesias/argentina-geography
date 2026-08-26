@@ -1,0 +1,141 @@
+from pathlib import Path
+
+import geopandas as gpd
+import pandas as pd
+import pytest
+from shapely.geometry import Polygon
+
+from argentina_geography.sources.indec_2022_radio import (
+    load_config,
+    materialize_from_source,
+    normalize_source,
+    verify_release,
+)
+
+
+def make_frame(rows: list[dict]) -> gpd.GeoDataFrame:
+    values = []
+    for index, row in enumerate(rows):
+        values.append(
+            {
+                "fid": index + 1,
+                "id": index + 100,
+                "sag": "fixture",
+                "tro": "URBANO",
+                **row,
+                "geometry": Polygon(
+                    [(index, 0), (index + 0.8, 0), (index + 0.8, 0.8), (index, 0.8)]
+                ),
+            }
+        )
+    return gpd.GeoDataFrame(values, geometry="geometry", crs="EPSG:3857")
+
+
+def test_indec_2022_normalization_preserves_native_identity_and_adjustments(tmp_path):
+    frame = make_frame(
+        [
+            {
+                "jur": "Ciudad Autónoma de Buenos Aires",
+                "cpr": 2,
+                "cde": 1,
+                "dpto": "Comuna 1",
+                "cfn": 1,
+                "cro": 1,
+                "cod_indec": 20010101,
+            },
+            {
+                "jur": "Entre Ríos",
+                "cpr": 30,
+                "cde": 1,
+                "dpto": "Fixture ER",
+                "cfn": 0,
+                "cro": 0,
+                "cod_indec": 300010000,
+            },
+            {
+                "jur": "Misiones",
+                "cpr": 54,
+                "cde": 1,
+                "dpto": "Fixture Misiones",
+                "cfn": 0,
+                "cro": 0,
+                "cod_indec": 540010000,
+            },
+        ]
+    )
+    normalized, audit = normalize_source(frame, load_config())
+    assert normalized["native_id"].tolist() == ["020010101", "300010000", "540010000"]
+    assert normalized["geo_uid"].tolist()[0] == "indec:2022:census:radio:020010101"
+    assert audit["feature_count"] == 3
+    assert audit["adjustment_feature_count"] == 2
+    assert set(normalized.loc[normalized["cfn"] == "00", "source_unit_status"]) == {
+        "adjustment_no_census_data"
+    }
+
+    source = tmp_path / "indec_fixture.geojson"
+    frame.to_file(source, driver="GeoJSON")
+    release = tmp_path / "release"
+    manifest = materialize_from_source(source, release)
+    verify_release(release)
+    assert manifest["authority_status"] == "official"
+    assert manifest["distribution_mode"] == "official_remote_fetch"
+    assert manifest["run"]["parameters"]["geometry_repair_applied"] is False
+    assert Path(release / "geography.parquet").exists()
+
+
+def test_indec_2022_rejects_component_identity_drift():
+    frame = make_frame(
+        [
+            {
+                "jur": "Ciudad Autónoma de Buenos Aires",
+                "cpr": 2,
+                "cde": 1,
+                "dpto": "Comuna 1",
+                "cfn": 1,
+                "cro": 1,
+                "cod_indec": 999999999,
+            },
+            {"jur": "Entre Ríos", "cpr": 30, "cde": 1, "dpto": "ER", "cfn": 1, "cro": 1, "cod_indec": 300010101},
+            {"jur": "Misiones", "cpr": 54, "cde": 1, "dpto": "MI", "cfn": 1, "cro": 1, "cod_indec": 540010101},
+        ]
+    )
+    with pytest.raises(ValueError, match="cod_indec is inconsistent"):
+        normalize_source(frame, load_config())
+
+
+def test_indec_2022_rejects_unexpected_zero_code():
+    frame = make_frame(
+        [
+            {"jur": "Ciudad Autónoma de Buenos Aires", "cpr": 2, "cde": 1, "dpto": "Comuna 1", "cfn": 0, "cro": 0, "cod_indec": 20010000},
+            {"jur": "Entre Ríos", "cpr": 30, "cde": 1, "dpto": "ER", "cfn": 1, "cro": 1, "cod_indec": 300010101},
+            {"jur": "Misiones", "cpr": 54, "cde": 1, "dpto": "MI", "cfn": 1, "cro": 1, "cod_indec": 540010101},
+        ]
+    )
+    with pytest.raises(ValueError, match="outside the jurisdictions documented"):
+        normalize_source(frame, load_config())
+
+
+def test_indec_2022_rejects_invalid_geometry_without_repair():
+    frame = make_frame(
+        [
+            {"jur": "Ciudad Autónoma de Buenos Aires", "cpr": 2, "cde": 1, "dpto": "Comuna 1", "cfn": 1, "cro": 1, "cod_indec": 20010101},
+            {"jur": "Entre Ríos", "cpr": 30, "cde": 1, "dpto": "ER", "cfn": 1, "cro": 1, "cod_indec": 300010101},
+            {"jur": "Misiones", "cpr": 54, "cde": 1, "dpto": "MI", "cfn": 1, "cro": 1, "cod_indec": 540010101},
+        ]
+    )
+    frame.at[0, "geometry"] = Polygon([(0, 0), (1, 1), (0, 1), (1, 0), (0, 0)])
+    with pytest.raises(ValueError, match="not publishable without a new geometry policy"):
+        normalize_source(frame, load_config())
+
+
+def test_indec_2022_rejects_duplicate_native_identity():
+    frame = make_frame(
+        [
+            {"jur": "Ciudad Autónoma de Buenos Aires", "cpr": 2, "cde": 1, "dpto": "Comuna 1", "cfn": 1, "cro": 1, "cod_indec": 20010101},
+            {"jur": "Ciudad Autónoma de Buenos Aires", "cpr": 2, "cde": 1, "dpto": "Comuna 1", "cfn": 1, "cro": 1, "cod_indec": 20010101},
+            {"jur": "Entre Ríos", "cpr": 30, "cde": 1, "dpto": "ER", "cfn": 1, "cro": 1, "cod_indec": 300010101},
+            {"jur": "Misiones", "cpr": 54, "cde": 1, "dpto": "MI", "cfn": 1, "cro": 1, "cod_indec": 540010101},
+        ]
+    )
+    with pytest.raises(ValueError, match="native IDs must be unique"):
+        normalize_source(frame, load_config())

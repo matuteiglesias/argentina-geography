@@ -1,0 +1,28 @@
+{
+  "source_id": "indec-census-2022-radio-national",
+  "provider": "INDEC",
+  "authority_status": "official",
+  "resource_title": "Radios censales",
+  "resource_uuid": "927226f0-de91-4927-9c2c-522a4bbdbaaf",
+  "metadata_publication_date": "2026-03-20T18:45:00-03:00",
+  "metadata_url": "https://geonode.indec.gob.ar/layers/geonode_data:geonode:radios_censales2",
+  "layer_name": "geonode:radios_censales2",
+  "wfs_url": "https://geonode.indec.gob.ar/geoserver/wfs",
+  "wfs_version": "1.1.0",
+  "wfs_output_format": "SHAPE-ZIP",
+  "distribution_mode": "official_remote_fetch",
+  "license_status": "not_specified",
+  "attribution": "INDEC",
+  "citation": "Instituto Nacional de Estadística y Censos (2022). Cartografía y códigos geográficos del Sistema Estadístico Nacional. https://portalgeoestadistico.indec.gob.ar/",
+  "required_fields": ["jur", "cpr", "cde", "dpto", "cfn", "cro", "tro", "cod_indec"],
+  "optional_preserved_fields": ["fid", "id", "sag"],
+  "component_widths": {"cpr": 2, "cde": 3, "cfn": 2, "cro": 2, "cod_indec": 9},
+  "documented_adjustment_jurisdictions": ["Entre Ríos", "Misiones"],
+  "documented_adjustment_semantics": "INDEC metadata states that fractions and radios 00 in Entre Ríos and Misiones are adjustment surfaces to the river median line and do not carry census data.",
+  "known_limitations": [
+    "The national layer integrates DPE cartography and adjusts it to IGN provincial limits.",
+    "INDEC documents possible deformation and exceptional transfer of surface when adapting radios to provincial limits.",
+    "The GeoNode metadata currently reports License: Not Specified; this project does not infer redistribution rights.",
+    "The geography is statistical cartography; uses beyond statistical purposes remain the user's responsibility."
+  ]
+}
