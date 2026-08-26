@@ -74,15 +74,19 @@ def download_source(destination: Path, config: dict) -> Path:
     return destination
 
 
-def _normalize_digits(value: object, width: int, field: str) -> str:
+def _digit_text(value: object, *, field: str, max_width: int) -> str:
     if pd.isna(value):
         raise ValueError(f"{field} must be non-missing")
     text = str(value).strip()
     if text.endswith(".0") and text[:-2].isdigit():
         text = text[:-2]
-    if not text.isascii() or not text.isdigit() or len(text) > width:
-        raise ValueError(f"{field} must contain at most {width} ASCII digits: {value!r}")
-    return text.zfill(width)
+    if not text.isascii() or not text.isdigit() or len(text) > max_width:
+        raise ValueError(f"{field} must contain at most {max_width} ASCII digits: {value!r}")
+    return text
+
+
+def _normalize_digits(value: object, width: int, field: str) -> str:
+    return _digit_text(value, field=field, max_width=width).zfill(width)
 
 
 def _read_source(path: Path, *, encoding: str | None = None) -> gpd.GeoDataFrame:
@@ -97,6 +101,13 @@ def _normalized_name(value: object) -> str:
     return " ".join(str(value).strip().casefold().split())
 
 
+def _warning(code: str, message: str, **metrics: object) -> dict:
+    item = {"code": code, "stage_decision": "PASS_WITH_WARNINGS", "message": message}
+    if metrics:
+        item["metrics"] = metrics
+    return item
+
+
 def normalize_source(frame: gpd.GeoDataFrame, config: dict) -> tuple[gpd.GeoDataFrame, dict]:
     missing_fields = sorted(set(config["required_fields"]) - set(frame.columns))
     if missing_fields:
@@ -105,31 +116,61 @@ def normalize_source(frame: gpd.GeoDataFrame, config: dict) -> tuple[gpd.GeoData
         raise ValueError("INDEC 2022 radio source requires an explicit CRS")
 
     result = frame.copy()
-    for field in ("cpr", "cde", "cfn", "cro", "cod_indec"):
+    for field in ("cpr", "cfn", "cro", "cod_indec"):
         width = config["component_widths"][field]
         result[field] = result[field].map(
             lambda value, field=field, width=width: _normalize_digits(value, width, field)
         )
-
-    department_prefix_mismatch = result["cde"].str[:2].ne(result["cpr"])
-    if department_prefix_mismatch.any():
-        sample = result.loc[department_prefix_mismatch, ["cpr", "cde", "dpto"]].head(5)
-        raise ValueError(
-            "cde does not preserve its jurisdiction prefix; source identity drift detected: "
-            f"{sample.to_dict(orient='records')}"
+    result["cde"] = result["cde"].map(
+        lambda value: _digit_text(
+            value, field="cde", max_width=config["source_cde_max_width"]
         )
+    )
 
-    reconstructed = result["cde"] + result["cfn"] + result["cro"]
-    mismatch = reconstructed.ne(result["cod_indec"])
-    if mismatch.any():
-        sample = result.loc[mismatch, ["cpr", "cde", "cfn", "cro", "cod_indec"]].head(5)
-        raise ValueError(
-            "cod_indec is inconsistent with cde+cfn+cro; source identity drift detected: "
-            f"{sample.to_dict(orient='records')}"
-        )
     if result["cod_indec"].duplicated().any():
-        duplicates = sorted(result.loc[result["cod_indec"].duplicated(False), "cod_indec"].unique())
-        raise ValueError(f"INDEC 2022 radio native IDs must be unique; duplicates include {duplicates[:10]}")
+        duplicates = sorted(
+            result.loc[result["cod_indec"].duplicated(False), "cod_indec"].unique()
+        )
+        raise ValueError(
+            f"INDEC 2022 radio native IDs must be unique; duplicates include {duplicates[:10]}"
+        )
+
+    result["department_code"] = result["cod_indec"].str[:5]
+    result["fraction_code"] = result["cod_indec"].str[5:7]
+    result["radio_code"] = result["cod_indec"].str[7:9]
+
+    warnings = list(config.get("accepted_qa_warnings", []))
+    cpr_mismatch = result["cpr"].ne(result["cod_indec"].str[:2])
+    cfn_mismatch = result["cfn"].ne(result["fraction_code"])
+    cro_mismatch = result["cro"].ne(result["radio_code"])
+    cde_cumulative = result["cde"].eq(result["department_code"])
+    cde_local = result["cde"].str.zfill(3).eq(result["department_code"].str[2:])
+    cde_unclassified = ~(cde_cumulative | cde_local)
+    cde_local_count = int(cde_local.sum())
+    if cde_local_count:
+        warnings.append(
+            _warning(
+                "mixed_source_cde_representation",
+                "Source cde mixes cumulative five-digit and local three-digit department representations; cod_indec remains the authoritative identity.",
+                local_representation_count=cde_local_count,
+                cumulative_representation_count=int(cde_cumulative.sum()),
+            )
+        )
+    component_mismatch_count = int(
+        (cpr_mismatch | cfn_mismatch | cro_mismatch | cde_unclassified).sum()
+    )
+    if component_mismatch_count:
+        warnings.append(
+            _warning(
+                "supporting_code_disagreement",
+                "One or more supporting source code fields disagree with the corresponding slice of cod_indec; rows are retained and cod_indec remains authoritative.",
+                affected_rows=component_mismatch_count,
+                cpr_mismatch_count=int(cpr_mismatch.sum()),
+                cfn_mismatch_count=int(cfn_mismatch.sum()),
+                cro_mismatch_count=int(cro_mismatch.sum()),
+                cde_unclassified_count=int(cde_unclassified.sum()),
+            )
+        )
 
     documented_names = {
         _normalized_name(name) for name in config["documented_adjustment_jurisdictions"]
@@ -137,52 +178,93 @@ def normalize_source(frame: gpd.GeoDataFrame, config: dict) -> tuple[gpd.GeoData
     name_series = result["jur"].map(_normalized_name)
     documented_codes = set(result.loc[name_series.isin(documented_names), "cpr"].unique())
     if len(documented_codes) != len(documented_names):
-        raise ValueError(
-            "Could not resolve the documented Entre Ríos/Misiones adjustment jurisdictions "
-            "from current INDEC source names"
+        warnings.append(
+            _warning(
+                "adjustment_jurisdiction_name_drift",
+                "Not all documented adjustment jurisdictions were resolved from current source names; zero-coded rows remain classified conservatively.",
+                resolved_jurisdiction_count=len(documented_codes),
+                documented_jurisdiction_count=len(documented_names),
+            )
         )
     zero_code = result["cfn"].eq("00") | result["cro"].eq("00")
-    unexpected_zero = zero_code & ~result["cpr"].isin(documented_codes)
-    if unexpected_zero.any():
-        sample = result.loc[unexpected_zero, ["jur", "cpr", "cde", "cfn", "cro", "cod_indec"]].head(10)
-        raise ValueError(
-            "Zero-coded fraction/radio units occur outside the jurisdictions documented by INDEC: "
-            f"{sample.to_dict(orient='records')}"
+    documented_adjustment = zero_code & result["cpr"].isin(documented_codes)
+    unclassified_zero = zero_code & ~result["cpr"].isin(documented_codes)
+    if unclassified_zero.any():
+        warnings.append(
+            _warning(
+                "unclassified_zero_code",
+                "Zero-coded source units occur outside the adjustment cases explicitly documented in current INDEC metadata; no no-data semantics are inferred for them.",
+                affected_rows=int(unclassified_zero.sum()),
+            )
         )
 
     missing_geometry = int(result.geometry.isna().sum())
     empty_geometry = int(result.geometry.is_empty.sum())
-    invalid_geometry = int((result.geometry.notna() & ~result.geometry.is_valid).sum())
     areal = result.geometry.geom_type.isin(["Polygon", "MultiPolygon"])
-    non_areal_geometry = int((result.geometry.notna() & ~result.geometry.is_empty & ~areal).sum())
-    if missing_geometry or empty_geometry or invalid_geometry or non_areal_geometry:
+    non_areal_geometry = int(
+        (result.geometry.notna() & ~result.geometry.is_empty & ~areal).sum()
+    )
+    if missing_geometry or empty_geometry or non_areal_geometry:
         raise ValueError(
-            "INDEC 2022 radio geography is not publishable without a new geometry policy: "
-            f"missing={missing_geometry}, empty={empty_geometry}, invalid={invalid_geometry}, "
-            f"non_areal={non_areal_geometry}"
+            "INDEC 2022 radio geography has unusable source geometry: "
+            f"missing={missing_geometry}, empty={empty_geometry}, non_areal={non_areal_geometry}"
+        )
+    invalid_mask = ~result.geometry.is_valid
+    invalid_geometry = int(invalid_mask.sum())
+    if invalid_geometry:
+        warnings.append(
+            _warning(
+                "source_invalid_geometry",
+                "Source-invalid polygons are retained without repair and are not marked analytical; downstream spatial relations must exclude them or apply an explicitly governed repair policy.",
+                affected_rows=invalid_geometry,
+            )
         )
 
     result["native_id"] = result["cod_indec"]
     result["geo_uid"] = "indec:2022:census:radio:" + result["native_id"]
     result["source_unit_status"] = "ordinary"
-    result.loc[zero_code, "source_unit_status"] = "adjustment_no_census_data"
+    result.loc[documented_adjustment, "source_unit_status"] = "adjustment_no_census_data"
+    result.loc[unclassified_zero, "source_unit_status"] = "zero_code_unclassified"
+    result["geometry_valid"] = ~invalid_mask
     result["geometry_role"] = "analytical"
+    result.loc[invalid_mask, "geometry_role"] = "source_invalid"
 
-    preserved = [field for field in config["optional_preserved_fields"] if field in result.columns]
+    preserved = [
+        field for field in config["optional_preserved_fields"] if field in result.columns
+    ]
     columns = [
-        "geo_uid", "native_id", "jur", "cpr", "cde", "dpto", "cfn", "cro", "tro",
-        "cod_indec", *preserved, "source_unit_status", "geometry_role", result.geometry.name,
+        "geo_uid",
+        "native_id",
+        "jur",
+        "cpr",
+        "cde",
+        "dpto",
+        "cfn",
+        "cro",
+        "tro",
+        "cod_indec",
+        "department_code",
+        "fraction_code",
+        "radio_code",
+        *preserved,
+        "source_unit_status",
+        "geometry_valid",
+        "geometry_role",
+        result.geometry.name,
     ]
     result = result[columns].sort_values("geo_uid", ignore_index=True)
     adjustment = result["source_unit_status"].eq("adjustment_no_census_data")
     adjustment_by_jurisdiction = (
-        result.loc[adjustment].groupby(["cpr", "jur"], dropna=False).size().astype(int).to_dict()
+        result.loc[adjustment]
+        .groupby(["cpr", "jur"], dropna=False)
+        .size()
+        .astype(int)
+        .to_dict()
     )
-    accepted_warnings = config.get("accepted_qa_warnings", [])
     audit = {
-        "stage_decision": "PASS_WITH_WARNINGS" if accepted_warnings else "PASS",
-        "accepted_warning_count": len(accepted_warnings),
-        "accepted_warnings": accepted_warnings,
+        "stage_decision": "PASS_WITH_WARNINGS" if warnings else "PASS",
+        "accepted_warning_count": len(warnings),
+        "accepted_warnings": warnings,
         "feature_count": len(result),
         "unique_native_id_count": int(result["native_id"].nunique()),
         "crs": result.crs.to_string(),
@@ -193,7 +275,13 @@ def normalize_source(frame: gpd.GeoDataFrame, config: dict) -> tuple[gpd.GeoData
         "empty_geometry_count": empty_geometry,
         "invalid_geometry_count": invalid_geometry,
         "non_areal_geometry_count": non_areal_geometry,
+        "analytical_geometry_count": int(result["geometry_valid"].sum()),
+        "source_invalid_geometry_count": invalid_geometry,
+        "cde_cumulative_representation_count": int(cde_cumulative.sum()),
+        "cde_local_representation_count": cde_local_count,
+        "supporting_code_disagreement_count": component_mismatch_count,
         "adjustment_feature_count": int(adjustment.sum()),
+        "zero_code_unclassified_count": int(unclassified_zero.sum()),
         "adjustment_by_jurisdiction": [
             {"cpr": key[0], "jur": key[1], "count": value}
             for key, value in sorted(adjustment_by_jurisdiction.items())
@@ -222,7 +310,9 @@ def materialize_from_source(
     normalized.to_parquet(geography_path, index=False)
     content_sha256 = sha256_file(geography_path)
     release_version = _release_version(config, source_sha256)
-    geography = GeographySpec(provider="indec", version="2022", scheme="census", level="radio")
+    geography = GeographySpec(
+        provider="indec", version="2022", scheme="census", level="radio"
+    )
     dataset = DatasetRef(
         dataset_id="arggeo.indec.census.2022.radio",
         version=release_version,
@@ -239,7 +329,11 @@ def materialize_from_source(
         snapshot_id=f"sha256:{source_sha256}",
         origin=build_wfs_url(config),
         storage_mode="external_immutable",
-        files=(SourceFileRef(path=source_path.name, sha256=source_sha256, size_bytes=source_size),),
+        files=(
+            SourceFileRef(
+                path=source_path.name, sha256=source_sha256, size_bytes=source_size
+            ),
+        ),
     )
     qa_state = "YELLOW" if audit["stage_decision"] == "PASS_WITH_WARNINGS" else "GREEN"
     qa_result = QAResult(
@@ -254,6 +348,7 @@ def materialize_from_source(
             "feature_count": audit["feature_count"],
             "unique_native_id_count": audit["unique_native_id_count"],
             "invalid_geometry_count": audit["invalid_geometry_count"],
+            "analytical_geometry_count": audit["analytical_geometry_count"],
             "adjustment_feature_count": audit["adjustment_feature_count"],
             "accepted_warning_count": audit["accepted_warning_count"],
             "crs": audit["crs"],
@@ -273,9 +368,10 @@ def materialize_from_source(
             "coding_note_url": config["coding_note_url"],
             "source_crs": audit["crs"],
             "source_encoding": config.get("source_encoding"),
+            "identity_field": config["identity_field"],
             "geometry_repair_applied": False,
             "stage_decision": audit["stage_decision"],
-            "accepted_qa_warnings": config.get("accepted_qa_warnings", []),
+            "accepted_qa_warnings": audit["accepted_warnings"],
         },
         outputs=(dataset,),
         qa=(qa_result,),
@@ -291,33 +387,37 @@ def materialize_from_source(
         "dataset_id": dataset.dataset_id,
         "release_version": release_version,
         "items": config["known_limitations"],
-        "accepted_qa_warnings": config.get("accepted_qa_warnings", []),
+        "accepted_qa_warnings": audit["accepted_warnings"],
         "adjustment_unit_semantics": config["documented_adjustment_semantics"],
     }
-    catalog = pd.DataFrame([
-        {
-            "geography_id": geography.id,
-            "dataset_id": dataset.dataset_id,
-            "release_version": dataset.version,
-            "schema_version": dataset.schema_version,
-            "provider": "indec",
-            "scheme": "census",
-            "vintage": "2022",
-            "level": "radio",
-            "source_release": config["metadata_publication_date"],
-            "authority_status": "official",
-            "feature_count": audit["feature_count"],
-            "native_id_fields": "cod_indec,cpr,cde,cfn,cro",
-            "geometry_types": ",".join(audit["geometry_types"]),
-            "storage_crs": audit["crs"],
-            "coverage_status": "source_layer_as_retrieved",
-            "qa_state": qa_state,
-            "stage_decision": audit["stage_decision"],
-            "artifact_ref": "geography.parquet",
-            "manifest_ref": "manifest.json",
-            "distribution_mode": config["distribution_mode"],
-        }
-    ])
+    catalog = pd.DataFrame(
+        [
+            {
+                "geography_id": geography.id,
+                "dataset_id": dataset.dataset_id,
+                "release_version": dataset.version,
+                "schema_version": dataset.schema_version,
+                "provider": "indec",
+                "scheme": "census",
+                "vintage": "2022",
+                "level": "radio",
+                "source_release": config["metadata_publication_date"],
+                "authority_status": "official",
+                "feature_count": audit["feature_count"],
+                "analytical_feature_count": audit["analytical_geometry_count"],
+                "native_id_fields": "cod_indec",
+                "source_code_fields": "cpr,cde,cfn,cro",
+                "geometry_types": ",".join(audit["geometry_types"]),
+                "storage_crs": audit["crs"],
+                "coverage_status": "source_layer_as_retrieved",
+                "qa_state": qa_state,
+                "stage_decision": audit["stage_decision"],
+                "artifact_ref": "geography.parquet",
+                "manifest_ref": "manifest.json",
+                "distribution_mode": config["distribution_mode"],
+            }
+        ]
+    )
     catalog.to_parquet(output / "geography_catalog.parquet", index=False)
     write_json(output / "qa.json", audit)
     write_json(output / "source_metadata.json", source_metadata)
@@ -330,6 +430,7 @@ def materialize_from_source(
         "dataset": dataset.model_dump(mode="json"),
         "run": run.model_dump(mode="json"),
         "row_count": len(normalized),
+        "analytical_row_count": audit["analytical_geometry_count"],
         "source_snapshot": source_snapshot.model_dump(mode="json"),
         "artifacts": {
             "geography": "geography.parquet",
@@ -369,9 +470,36 @@ def verify_release(output: Path) -> None:
         raise ValueError("INDEC 2022 radio release geo_uid must be non-missing and unique")
     if frame["native_id"].isna().any() or frame["native_id"].duplicated().any():
         raise ValueError("INDEC 2022 radio release native_id must be non-missing and unique")
-    if frame.geometry.isna().any() or frame.geometry.is_empty.any() or (~frame.geometry.is_valid).any():
-        raise ValueError("INDEC 2022 radio release contains unusable analytical geometry")
-    allowed_status = {"ordinary", "adjustment_no_census_data"}
+    if frame["native_id"].ne(frame["cod_indec"]).any():
+        raise ValueError("INDEC 2022 radio release native_id must equal authoritative cod_indec")
+    if frame["department_code"].ne(frame["cod_indec"].str[:5]).any():
+        raise ValueError("INDEC 2022 radio department_code is inconsistent with cod_indec")
+    if frame["fraction_code"].ne(frame["cod_indec"].str[5:7]).any():
+        raise ValueError("INDEC 2022 radio fraction_code is inconsistent with cod_indec")
+    if frame["radio_code"].ne(frame["cod_indec"].str[7:9]).any():
+        raise ValueError("INDEC 2022 radio radio_code is inconsistent with cod_indec")
+    if frame.geometry.isna().any() or frame.geometry.is_empty.any():
+        raise ValueError("INDEC 2022 radio release contains missing or empty source geometry")
+    non_areal = ~frame.geometry.geom_type.isin(["Polygon", "MultiPolygon"])
+    if non_areal.any():
+        raise ValueError("INDEC 2022 radio release contains non-areal source geometry")
+    analytical = frame["geometry_role"].eq("analytical")
+    source_invalid = frame["geometry_role"].eq("source_invalid")
+    if (~(analytical | source_invalid)).any():
+        raise ValueError("INDEC 2022 radio release has unsupported geometry_role")
+    if (~frame.loc[analytical].geometry.is_valid).any():
+        raise ValueError("analytical rows must contain valid geometry")
+    if frame.loc[source_invalid].geometry.is_valid.any():
+        raise ValueError("source_invalid rows must correspond to source-invalid geometry")
+    if frame.loc[analytical, "geometry_valid"].ne(True).any():
+        raise ValueError("analytical geometry_valid flags are inconsistent")
+    if frame.loc[source_invalid, "geometry_valid"].ne(False).any():
+        raise ValueError("source-invalid geometry_valid flags are inconsistent")
+    allowed_status = {
+        "ordinary",
+        "adjustment_no_census_data",
+        "zero_code_unclassified",
+    }
     if not set(frame["source_unit_status"]).issubset(allowed_status):
         raise ValueError("INDEC 2022 radio release has unsupported source_unit_status")
     catalog = pd.read_parquet(output / manifest["artifacts"]["catalog"])

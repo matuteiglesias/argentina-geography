@@ -18,8 +18,10 @@
   "citation": "Instituto Nacional de Estadística y Censos (2022). Cartografía y códigos geográficos del Sistema Estadístico Nacional. https://portalgeoestadistico.indec.gob.ar/",
   "required_fields": ["jur", "cpr", "cde", "dpto", "cfn", "cro", "tro", "cod_indec"],
   "optional_preserved_fields": ["fid", "id", "sag"],
-  "component_widths": {"cpr": 2, "cde": 5, "cfn": 2, "cro": 2, "cod_indec": 9},
-  "identity_composition": "cod_indec = cde + cfn + cro; cde is the five-digit cumulative jurisdiction+department code and must start with cpr",
+  "identity_field": "cod_indec",
+  "component_widths": {"cpr": 2, "cfn": 2, "cro": 2, "cod_indec": 9},
+  "source_cde_max_width": 5,
+  "identity_composition": "cod_indec is authoritative. Parse department_code=cod_indec[0:5], fraction_code=cod_indec[5:7], radio_code=cod_indec[7:9]. Source cde is preserved because the national layer contains both five-digit cumulative and a small number of three-digit local representations.",
   "documented_adjustment_jurisdictions": ["Entre Ríos", "Misiones"],
   "documented_adjustment_semantics": "INDEC metadata states that fractions and radios 00 in Entre Ríos and Misiones are adjustment surfaces to the river median line and do not carry census data.",
   "accepted_qa_warnings": [
