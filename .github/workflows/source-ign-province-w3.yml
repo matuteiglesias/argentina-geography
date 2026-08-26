@@ -105,6 +105,25 @@ jobs:
         run: |
           python -m argentina_geography.sources.ign_province materialize \
             --output /tmp/ign-province-release
+      - name: Verify pinned display derivative hash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          config = json.loads(
+              Path("config/sources/ign_administrative_province.json").read_text()
+          )
+          metadata = json.loads(
+              Path("/tmp/ign-province-release/source_metadata.json").read_text()
+          )
+          expected = config["expected_display_geojson_sha256"]
+          observed = metadata["display_geojson_sha256"]
+          if observed != expected:
+              raise SystemExit(
+                  f"IGN province display GeoJSON drift: expected {expected}, found {observed}"
+              )
+          PY
       - name: Verify detached Geography Release
         run: |
           cp -R /tmp/ign-province-release /tmp/ign-province-release-detached
