@@ -23,6 +23,7 @@ def _empty_relation(source_ids: pd.Series, source_id_col: str, target_id_col: st
         }
     )
 
+
 def _relate(
     source: gpd.GeoDataFrame,
     target: gpd.GeoDataFrame,
@@ -31,26 +32,65 @@ def _relate(
     target_id_col: str,
     config: dict,
 ) -> tuple[pd.DataFrame, dict]:
-    source_eligible = source.loc[source.geometry.notna()].copy()
-    target_eligible = target.loc[target.geometry.notna()].copy()
-    if target_eligible.empty:
+    """Relate objects after making analysis-CRS geometry eligibility explicit.
+
+    The foundation kernel validates target polygons in their input CRS and then projects
+    internally for metric intersections. A source-valid polygon can become invalid after
+    projection, especially after a derived union. A9 therefore projects *copies* first,
+    records any target that becomes invalid in the analysis CRS, and calls the unchanged
+    foundation kernel on those metric copies. Parent and derived source geometries are
+    never repaired or overwritten.
+    """
+    source_nonnull = source.loc[source.geometry.notna()].copy()
+    target_nonnull = target.loc[target.geometry.notna()].copy()
+    analysis_crs = config["analysis_crs"]
+
+    source_metric = source_nonnull[[source_id_col, "geometry"]].to_crs(analysis_crs)
+    target_metric = target_nonnull[[target_id_col, "geometry"]].to_crs(analysis_crs)
+
+    target_analysis_valid = (
+        target_metric.geometry.notna()
+        & ~target_metric.geometry.is_empty
+        & target_metric.geometry.geom_type.isin(["Polygon", "MultiPolygon"])
+        & target_metric.geometry.is_valid
+    )
+    invalid_target_ids = (
+        target_metric.loc[~target_analysis_valid, target_id_col]
+        .astype(str)
+        .sort_values()
+        .tolist()
+    )
+    target_metric_eligible = target_metric.loc[target_analysis_valid].copy()
+
+    if target_metric_eligible.empty:
         relation = _empty_relation(source[source_id_col], source_id_col, target_id_col)
+        if source.geometry.isna().any():
+            missing_source_ids = set(
+                source.loc[source.geometry.isna(), source_id_col].astype(str)
+            )
+            relation.loc[
+                relation[source_id_col].astype(str).isin(missing_source_ids),
+                "relation_status",
+            ] = "invalid_geometry"
         return relation, {
             "input_objects": len(source),
-            "input_targets": 0,
+            "input_targets": len(target_nonnull),
+            "analysis_eligible_targets": 0,
+            "target_analysis_invalid_geometry": len(invalid_target_ids),
+            "target_analysis_invalid_ids": invalid_target_ids,
             "matched_single": 0,
             "matched_multiple": 0,
-            "unmatched_outside": len(source),
-            "invalid_geometry": 0,
+            "unmatched_outside": int(relation["relation_status"].eq("unmatched_outside").sum()),
+            "invalid_geometry": int(relation["relation_status"].eq("invalid_geometry").sum()),
             "relation_rows": 0,
         }
 
     relation, audit = relate_areal_objects(
-        source_eligible[[source_id_col, "geometry"]],
-        target_eligible[[target_id_col, "geometry"]],
+        source_metric,
+        target_metric_eligible,
         object_id_col=source_id_col,
         polygon_id_col=target_id_col,
-        area_crs=config["analysis_crs"],
+        area_crs=analysis_crs,
         min_overlap_area_m2=float(config["minimum_overlap_area_m2"]),
     )
     relation = relation.rename(
@@ -60,10 +100,7 @@ def _relate(
         }
     )
 
-    target_metric = target_eligible[[target_id_col, "geometry"]].to_crs(
-        config["analysis_crs"]
-    )
-    target_area = target_metric.set_index(target_id_col).geometry.area
+    target_area = target_metric_eligible.set_index(target_id_col).geometry.area
     positive = relation[target_id_col].notna()
     relation["overlap_share_of_target"] = pd.Series(
         pd.NA, index=relation.index, dtype="Float64"
@@ -87,7 +124,10 @@ def _relate(
 
     audit_record = {
         "input_objects": len(source),
-        "input_targets": len(target_eligible),
+        "input_targets": len(target_nonnull),
+        "analysis_eligible_targets": len(target_metric_eligible),
+        "target_analysis_invalid_geometry": len(invalid_target_ids),
+        "target_analysis_invalid_ids": invalid_target_ids,
         "matched_single": int(audit.matched_single),
         "matched_multiple": int(audit.matched_multiple),
         "unmatched_outside": int(audit.unmatched_outside),
@@ -95,6 +135,7 @@ def _relate(
         "relation_rows": int(audit.relation_rows),
     }
     return relation, audit_record
+
 
 def build_radio_circuit_relation(
     census: gpd.GeoDataFrame,
@@ -177,6 +218,7 @@ def build_radio_circuit_relation(
     )
     return relation, audit
 
+
 def build_nonstandard_coverage_relation(
     census: gpd.GeoDataFrame,
     circuits: gpd.GeoDataFrame,
@@ -212,6 +254,7 @@ def build_nonstandard_coverage_relation(
             else pd.NA
         )
     return relation, audit
+
 
 def build_section_department_relation(
     census: gpd.GeoDataFrame,
@@ -274,6 +317,7 @@ def build_section_department_relation(
         na_position="last",
         ignore_index=True,
     ), audit
+
 
 def build_input_status(
     census: gpd.GeoDataFrame,
