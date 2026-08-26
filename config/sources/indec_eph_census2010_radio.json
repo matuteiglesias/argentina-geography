@@ -1,0 +1,50 @@
+{
+  "source_id": "indec-eph-census2010-radio-frame",
+  "provider": "INDEC",
+  "authority_status": "official",
+  "resource_title": "Cobertura geográfica de la EPH a nivel de radio censal",
+  "source_page": "https://www.indec.gob.ar/Institucional/Indec/BasesDeDatos",
+  "release": "current-published-census2010-based-frame",
+  "census_basis": "Censo Nacional de Población, Hogares y Viviendas 2010",
+  "target_level": "survey-frame radio",
+  "distribution_mode": "official_remote_fetch",
+  "license_status": "redistribution_not_asserted",
+  "attribution": "Instituto Nacional de Estadística y Censos (INDEC)",
+  "radio_sources": {
+    "shapefile": {
+      "file_name": "radios_eph.zip",
+      "download_url": "https://www.indec.gob.ar/ftp/cuadros/geoestadistica/radios_eph.zip"
+    },
+    "geojson": {
+      "file_name": "radios_eph_json.zip",
+      "download_url": "https://www.indec.gob.ar/ftp/cuadros/geoestadistica/radios_eph_json.zip"
+    }
+  },
+  "documentation_sources": {
+    "structure": {
+      "file_name": "estructura_radios_eph.xls",
+      "download_url": "https://www.indec.gob.ar/ftp/cuadros/geoestadistica/estructura_radios_eph.xls"
+    },
+    "agglomerate_localities": {
+      "file_name": "localidades_aglomerados_eph.xls",
+      "download_url": "https://www.indec.gob.ar/ftp/cuadros/geoestadistica/localidades_aglomerados_eph.xls"
+    }
+  },
+  "parent_census_2010": {
+    "dataset_id": "arggeo.indec.census.2010.radio",
+    "release_version": "2010-national-c9184f47fd46",
+    "source_snapshot_sha256": "c9184f47fd46c8a47e2c15e5c734b7b6ceb660ce737e18430691f6fbff3c53e8",
+    "normalized_geography_sha256": "762b825f27e3b6e8c1c3f63ae2a5f9aecfa80784b0f56d6739755d02ee749019"
+  },
+  "historical_evidence": {
+    "repository": "matuteiglesias/Aglomerados-EPH-INDEC",
+    "repository_tree_sha": "c5df2c2e5077b8d1aeadf3c4db4bf57112a26747",
+    "note": "Historical notebooks are regression evidence only. They spatially reconstructed radio-to-agglomerate membership and are not authority for A7."
+  },
+  "known_limitations": [
+    "The published radio coverage is explicitly based on Census 2010 cartography; it is not a Census 2022 geography.",
+    "EPH agglomerate/frame definitions have survey-design history and may have temporal limitations; the exact official documentation must be carried into the release rather than generalized across all quarters.",
+    "The official radio source directly carries agglomerate membership and must be preferred over a reconstructed spatial overlay.",
+    "The source page currently exposes Shapefile and GeoJSON variants; A7 must pin the exact adopted bytes and characterize whether they are semantically equivalent before choosing the normalized parent."
+  ]
+}
