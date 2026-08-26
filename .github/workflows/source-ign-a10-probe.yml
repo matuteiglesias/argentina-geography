@@ -15,13 +15,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: pip
-      - name: Install project
-        run: python -m pip install -e ".[dev]"
+      - name: Install probe dependencies
+        run: python -m pip install "geopandas>=1.1" "pyogrio>=0.10" "pyarrow>=15"
       - name: Probe exact IGN department WFS request
         shell: bash
         run: |
