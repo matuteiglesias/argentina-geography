@@ -1,0 +1,51 @@
+{
+  "handoff_id": "arggeo-a7-indec-eph-census2010-frame-2026-08-26",
+  "phase": "A7",
+  "status": "complete_after_merge",
+  "dataset_id": "arggeo.indec.eph.census2010.radio_frame",
+  "release_version": "census2010-frame-9b372c33aa68",
+  "authority_status": "official",
+  "source_snapshot_sha256": "9b372c33aa6827705e354f9be3545bf80bd668e44acfb602b6b63aabbe2704b8",
+  "content_sha256": {
+    "frame": "ea0f5a749cfe0863e71d06064814d003607a43547398d0baa192aea26b18f675",
+    "geography": "243a448071bf03e08d69208b585a7e63f22a228a8ac5fba5e1ff44f07a899b68",
+    "source_components": "d48e06c98cebfc59ddd61830f294689107eebd40967b3f148c8ba5d6b54f28f3"
+  },
+  "direct_mapping_sha256": "2fdf263982639b6dc7ebfbeeaec3cecc971801debe8adde6ba48043e48641052",
+  "stable_2010_ids": ["radio_2010_id", "department_2010_id", "province_2010_id"],
+  "eph_identity": {
+    "eph_agglomerate_id": "zero-preserving native eph_codagl",
+    "radio_mapping": "direct official source relation; no spatial reconstruction"
+  },
+  "counts": {
+    "source_components": 26815,
+    "radios": 26417,
+    "native_agglomerate_codes": 32,
+    "provinces": 24,
+    "departments": 106,
+    "source_missing_geometry_radios": 3
+  },
+  "source_missing_geometry_radio_2010_ids": ["020011704", "020011706", "500281605"],
+  "parent": {
+    "dataset_id": "arggeo.indec.census.2010.radio",
+    "release_version": "2010-national-c9184f47fd46",
+    "content_sha256": "762b825f27e3b6e8c1c3f63ae2a5f9aecfa80784b0f56d6739755d02ee749019",
+    "eph_ids_missing_from_parent": 0
+  },
+  "income_modeling_eph_compatibility": {
+    "repository_commit": "48cf614fc6e05c1b4b0b595dfe949dcbe8b1e138",
+    "projection": "AGLOMERADO = int(eph_agglomerate_id)",
+    "gis_logic_required": false,
+    "scientific_changes_required": false
+  },
+  "evidence": "docs/source-evidence/indec-eph-census2010-frame-2026-08-26.json",
+  "product_document": "docs/INDEC_EPH_CENSUS_2010_FRAME_PRODUCT.md",
+  "source_proof_run": 32928410734,
+  "general_ci_run": 32928413472,
+  "downstream_rules": [
+    "A9/A11 may bind these exact release IDs and hashes rather than rediscovering A7 identity.",
+    "Do not infer a radio→agglomerate assignment geometrically when this direct official mapping is available.",
+    "Do not fill A7 source-missing geometry from a different provider while retaining INDEC EPH identity.",
+    "Match time-specific EPH analysis to applicable frame documentation; this release is not a timeless frame claim."
+  ]
+}
