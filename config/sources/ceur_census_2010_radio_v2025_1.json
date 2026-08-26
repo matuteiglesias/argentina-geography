@@ -1,0 +1,32 @@
+{
+  "source_id": "ceur-census-2010-radio-v2025-1",
+  "provider": "CEUR-CONICET",
+  "authority_status": "curated_research",
+  "resource_title": "Cartografía de radios censales de Argentina corregidos, completados y estandarizados de 1991, 2001, 2010 y 2022",
+  "record_uri": "http://hdl.handle.net/11336/149711",
+  "record_url": "https://ri.conicet.gov.ar/handle/11336/149711",
+  "release": "V2025-1",
+  "file_name": "RADIOS_2010_V2025-1.zip",
+  "download_url": "https://ri.conicet.gov.ar/bitstream/handle/11336/149711/RADIOS_2010_V2025-1.zip?isAllowed=y&sequence=14",
+  "distribution_mode": "redistributed_snapshot",
+  "license_spdx_equivalent": "CC-BY-2.5",
+  "license_name": "Creative Commons Attribution 2.5 Unported",
+  "license_url": "https://creativecommons.org/licenses/by/2.5/",
+  "license_evidence": "CONICET Digital record 11336/149711 states that, except where explicitly noted, the item is published under Creative Commons Attribution 2.5 Unported (CC BY 2.5).",
+  "attribution": "Rodriguez, Gonzalo Martin; Consejo Nacional de Investigaciones Científicas y Técnicas (CONICET), CEUR.",
+  "citation": "Rodriguez, Gonzalo Martin; (2022): Cartografía de radios censales de Argentina corregidos, completados y estandarizados de 1991, 2001, 2010 y 2022. Consejo Nacional de Investigaciones Científicas y Técnicas. (dataset). http://hdl.handle.net/11336/149711",
+  "methodology": "Curated longitudinal research cartography. The record describes backward harmonization using 2022 geometry as the basis for 2010, 2010 for 2001, and 2001 for 1991, together with corrections/completions, REDATAM-linkable code correction, and standardized unchanged boundaries.",
+  "target_vintage": "2010",
+  "target_level": "radio",
+  "record_notes": [
+    "The current record says the 1991 and 2010 releases identify radios censused with the sampled extended questionnaire.",
+    "The current record says a future version, not V2025-1, is intended to add municipality, locality and agglomerate codes/names. No EPH agglomerate semantics are inferred from this source."
+  ],
+  "known_limitations": [
+    "CEUR V2025-1 is curated research cartography and is not a mirror or byte-equivalent substitute for official INDEC Census 2010 cartography.",
+    "The dataset deliberately corrects, completes, aligns and standardizes census-radio geometry across vintages for research use.",
+    "Native schema and identifier authority must be characterized from this exact V2025-1 2010 file before normalization.",
+    "No INDEC-versus-CEUR preference or winner policy is implied by adopting this source as an independent geography authority.",
+    "V2025-1 does not itself establish EPH radio-to-agglomerate membership; A7 must inspect official INDEC EPH authority separately."
+  ]
+}

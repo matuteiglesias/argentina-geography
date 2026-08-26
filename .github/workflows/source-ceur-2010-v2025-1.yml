@@ -1,0 +1,70 @@
+name: source-proof-ceur-2010-v2025-1
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["feat/ceur-census-2010-v2025-1"]
+    paths:
+      - "config/sources/ceur_census_2010_radio_v2025_1.json"
+      - "src/argentina_geography/sources/ceur_2010_v2025_1_probe.py"
+      - "src/argentina_geography/sources/ceur_2010_v2025_1.py"
+      - "tests/test_ceur_2010_v2025_1.py"
+      - ".github/workflows/source-ceur-2010-v2025-1.yml"
+
+concurrency:
+  group: source-proof-ceur-2010-v2025-1-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  probe-source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install
+        run: python -m pip install -e ".[dev]"
+      - name: Probe CEUR 2010 V2025-1 source
+        run: |
+          python -m argentina_geography.sources.ceur_2010_v2025_1_probe \
+            --source-out /tmp/RADIOS_2010_V2025-1.zip \
+            --output /tmp/ceur-2010-v2025-1-raw-evidence.json
+          cat /tmp/ceur-2010-v2025-1-raw-evidence.json
+      - name: Upload raw source evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ceur-2010-v2025-1-raw-evidence
+          path: /tmp/ceur-2010-v2025-1-raw-evidence.json
+          if-no-files-found: error
+      - name: Materialize exact probed snapshot
+        if: ${{ hashFiles('src/argentina_geography/sources/ceur_2010_v2025_1.py') != '' }}
+        run: |
+          python -m argentina_geography.sources.ceur_2010_v2025_1 materialize \
+            --source /tmp/RADIOS_2010_V2025-1.zip \
+            --output /tmp/ceur-2010-v2025-1-release
+      - name: Verify detached product
+        if: ${{ hashFiles('src/argentina_geography/sources/ceur_2010_v2025_1.py') != '' }}
+        run: |
+          cp -R /tmp/ceur-2010-v2025-1-release /tmp/ceur-2010-v2025-1-detached
+          python -m argentina_geography.sources.ceur_2010_v2025_1 verify \
+            --release /tmp/ceur-2010-v2025-1-detached
+      - name: Prepare release evidence
+        if: ${{ hashFiles('src/argentina_geography/sources/ceur_2010_v2025_1.py') != '' }}
+        run: |
+          mkdir -p /tmp/ceur-source-evidence
+          cp /tmp/ceur-2010-v2025-1-release/manifest.json /tmp/ceur-source-evidence/
+          cp /tmp/ceur-2010-v2025-1-release/qa.json /tmp/ceur-source-evidence/
+          cp /tmp/ceur-2010-v2025-1-release/source_metadata.json /tmp/ceur-source-evidence/
+          cp /tmp/ceur-2010-v2025-1-release/limitations.json /tmp/ceur-source-evidence/
+          cp /tmp/ceur-2010-v2025-1-release/identity_contract.json /tmp/ceur-source-evidence/
+          cat /tmp/ceur-2010-v2025-1-release/manifest.json
+          cat /tmp/ceur-2010-v2025-1-release/qa.json
+      - name: Upload release evidence
+        if: ${{ hashFiles('src/argentina_geography/sources/ceur_2010_v2025_1.py') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ceur-2010-v2025-1-source-evidence
+          path: /tmp/ceur-source-evidence
+          if-no-files-found: error
