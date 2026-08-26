@@ -48,6 +48,60 @@ def _field_profile(frame: gpd.GeoDataFrame, field: str) -> dict:
     }
 
 
+def _direct_identity_profile(frame: gpd.GeoDataFrame) -> dict:
+    required = {"codprov", "coddepto", "frac2010", "radio2010", "eph_codagl", "eph_aglome"}
+    missing = sorted(required - set(frame.columns))
+    if missing:
+        return {"available": False, "missing_fields": missing}
+
+    radio_id = (
+        frame["codprov"].astype(str).str.strip()
+        + frame["coddepto"].astype(str).str.strip()
+        + frame["frac2010"].astype(str).str.strip()
+        + frame["radio2010"].astype(str).str.strip()
+    )
+    duplicate_mask = radio_id.duplicated(False)
+    agglomerate_names = (
+        frame[["eph_codagl", "eph_aglome"]]
+        .drop_duplicates()
+        .sort_values(["eph_codagl", "eph_aglome"])
+        .groupby("eph_codagl", dropna=False)["eph_aglome"]
+        .agg(list)
+    )
+    row_counts = frame["eph_codagl"].value_counts().sort_index()
+    missing_geometry_rows = frame.loc[frame.geometry.isna()].copy()
+    missing_geometry_ids = (
+        missing_geometry_rows["codprov"].astype(str).str.strip()
+        + missing_geometry_rows["coddepto"].astype(str).str.strip()
+        + missing_geometry_rows["frac2010"].astype(str).str.strip()
+        + missing_geometry_rows["radio2010"].astype(str).str.strip()
+    )
+    return {
+        "available": True,
+        "candidate_composition": "codprov+coddepto+frac2010+radio2010",
+        "candidate_radio_2010_id_count": int(radio_id.nunique()),
+        "duplicate_candidate_radio_2010_id_row_count": int(duplicate_mask.sum()),
+        "duplicate_candidate_radio_2010_ids": sorted(radio_id.loc[duplicate_mask].unique().tolist()),
+        "candidate_width_counts": {
+            str(int(width)): int(count) for width, count in radio_id.str.len().value_counts().sort_index().items()
+        },
+        "agglomerate_code_count": int(frame["eph_codagl"].nunique()),
+        "agglomerate_codes": sorted(frame["eph_codagl"].astype(str).unique().tolist()),
+        "agglomerate_code_to_names": {
+            str(code): [str(name) for name in names] for code, names in agglomerate_names.items()
+        },
+        "agglomerate_codes_with_multiple_names": {
+            str(code): [str(name) for name in names]
+            for code, names in agglomerate_names.items()
+            if len(names) > 1
+        },
+        "rows_by_agglomerate_code": {
+            str(code): int(count) for code, count in row_counts.items()
+        },
+        "missing_geometry_radio_2010_ids": sorted(missing_geometry_ids.tolist()),
+    }
+
+
 def _profile_vector(path: Path, label: str) -> dict:
     if path.read_bytes()[:2] != b"PK":
         raise ValueError(f"{label} is not the expected ZIP archive: {path}")
@@ -84,6 +138,7 @@ def _profile_vector(path: Path, label: str) -> dict:
             for field, profile in profiles.items()
             if profile["null_count"] == 0 and profile["unique_count"] == len(frame)
         ],
+        "direct_identity_profile": _direct_identity_profile(frame),
         "first_records": preview.map(str).to_dict(orient="records"),
         "crs": None if frame.crs is None else frame.crs.to_string(),
         "geometry_types": sorted(geometry.geom_type.dropna().unique().tolist()),
@@ -137,9 +192,13 @@ def probe(source_dir: Path, output: Path, config_path: Path = DEFAULT_CONFIG) ->
     vector_signatures = {
         label: {
             "feature_count": item["feature_count"],
-            "columns": item["columns"],
             "crs": item["crs"],
-            "geometry_types": item["geometry_types"],
+            "candidate_radio_2010_id_count": item["direct_identity_profile"].get(
+                "candidate_radio_2010_id_count"
+            ),
+            "agglomerate_code_count": item["direct_identity_profile"].get("agglomerate_code_count"),
+            "missing_geometry_count": item["missing_geometry_count"],
+            "invalid_geometry_count": item["invalid_geometry_count"],
         }
         for label, item in vector_evidence.items()
     }
@@ -153,8 +212,8 @@ def probe(source_dir: Path, output: Path, config_path: Path = DEFAULT_CONFIG) ->
         "parent_census_2010": config["parent_census_2010"],
         "vectors": vector_evidence,
         "documentation": document_evidence,
-        "vector_signatures": vector_signatures,
-        "vector_schema_equivalent": len(
+        "vector_semantic_signatures": vector_signatures,
+        "vector_semantic_signature_equivalent": len(
             {json.dumps(value, sort_keys=True, ensure_ascii=False) for value in vector_signatures.values()}
         )
         == 1,
