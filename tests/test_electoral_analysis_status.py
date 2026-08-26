@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import geopandas as gpd
-import pandas as pd
 from shapely.geometry import Polygon, box
 
 from argentina_geography.electoral.config import DEFAULT_CONFIG, load_config
