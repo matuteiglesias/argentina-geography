@@ -109,7 +109,7 @@
       "geographic_level": "synthetic administrative unit",
       "reference_vintage": "fixture-v1 (not a real-world vintage)",
       "crs_as_published": "EPSG:3857 (x, y metres)",
-      "expected_identifiers": ["admin_id", "province_id", "weight"],
+      "expected_identifiers": ["admin_id", "province_id"],
       "retrieved_file_sha256": "computed in release manifest",
       "licensing_redistribution": "Synthetic; redistributable.",
       "status": "observed"
