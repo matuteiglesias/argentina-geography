@@ -1,15 +1,37 @@
 [build-system]
-requires = ["setuptools==80.9.0"]
+requires = ["setuptools>=80"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "censo-geography-release"
-version = "1.0.0"
+name = "argentina-geography"
+version = "0.1.0"
+description = "Reproducible Argentine geography releases and cross-geography relations"
 requires-python = ">=3.11"
-dependencies = ["shapely==2.1.1", "pyproj==3.7.1"]
+dependencies = [
+  "empirical-data-contracts>=0.1,<0.2",
+  "spatial-data-foundation>=0.1,<0.3",
+  "geopandas>=1.1",
+  "pandas>=2.2",
+  "pyarrow>=15",
+  "shapely>=2.1",
+  "pyproj>=3.7",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8",
+  "ruff>=0.6",
+  "build>=1.2",
+]
 
 [project.scripts]
 censo-geography-release = "censo_geo.release:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
