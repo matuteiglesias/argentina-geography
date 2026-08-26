@@ -36,17 +36,17 @@ jobs:
         run: python -m pip install -e ".[dev]"
       - name: Test IGN source adapter
         run: python -m pytest -q tests/test_ign_department.py
-      - name: Acquire exact pinned IGN WFS snapshot
+      - name: Acquire exact pinned IGN archive
         run: |
           python - <<'PY'
           from pathlib import Path
           from argentina_geography.sources.ign_department import download_source, load_config
-          download_source(Path("/tmp/ign-departamento.geojson"), load_config())
+          download_source(Path("/tmp/ign_departamento.zip"), load_config())
           PY
       - name: Materialize exact IGN Geography Release
         run: |
           python -m argentina_geography.sources.ign_department materialize \
-            --source /tmp/ign-departamento.geojson \
+            --source /tmp/ign_departamento.zip \
             --output /tmp/ign-department-release
       - name: Verify detached Geography Release
         run: |
