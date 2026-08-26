@@ -20,6 +20,7 @@ FORBIDDEN_RELATION_COLUMN_TOKENS = (
     "nearest",
 )
 
+
 def verify_vertical(output: Path, config_path: Path = DEFAULT_CONFIG) -> None:
     config = load_config(config_path)
     verify_checksums(output)
@@ -70,6 +71,26 @@ def verify_vertical(output: Path, config_path: Path = DEFAULT_CONFIG) -> None:
     if set(source_rows["input_uid"].astype(str)) != relation_sources:
         raise ValueError("primary relation does not keep every Census radio observable")
 
+    qa = read_json(output / manifest["artifacts"]["qa"])
+    expected_analysis_invalid = set(
+        qa["radio_circuit"].get("target_analysis_invalid_ids", [])
+    ) | set(qa["section_department"].get("target_analysis_invalid_ids", []))
+    if expected_analysis_invalid:
+        if "analysis_geometry_status" not in status.columns:
+            raise ValueError("analysis-CRS invalid targets are not exposed in input status")
+        visible_invalid = set(
+            status.loc[
+                status["analysis_geometry_status"].eq("analysis_crs_invalid_geometry"),
+                "input_uid",
+            ].astype(str)
+        )
+        missing_invalid = expected_analysis_invalid - visible_invalid
+        if missing_invalid:
+            raise ValueError(
+                "QA-reported analysis-CRS invalid targets are missing from input status: "
+                f"{sorted(missing_invalid)}"
+            )
+
     province_qa = pd.read_parquet(output / manifest["artifacts"]["province_qa"])
     if len(province_qa) != 24:
         raise ValueError("province QA must contain exactly 24 electoral district/province rows")
@@ -103,6 +124,7 @@ def verify_vertical(output: Path, config_path: Path = DEFAULT_CONFIG) -> None:
         )
         if "compatible_any" not in compatibility:
             raise ValueError("elecciones-ARG compatibility proof is incomplete")
+
 
 def write_release_identity(release: Path, output: Path) -> dict:
     manifest = read_json(release / "manifest.json")
