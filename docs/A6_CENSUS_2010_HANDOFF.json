@@ -1,0 +1,76 @@
+{
+  "handoff_id": "arggeo-a6-census-2010-backbone-2026-08-26",
+  "phase": "A6",
+  "status": "complete_after_merge",
+  "consumer_identity_fields": [
+    "radio_2010_id",
+    "department_2010_id",
+    "province_2010_id"
+  ],
+  "products": {
+    "official_indec": {
+      "dataset_id": "arggeo.indec.census.2010.radio",
+      "release_version": "2010-national-c9184f47fd46",
+      "authority_status": "official",
+      "source_release": "census-2010-cartography",
+      "source_snapshot_sha256": "c9184f47fd46c8a47e2c15e5c734b7b6ceb660ce737e18430691f6fbff3c53e8",
+      "normalized_geography_sha256": "762b825f27e3b6e8c1c3f63ae2a5f9aecfa80784b0f56d6739755d02ee749019",
+      "source_component_count": 52408,
+      "consumer_radio_count": 52406,
+      "department_count": 525,
+      "province_count": 24,
+      "crs": "EPSG:22183",
+      "native_identity": {
+        "radio": "link/LINK",
+        "consumer_mapping": {
+          "radio_2010_id": "zero-preserving 9-digit link/LINK",
+          "department_2010_id": "radio_2010_id[0:5]",
+          "province_2010_id": "radio_2010_id[0:2]"
+        }
+      },
+      "evidence": "docs/source-evidence/indec-census-2010-2026-08-26.json",
+      "product_document": "docs/INDEC_CENSUS_2010_PRODUCT.md",
+      "source_proof_run": 32923021187
+    },
+    "ceur_v2025_1": {
+      "dataset_id": "arggeo.ceur.census.2010.radio",
+      "release_version": "v2025-1-2010-464e9b4c265a",
+      "authority_status": "curated_research",
+      "source_release": "V2025-1",
+      "source_file": "RADIOS_2010_V2025-1.zip",
+      "source_layer": "Radios 2010 v2025-1",
+      "source_file_sha256": "464e9b4c265a27f46a48e0c5914ef4e833c14e8977b8f0c9c1eaad672f374baa",
+      "normalized_geography_sha256": "d2095144bc31a34bd09c8fc0a130a872f41016541a8b87daddd52aace759a23e",
+      "consumer_radio_count": 52406,
+      "analytical_geometry_count": 52394,
+      "source_invalid_geometry_count": 12,
+      "department_count": 528,
+      "province_count": 24,
+      "crs": "EPSG:3857",
+      "native_identity": {
+        "radio": "COD_2010",
+        "components": ["PROV", "DEPTO", "FRACC", "RADIO"],
+        "composition": "COD_2010 == PROV+DEPTO+FRACC+RADIO",
+        "consumer_mapping": {
+          "radio_2010_id": "COD_2010",
+          "department_2010_id": "PROV+DEPTO = radio_2010_id[0:5]",
+          "province_2010_id": "PROV = radio_2010_id[0:2]"
+        }
+      },
+      "evidence": "docs/source-evidence/ceur-2010-v2025-1-2026-08-26.md",
+      "product_document": "docs/CEUR_CENSUS_2010_PRODUCT.md",
+      "source_proof_run": 32923568375
+    }
+  },
+  "historical_count_evidence": {
+    "legacy_conicet_geometry_rows": 52401,
+    "legacy_radio_lookup_rows": 52382,
+    "interpretation": "Regression evidence only; neither count is an acceptance target for current authoritative releases."
+  },
+  "downstream_rules": [
+    "Provider/release identity remains explicit; shared stable field names do not make INDEC and CEUR geometry interchangeable.",
+    "A7 must use the exact merged official INDEC parent release for official EPH radio/frame work.",
+    "A7 must not infer EPH agglomerate membership from CEUR questionnaire flags or geometry when INDEC publishes an official relation.",
+    "A9/A11 may depend on these exact release IDs and hashes rather than rediscovering Census 2010 identity."
+  ]
+}
