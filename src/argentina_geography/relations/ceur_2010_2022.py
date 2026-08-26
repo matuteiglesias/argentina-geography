@@ -31,10 +31,14 @@ from argentina_geography.products import (
 )
 from argentina_geography.sources.ceur_2010_v2025_1 import (
     normalize_source as normalize_ceur_2010_source,
+)
+from argentina_geography.sources.ceur_2010_v2025_1 import (
     verify_release as verify_ceur_2010_release,
 )
 from argentina_geography.sources.ceur_2022_v2025_1 import (
     normalize_source as normalize_ceur_2022_source,
+)
+from argentina_geography.sources.ceur_2022_v2025_1 import (
     verify_release as verify_ceur_2022_release,
 )
 
