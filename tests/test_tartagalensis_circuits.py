@@ -82,7 +82,7 @@ def _write_source_vintage(root: Path, vintage: str, config: dict) -> Path:
                         "codprov": codprov,
                         "coddepto": "001",
                     },
-                    "geometry": _square(-70 + index + 0.3, -40 + index / 10),
+                    "geometry": _square(-70 + index, -40 + index / 10),
                 }
             )
         if codprov == "04":
