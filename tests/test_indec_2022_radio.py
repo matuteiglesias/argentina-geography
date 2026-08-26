@@ -77,6 +77,8 @@ def test_indec_2022_normalization_preserves_native_identity_and_adjustments(tmp_
     release = tmp_path / "release"
     manifest = materialize_from_source(source, release)
     verify_release(release)
+    catalog = pd.read_parquet(release / "geography_catalog.parquet")
+    assert catalog.iloc[0]["distribution_mode"] == "official_remote_fetch"
     assert manifest["authority_status"] == "official"
     assert manifest["distribution_mode"] == "official_remote_fetch"
     assert manifest["run"]["parameters"]["geometry_repair_applied"] is False
