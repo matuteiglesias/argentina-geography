@@ -111,7 +111,7 @@ def normalize_source(frame: gpd.GeoDataFrame, config: dict) -> tuple[gpd.GeoData
             lambda value, field=field, width=width: _normalize_digits(value, width, field)
         )
 
-    department_prefix_mismatch = ~result["cde"].str.startswith(result["cpr"])
+    department_prefix_mismatch = result["cde"].str[:2].ne(result["cpr"])
     if department_prefix_mismatch.any():
         sample = result.loc[department_prefix_mismatch, ["cpr", "cde", "dpto"]].head(5)
         raise ValueError(
