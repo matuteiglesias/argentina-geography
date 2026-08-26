@@ -266,13 +266,12 @@ def _optional_department(value: object) -> str | None:
         return None
     if not isinstance(value, str):
         raise TypeError(
-            "coddepto must remain a three-digit source string or null; "
+            "coddepto must remain a source string or null; "
             f"observed {type(value).__name__}"
         )
-    text = value.strip()
-    if not text.isascii() or not text.isdigit() or len(text) != 3:
-        raise ValueError(f"coddepto must be exactly three ASCII digits or null: {value!r}")
-    return text
+    if not value.strip():
+        raise ValueError("coddepto must be a non-empty source string or null")
+    return value
 
 
 def _source_status(circuito: str, config: dict) -> str:
@@ -285,8 +284,8 @@ def _source_status(circuito: str, config: dict) -> str:
     return "other_nonstandard"
 
 
-def _native_id(codprov: str, coddepto: str | None, circuito: str) -> str:
-    department = coddepto if coddepto is not None else "<missing>"
+def _native_id(codprov: str, coddepto: object, circuito: str) -> str:
+    department = "<missing>" if pd.isna(coddepto) else str(coddepto)
     return f"{codprov}|{department}|{circuito}"
 
 
@@ -303,7 +302,7 @@ def _feature_uid(
         "vintage": vintage,
         "source_path": source_path,
         "codprov": codprov,
-        "coddepto": coddepto,
+        "coddepto": None if pd.isna(coddepto) else str(coddepto),
         "circuito": circuito,
         "source_geometry_sha256": source_geometry_sha256,
     }

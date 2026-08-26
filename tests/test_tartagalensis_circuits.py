@@ -64,7 +64,11 @@ def _write_source_vintage(root: Path, vintage: str, config: dict) -> Path:
                 "properties": {
                     "circuito": "00001",
                     "codprov": codprov,
-                    "coddepto": None if (vintage == "2021" and codprov == "15") else "001",
+                    "coddepto": (
+                        None
+                        if (vintage == "2021" and codprov == "15")
+                        else ("01" if codprov == "24" else "001")
+                    ),
                 },
                 "geometry": _square(-70 + index, -40 + index / 10),
             }
@@ -206,6 +210,16 @@ def test_offline_releases_preserve_identity_status_and_no_equivalence(tmp_path: 
         neuquen_missing.iloc[0]["circuit_uid"] is not None
         and str(neuquen_missing.iloc[0]["circuit_uid"]) == "<NA>"
     )
+    missing_department = frame[
+        frame["codprov"].eq("15") & frame["circuito"].eq("00001")
+    ].iloc[0]
+    assert missing_department["native_id"] == "15|<missing>|00001"
+
+    source_native_width = frame[
+        frame["codprov"].eq("24") & frame["circuito"].eq("00001")
+    ].iloc[0]
+    assert source_native_width["coddepto"] == "01"
+    assert str(source_native_width["circuit_uid"]).endswith(":24:01:00001")
     assert frame["reconstruction_status"].eq("unknown_feature_level").all()
 
     unreadable = frame[frame["source_geometry_parse_status"].eq("unreadable")]
