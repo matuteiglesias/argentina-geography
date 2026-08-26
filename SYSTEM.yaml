@@ -1,0 +1,59 @@
+# This file declares the repository boundary and its place in the GitHub estate.
+schema_version: 1
+id: research.argentina-geography
+repository:
+  id: repo.argentina-geography
+  github: matuteiglesias/argentina-geography
+domain: research
+system: research.argentina-geography
+role: argentina-geography-authority
+lifecycle: active
+authority:
+  status: approved
+  owns:
+  - Argentine source authority knowledge and exact source snapshot identity
+  - native identifier semantics for supported Argentine geography sources
+  - source-specific geography QA and normalized Geography Releases
+  - factual relations between exact Geography Releases
+  - Argentina-specific crosswalk policies only when explicitly approved
+  does_not_own:
+  - provider-neutral spatial kernels
+  - shared generic provenance and identity vocabulary
+  - poverty methodology or statistical estimands
+  - Census sampling policy
+  - income modeling or model inference
+  - electoral results, candidacies, mesas, or election-event semantics
+interfaces:
+  consumes:
+  - package:empirical-data-contracts
+  - package:spatial-data-foundation
+  produces:
+  - artifact:arggeo.geography-release@1
+  - artifact:arggeo.relation-release@1
+  - artifact:arggeo.crosswalk-release@1
+  manifest_boundary: versioned artifacts plus manifests/catalogs; downstream repositories do not need this checkout
+upstream:
+- repo.empirical-data-contracts
+- repo.spatial-data-foundation
+downstream:
+- repo.samplerCensoARG
+- repo.indice-pobreza-UBA
+- repo.elecciones-ARG
+- repo.income-modeling-eph
+canonical_commands:
+- make check
+- make test
+generated_paths:
+- build/
+- dist/
+verification:
+  status: product-and-source-specific
+  last_verified: '2026-08-26'
+  command: make check && make test
+  notes:
+  - ordinary verification is offline and fixture-backed
+  - real-source materialization and detached verification are explicit source/product-specific actions
+  - exact release identities, hashes, QA and distribution modes live in product catalogs/manifests and handoff evidence
+maintenance:
+  cadence: active-consumer-driven
+  next_review: '2026-11-01'
