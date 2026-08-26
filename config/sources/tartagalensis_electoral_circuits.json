@@ -1,0 +1,275 @@
+{
+  "source_id": "tartagalensis-electoral-circuits",
+  "provider": "Tartagalensis / Franco Galeano",
+  "authority_status": "curated_operational",
+  "resource_title": "circuitos_electorales_AR: circuitos electorales de la República Argentina",
+  "repository": "tartagalensis/circuitos_electorales_AR",
+  "repository_url": "https://github.com/tartagalensis/circuitos_electorales_AR",
+  "commit_sha": "50692fd821f825566b0589da2cc1fefdef5fa02f",
+  "dataset_version": "2025.1",
+  "citation_cff_path": "CITATION.cff",
+  "citation_cff_blob_sha": "7a86199e0ef4e4a1e5d5469e6240cfaeb13c6ea9",
+  "license_path": "LICENSE",
+  "license_blob_sha": "da6ab6cc8f333d7e89a99812866df8f24374d47c",
+  "readme_blob_sha": "bc647543eeb9e42f585286c00882d6a3c92b627d",
+  "distribution_mode": "redistributed_snapshot",
+  "license_spdx_equivalent": "CC-BY-4.0",
+  "license_name": "Creative Commons Attribution 4.0 International",
+  "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "license_evidence": "Pinned LICENSE and README at the adopted commit state CC BY 4.0 for the curated dataset. Upstream official source material may carry separate terms.",
+  "attribution": "Galeano, Franco (Tartagalensis). circuitos_electorales_AR.",
+  "citation": "Galeano, F. (2026). circuitos_electorales_AR: circuitos electorales de la República Argentina (Version 2025.1) [Dataset]. GitHub.",
+  "source_path_template": "{vintage}/{filename}",
+  "raw_url_template": "https://raw.githubusercontent.com/{repository}/{commit_sha}/{vintage}/{filename}",
+  "native_id_fields": [
+    "codprov",
+    "coddepto",
+    "circuito"
+  ],
+  "source_schema": [
+    "circuito",
+    "codprov",
+    "coddepto",
+    "geometry"
+  ],
+  "expected_crs_epsg": 4326,
+  "districts": [
+    {
+      "codprov": "01",
+      "district": "Ciudad Autónoma de Buenos Aires",
+      "filename": "CABA.geojson"
+    },
+    {
+      "codprov": "02",
+      "district": "Buenos Aires",
+      "filename": "PBA.geojson"
+    },
+    {
+      "codprov": "03",
+      "district": "Catamarca",
+      "filename": "Catamarca.geojson"
+    },
+    {
+      "codprov": "04",
+      "district": "Córdoba",
+      "filename": "Cordoba.geojson"
+    },
+    {
+      "codprov": "05",
+      "district": "Corrientes",
+      "filename": "Corrientes.geojson"
+    },
+    {
+      "codprov": "06",
+      "district": "Chaco",
+      "filename": "Chaco.geojson"
+    },
+    {
+      "codprov": "07",
+      "district": "Chubut",
+      "filename": "Chubut.geojson"
+    },
+    {
+      "codprov": "08",
+      "district": "Entre Ríos",
+      "filename": "EntreRios.geojson"
+    },
+    {
+      "codprov": "09",
+      "district": "Formosa",
+      "filename": "Formosa.geojson"
+    },
+    {
+      "codprov": "10",
+      "district": "Jujuy",
+      "filename": "Jujuy.geojson"
+    },
+    {
+      "codprov": "11",
+      "district": "La Pampa",
+      "filename": "LaPampa.geojson"
+    },
+    {
+      "codprov": "12",
+      "district": "La Rioja",
+      "filename": "LaRioja.geojson"
+    },
+    {
+      "codprov": "13",
+      "district": "Mendoza",
+      "filename": "Mendoza.geojson"
+    },
+    {
+      "codprov": "14",
+      "district": "Misiones",
+      "filename": "Misiones.geojson"
+    },
+    {
+      "codprov": "15",
+      "district": "Neuquén",
+      "filename": "Neuquen.geojson"
+    },
+    {
+      "codprov": "16",
+      "district": "Río Negro",
+      "filename": "RioNegro.geojson"
+    },
+    {
+      "codprov": "17",
+      "district": "Salta",
+      "filename": "Salta.geojson"
+    },
+    {
+      "codprov": "18",
+      "district": "San Juan",
+      "filename": "SanJuan.geojson"
+    },
+    {
+      "codprov": "19",
+      "district": "San Luis",
+      "filename": "SanLuis.geojson"
+    },
+    {
+      "codprov": "20",
+      "district": "Santa Cruz",
+      "filename": "SantaCruz.geojson"
+    },
+    {
+      "codprov": "21",
+      "district": "Santa Fe",
+      "filename": "SantaFe.geojson"
+    },
+    {
+      "codprov": "22",
+      "district": "Santiago del Estero",
+      "filename": "Santiago.geojson"
+    },
+    {
+      "codprov": "23",
+      "district": "Tucumán",
+      "filename": "Tucuman.geojson"
+    },
+    {
+      "codprov": "24",
+      "district": "Tierra del Fuego",
+      "filename": "TdF.geojson"
+    }
+  ],
+  "vintages": {
+    "2021": {
+      "tree_sha": "5e0fdbf4c010b4ce25bd6ebe0b74938797638daa",
+      "expected_unique_standard_circuits": {
+        "01": 167,
+        "02": 1066,
+        "03": 155,
+        "04": 622,
+        "05": 170,
+        "06": 153,
+        "07": 115,
+        "08": 318,
+        "09": 107,
+        "10": 146,
+        "11": 89,
+        "12": 146,
+        "13": 192,
+        "14": 89,
+        "15": 156,
+        "16": 151,
+        "17": 315,
+        "18": 146,
+        "19": 136,
+        "20": 33,
+        "21": 525,
+        "22": 257,
+        "23": 274,
+        "24": 25
+      },
+      "documented_null_coddepto_features": 29
+    },
+    "2025": {
+      "tree_sha": "44cb1588f49c6c51345dbce11b8fb1177eac5c99",
+      "expected_unique_standard_circuits": {
+        "01": 167,
+        "02": 1145,
+        "03": 156,
+        "04": 634,
+        "05": 174,
+        "06": 153,
+        "07": 121,
+        "08": 318,
+        "09": 150,
+        "10": 146,
+        "11": 89,
+        "12": 146,
+        "13": 192,
+        "14": 109,
+        "15": 172,
+        "16": 158,
+        "17": 315,
+        "18": 143,
+        "19": 169,
+        "20": 30,
+        "21": 558,
+        "22": 257,
+        "23": 282,
+        "24": 63
+      }
+    }
+  },
+  "cross_vintage_code_compatibility_evidence": {
+    "scope": "aggregate_code_set_counts_only_no_equivalence_rows",
+    "expected_common_standard_codes": {
+      "01": 167,
+      "02": 1057,
+      "03": 155,
+      "04": 621,
+      "05": 170,
+      "06": 153,
+      "07": 115,
+      "08": 318,
+      "09": 106,
+      "10": 146,
+      "11": 89,
+      "12": 145,
+      "13": 192,
+      "14": 89,
+      "15": 156,
+      "16": 149,
+      "17": 315,
+      "18": 143,
+      "19": 129,
+      "20": 21,
+      "21": 43,
+      "22": 257,
+      "23": 274,
+      "24": 15
+    },
+    "documented_rename_warning_districts": [
+      "21",
+      "24"
+    ],
+    "note": "These aggregate set-intersection counts characterize direct code compatibility only. They do not define or publish any 2021-to-2025 circuit equivalence."
+  },
+  "nonstandard_status_map": {
+    "sindatos": "no_data",
+    "s/d": "no_data",
+    "zonagris": "grey_zone",
+    "zonagris/": "grey_zone",
+    "zonaincon": "unassigned_unknown"
+  },
+  "reconstruction_status": "unknown_feature_level",
+  "reconstruction_evidence": "The pinned README and CITATION.cff state that the dataset includes manually reconstructed circuits where official usable cartography is absent or incomplete, but the three-field source schema carries no exhaustive per-feature reconstruction flag. A8 therefore preserves curated_operational authority and records feature-level reconstruction status as unknown rather than inventing row attribution.",
+  "known_limitations": [
+    "There is no single complete official national circuit polygon layer; this source is a curated operational compilation of heterogeneous official material plus documented reconstruction.",
+    "The pinned source schema does not expose an exhaustive per-feature reconstruction flag, so A8 cannot truthfully classify individual rows as official-versus-reconstructed.",
+    "Some logical circuits are represented by multiple source features because their territory is non-contiguous; A8 preserves source features and exposes a separate composite circuit_uid when the native composite key is complete.",
+    "Twenty-nine 2021 source features have null coddepto according to the pinned README; those rows are preserved with explicit incomplete-identity status rather than imputed.",
+    "coddepto is preserved as the source-native string, including source-native width; A8 does not pad, truncate, or reinterpret it as a Census department code.",
+    "Documented no-data and grey-zone polygons represent real territory without an assigned circuit and are preserved rather than filtered.",
+    "San Juan contains source GeometryCollection features; A8 preserves source geometry types and does not silently coerce or repair them.",
+    "Santa Fe and Tierra del Fuego changed circuit nomenclature between 2021 and 2025. A8 records aggregate code-compatibility evidence only and publishes no cross-vintage equivalence.",
+    "The pinned 2021/2025 GeoJSON is parsed feature-by-feature because at least one source geometry cannot be constructed by GEOS. A8 preserves the affected source feature, canonical geometry payload/hash and parse error with null analytical geometry; no repair or silent drop is applied.",
+    "Geometry precision varies, particularly where circuit boundaries were reconstructed from electoral decisions, polling places and political subdivisions.",
+    "A8 publishes geography only: no electoral results, Census relation, winner policy or cross-vintage crosswalk."
+  ]
+}
