@@ -14,7 +14,7 @@
       "expected_identifiers": ["link/LINK", "toponimo_i/PAIS0210_I", "radio_2010_id", "department_2010_id", "province_2010_id"],
       "retrieved_file_sha256": "snapshot:c9184f47fd46c8a47e2c15e5c734b7b6ceb660ce737e18430691f6fbff3c53e8",
       "licensing_redistribution": "Current official government catalog declares Creative Commons Attribution 4.0.",
-      "status": "observed official snapshot"
+      "status": "observed"
     },
     {
       "source_id": "ceur-conicet-census-radios-1991",
