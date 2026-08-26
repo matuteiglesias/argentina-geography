@@ -33,6 +33,40 @@ jobs:
             --output /tmp/indec-2010-raw-evidence.json \
             --summary-output /tmp/indec-2010-source-summary.json
           cat /tmp/indec-2010-source-summary.json
+      - name: Characterize CABA duplicate LINK rows
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import geopandas as gpd
+
+          source = "zip:///tmp/indec-2010-source/Codgeo_CABA_con_datos.zip"
+          layer = str(gpd.list_layers(source).iloc[0]["name"])
+          frame = gpd.read_file(source, layer=layer, engine="pyogrio", use_arrow=True)
+          duplicated = frame[frame["LINK"].duplicated(keep=False)].copy()
+          fields = [column for column in duplicated.columns if column != duplicated.geometry.name]
+          rows = []
+          for index, row in duplicated.iterrows():
+              item = {field: str(row[field]) for field in fields}
+              item["source_row_index"] = int(index)
+              item["geometry_type"] = row.geometry.geom_type
+              item["geometry_area_source_crs"] = float(row.geometry.area)
+              item["geometry_wkb_sha256"] = __import__("hashlib").sha256(row.geometry.wkb).hexdigest()
+              rows.append(item)
+          evidence = {
+              "layer": layer,
+              "feature_count": int(len(frame)),
+              "unique_link_count": int(frame["LINK"].nunique(dropna=False)),
+              "duplicated_link_values": sorted(duplicated["LINK"].unique().tolist()),
+              "duplicated_row_count": int(len(duplicated)),
+              "rows": rows,
+          }
+          Path("/tmp/indec-2010-caba-duplicate-evidence.json").write_text(
+              json.dumps(evidence, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          print(json.dumps(evidence, ensure_ascii=False, indent=2))
+          PY
       - name: Characterize historical 2010 evidence
         run: |
           python - <<'PY'
@@ -74,6 +108,7 @@ jobs:
           path: |
             /tmp/indec-2010-raw-evidence.json
             /tmp/indec-2010-source-summary.json
+            /tmp/indec-2010-caba-duplicate-evidence.json
             /tmp/indec-2010-historical-evidence.json
           if-no-files-found: error
       - name: Materialize exact probed snapshot
