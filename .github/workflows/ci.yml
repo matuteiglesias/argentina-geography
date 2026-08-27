@@ -4,10 +4,21 @@ on:
   pull_request:
   push:
     branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: "47 9 * * 4"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: geography-ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       matrix:
         python-version: ["3.11", "3.12"]
@@ -27,3 +38,11 @@ jobs:
         run: make product-smoke
       - name: Build distribution
         run: make build
+      - name: Record source-refresh boundary
+        if: always()
+        run: |
+          {
+            echo "## Geography scheduled integrity"
+            echo
+            echo "This verifies the governed geography package/products remain executable. It does not re-run every external provider ingestion. Provider-specific source-drift probes remain separate bounded workflows and should be scheduled only where freshness matters."
+          } >> "$GITHUB_STEP_SUMMARY"
