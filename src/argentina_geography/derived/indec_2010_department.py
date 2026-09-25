@@ -6,8 +6,6 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 
-import geopandas as gpd
-import pandas as pd
 from empirical_contracts import (
     AuthorityLevel,
     DataLayer,
@@ -18,6 +16,8 @@ from empirical_contracts import (
     RunManifest,
     SourceSnapshotRef,
 )
+import geopandas as gpd
+import pandas as pd
 from shapely.geometry import mapping
 
 from argentina_geography.electoral.hierarchy import _department_footprints
