@@ -18,7 +18,7 @@ from empirical_contracts import (
     RunManifest,
     SourceSnapshotRef,
 )
-from shapely.geometry import mapping
+from shapely.geometry import mapping, shape
 
 from argentina_geography.electoral.hierarchy import _department_footprints
 from argentina_geography.product_writer import package_version
@@ -34,6 +34,7 @@ from argentina_geography.sources.indec_2010_radio import verify_release as verif
 
 EXPECTED_DEPARTMENT_COUNT = 525
 EXPECTED_PROVINCE_COUNT = 24
+DISPLAY_CRS = "EPSG:4326"
 REQUIRED_OUTPUT_FILES = [
     "geography.parquet",
     "geography.geojson",
@@ -113,8 +114,9 @@ def derive_department_footprints(census: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
 
 
 def _write_display_geojson(frame: gpd.GeoDataFrame, path: Path) -> None:
+    display = frame.to_crs(DISPLAY_CRS)
     features = []
-    for _, row in frame.sort_values("geography_id").iterrows():
+    for _, row in display.sort_values("geography_id").iterrows():
         properties = {field: row[field] for field in DISPLAY_PROPERTY_FIELDS}
         features.append(
             {
@@ -308,11 +310,11 @@ def materialize_from_parent(parent_release: Path, output: Path) -> dict:
         "display_derivative": {
             "artifact": "geography.geojson",
             "content_sha256": display_sha256,
-            "crs": qa["crs"],
+            "crs": DISPLAY_CRS,
             "feature_count": len(departments),
             "feature_id_field": "geography_id",
             "property_fields": list(DISPLAY_PROPERTY_FIELDS),
-            "geometry_transform": "none beyond the declared radio-to-department union",
+            "geometry_transform": "department union in source CRS, then display-only reprojection to EPSG:4326",
             "geometry_repair_applied": False,
             "geometry_clip_applied": False,
             "poverty_values_embedded": False,
@@ -370,12 +372,20 @@ def verify_release(output: Path) -> None:
     display_ids = {feature.get("id") for feature in features}
     if display_ids != set(frame["geography_id"].astype(str)):
         raise ValueError("department display GeoJSON ID set mismatch")
+    if manifest["display_derivative"].get("crs") != DISPLAY_CRS:
+        raise ValueError("department display GeoJSON must declare EPSG:4326")
     for feature in features:
         properties = feature.get("properties", {})
         if set(properties) != set(DISPLAY_PROPERTY_FIELDS):
             raise ValueError("department display GeoJSON has unexpected properties")
         if properties.get("geography_id") != feature.get("id"):
             raise ValueError("department display feature property/id mismatch")
+        geometry = shape(feature.get("geometry"))
+        if geometry.is_empty or not geometry.is_valid:
+            raise ValueError("department display GeoJSON contains unusable geometry")
+        minx, miny, maxx, maxy = geometry.bounds
+        if not (-180 <= minx <= maxx <= 180 and -90 <= miny <= maxy <= 90):
+            raise ValueError("department display GeoJSON is not longitude/latitude bounded")
     if sha256_file(display_path) != manifest["display_derivative"]["content_sha256"]:
         raise ValueError("department display GeoJSON content hash mismatch")
     if manifest["display_derivative"].get("poverty_values_embedded") is not False:
