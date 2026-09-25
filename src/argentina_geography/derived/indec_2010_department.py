@@ -32,6 +32,8 @@ from argentina_geography.products import (
 )
 from argentina_geography.sources.indec_2010_radio import verify_release as verify_radio_release
 
+ROOT = Path(__file__).resolve().parents[3]
+DEFAULT_LABELS = ROOT / "config/derived/indec_census_2010_department_labels.json"
 EXPECTED_DEPARTMENT_COUNT = 525
 EXPECTED_PROVINCE_COUNT = 24
 DISPLAY_CRS = "EPSG:4326"
@@ -48,13 +50,45 @@ DISPLAY_PROPERTY_FIELDS = (
     "geo_uid",
     "native_id",
     "department_2010_id",
+    "department_name",
     "province_2010_id",
+    "province_name",
 )
 
 
 def _id_set_sha256(values: list[str]) -> str:
     payload = "\n".join(sorted(values)) + "\n"
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def load_department_labels(path: Path = DEFAULT_LABELS) -> pd.DataFrame:
+    payload = read_json(path)
+    if payload.get("schema_version") != "arggeo.indec-census-2010-department-labels/v1":
+        raise ValueError("unsupported Census-2010 department label schema")
+    rows = payload.get("rows")
+    if not isinstance(rows, list) or len(rows) != EXPECTED_DEPARTMENT_COUNT:
+        raise ValueError("department label catalog must contain exactly 525 rows")
+    frame = pd.DataFrame(rows)
+    required = {
+        "department_2010_id",
+        "department_name",
+        "province_2010_id",
+        "province_name",
+    }
+    if set(frame.columns) != required:
+        raise ValueError("department label catalog fields drifted")
+    if frame["department_2010_id"].duplicated().any():
+        raise ValueError("department label catalog IDs must be unique")
+    if not frame["department_2010_id"].astype(str).str.fullmatch(r"[0-9]{5}").all():
+        raise ValueError("department label catalog IDs must preserve five digits")
+    if not frame["province_2010_id"].astype(str).str.fullmatch(r"[0-9]{2}").all():
+        raise ValueError("department label catalog province IDs must preserve two digits")
+    if not frame["department_2010_id"].str[:2].eq(frame["province_2010_id"]).all():
+        raise ValueError("department label catalog province prefixes disagree")
+    for field in ("department_name", "province_name"):
+        if frame[field].isna().any() or frame[field].astype(str).str.strip().eq("").any():
+            raise ValueError(f"department label catalog {field} must be nonempty")
+    return frame.sort_values("department_2010_id", ignore_index=True)
 
 
 def derive_department_footprints(census: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
@@ -92,6 +126,20 @@ def derive_department_footprints(census: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         ].to_dict(orient="records")
         raise ValueError(f"department dissolve produced non-analytical geometry: {bad[:20]}")
 
+    labels = load_department_labels()
+    derived = derived.merge(
+        labels,
+        on=["department_2010_id", "province_2010_id"],
+        how="left",
+        validate="one_to_one",
+    )
+    if derived[["department_name", "province_name"]].isna().any().any():
+        missing = derived.loc[
+            derived["department_name"].isna() | derived["province_name"].isna(),
+            "department_2010_id",
+        ].tolist()
+        raise ValueError(f"missing governed department display labels: {missing[:20]}")
+
     derived["geo_uid"] = derived["department_footprint_uid"]
     derived["native_id"] = derived["department_2010_id"]
     derived["geography_id"] = derived["department_2010_id"]
@@ -104,7 +152,9 @@ def derive_department_footprints(census: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         "native_id",
         "geography_id",
         "department_2010_id",
+        "department_name",
         "province_2010_id",
+        "province_name",
         "source_radio_count",
         "footprint_status",
         "geometry_valid",
@@ -171,6 +221,7 @@ def materialize_from_parent(parent_release: Path, output: Path) -> dict:
     ids = departments["geography_id"].astype(str).tolist()
     ids_sha256 = _id_set_sha256(ids)
     parent_manifest_sha256 = sha256_file(parent_release / "manifest.json")
+    labels_sha256 = sha256_file(DEFAULT_LABELS)
 
     output.mkdir(parents=True, exist_ok=True)
     geography_path = output / "geography.parquet"
@@ -250,6 +301,8 @@ def materialize_from_parent(parent_release: Path, output: Path) -> dict:
             "geometry_repair_applied": False,
             "geometry_clip_applied": False,
             "expected_department_count": EXPECTED_DEPARTMENT_COUNT,
+            "display_label_catalog": str(DEFAULT_LABELS.relative_to(ROOT)),
+            "display_label_catalog_sha256": labels_sha256,
         },
         outputs=(dataset,),
         qa=(qa_result,),
@@ -269,7 +322,7 @@ def materialize_from_parent(parent_release: Path, output: Path) -> dict:
                 "The WGS84 display derivative applies make_valid only to features made invalid by "
                 "floating-point reprojection; the repair count is recorded explicitly."
             ),
-            "Display names are intentionally not identity-bearing in this release.",
+            "Display names are non-identity metadata pinned from the historical Census department catalog used by samplerCensoARG; geography_id remains the only join identity.",
         ],
     }
     catalog = pd.DataFrame(
@@ -311,6 +364,12 @@ def materialize_from_parent(parent_release: Path, output: Path) -> dict:
             "release_version": parent_dataset["version"],
             "content_sha256": parent_dataset["content_sha256"],
             "manifest_sha256": parent_manifest_sha256,
+        },
+        "display_labels": {
+            "catalog": str(DEFAULT_LABELS.relative_to(ROOT)),
+            "catalog_sha256": labels_sha256,
+            "identity_bearing": False,
+            "fields": ["department_name", "province_name"],
         },
         "department_identity": {
             "field": "department_2010_id",
@@ -370,6 +429,11 @@ def verify_release(output: Path) -> None:
         raise ValueError("department footprint province prefix is inconsistent")
     if frame["province_2010_id"].nunique() != EXPECTED_PROVINCE_COUNT:
         raise ValueError("department footprint release must contain 24 province IDs")
+    labels = load_department_labels()
+    expected_names = labels.set_index("department_2010_id")[["department_name", "province_name"]]
+    observed_names = frame.set_index("department_2010_id")[["department_name", "province_name"]]
+    if not observed_names.sort_index().equals(expected_names.sort_index()):
+        raise ValueError("department footprint display labels differ from governed label catalog")
     if frame.geometry.isna().any() or frame.geometry.is_empty.any():
         raise ValueError("department footprint release contains missing or empty geometry")
     if (~frame.geometry.is_valid).any():

@@ -1,0 +1,3162 @@
+{
+  "schema_version": "arggeo.indec-census-2010-department-labels/v1",
+  "source": {
+    "repository": "matuteiglesias/samplerCensoARG",
+    "commit_sha": "b5810255db51aa5d33eb3368cbcd4f94194e48d0",
+    "path": "data/info/dptos.csv",
+    "blob_sha": "d623d3a5bd30759365fee8f79256a19cf2c40893",
+    "role": "display-label evidence only; identity remains governed by the official INDEC radio parent"
+  },
+  "rows": [
+    {
+      "department_2010_id": "02001",
+      "department_name": "Comuna 01",
+      "province_2010_id": "02",
+      "province_name": "Ciudad Autónoma de Buenos Aires"
+    },
+    {
+      "department_2010_id": "02002",
+      "department_name": "Comuna 02",
+      "province_2010_id": "02",
+      "province_name": "Ciudad Autónoma de Buenos Aires"
+    },
+    {
+      "department_2010_id": "02003",
+      "department_name": "Comuna 03",
+      "province_2010_id": "02",
+      "province_name": "Ciudad Autónoma de Buenos Aires"
+    },
+    {
+      "department_2010_id": "02004",
+      "department_name": "Comuna 04",
+      "province_2010_id": "02",
+      "province_name": "Ciudad Autónoma de Buenos Aires"
+    },
+    {
+      "department_2010_id": "02005",
+      "department_name": "Comuna 05",
+      "province_2010_id": "02",
+      "province_name": "Ciudad Autónoma de Buenos Aires"
+    },
+    {
+      "department_2010_id": "02006",
+      "department_name": "Comuna 06",
+      "province_2010_id": "02",
+      "province_name": "Ciudad Autónoma de Buenos Aires"
+    },
+    {
+      "department_2010_id": "02007",
+      "department_name": "Comuna 07",
+      "province_2010_id": "02",
+      "province_name": "Ciudad Autónoma de Buenos Aires"
+    },
+    {
+      "department_2010_id": "02008",
+      "department_name": "Comuna 08",
+      "province_2010_id": "02",
+      "province_name": "Ciudad Autónoma de Buenos Aires"
+    },
+    {
+      "department_2010_id": "02009",
+      "department_name": "Comuna 09",
+      "province_2010_id": "02",
+      "province_name": "Ciudad Autónoma de Buenos Aires"
+    },
+    {
+      "department_2010_id": "02010",
+      "department_name": "Comuna 10",
+      "province_2010_id": "02",
+      "province_name": "Ciudad Autónoma de Buenos Aires"
+    },
+    {
+      "department_2010_id": "02011",
+      "department_name": "Comuna 11",
+      "province_2010_id": "02",
+      "province_name": "Ciudad Autónoma de Buenos Aires"
+    },
+    {
+      "department_2010_id": "02012",
+      "department_name": "Comuna 12",
+      "province_2010_id": "02",
+      "province_name": "Ciudad Autónoma de Buenos Aires"
+    },
+    {
+      "department_2010_id": "02013",
+      "department_name": "Comuna 13",
+      "province_2010_id": "02",
+      "province_name": "Ciudad Autónoma de Buenos Aires"
+    },
+    {
+      "department_2010_id": "02014",
+      "department_name": "Comuna 14",
+      "province_2010_id": "02",
+      "province_name": "Ciudad Autónoma de Buenos Aires"
+    },
+    {
+      "department_2010_id": "02015",
+      "department_name": "Comuna 15",
+      "province_2010_id": "02",
+      "province_name": "Ciudad Autónoma de Buenos Aires"
+    },
+    {
+      "department_2010_id": "06028",
+      "department_name": "Almirante Brown",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06035",
+      "department_name": "Avellaneda",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06091",
+      "department_name": "Berazategui",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06260",
+      "department_name": "Esteban Echeverría",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06270",
+      "department_name": "Ezeiza",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06274",
+      "department_name": "Florencio Varela",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06371",
+      "department_name": "General San Martín",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06408",
+      "department_name": "Hurlingham",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06410",
+      "department_name": "Ituzaingó",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06412",
+      "department_name": "José C. Paz",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06427",
+      "department_name": "La Matanza",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06434",
+      "department_name": "Lanús",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06490",
+      "department_name": "Lomas de Zamora",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06515",
+      "department_name": "Malvinas Argentinas",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06539",
+      "department_name": "Merlo",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06560",
+      "department_name": "Moreno",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06568",
+      "department_name": "Morón",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06658",
+      "department_name": "Quilmes",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06749",
+      "department_name": "San Fernando",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06756",
+      "department_name": "San Isidro",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06760",
+      "department_name": "San Miguel",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06805",
+      "department_name": "Tigre",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06840",
+      "department_name": "Tres de Febrero",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06861",
+      "department_name": "Vicente López",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06007",
+      "department_name": "Adolfo Alsina",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06014",
+      "department_name": "Adolfo Gonzáles Chaves",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06021",
+      "department_name": "Alberti",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06042",
+      "department_name": "Ayacucho",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06049",
+      "department_name": "Azul",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06056",
+      "department_name": "Bahía Blanca",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06063",
+      "department_name": "Balcarce",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06070",
+      "department_name": "Baradero",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06077",
+      "department_name": "Bartolomé Mitre",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06084",
+      "department_name": "Benito Juárez",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06098",
+      "department_name": "Berisso",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06105",
+      "department_name": "Bolívar",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06112",
+      "department_name": "Bragado",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06119",
+      "department_name": "Brandsen",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06126",
+      "department_name": "Campana",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06134",
+      "department_name": "Cañuelas",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06140",
+      "department_name": "Capitán Sarmiento",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06147",
+      "department_name": "Carlos Casares",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06154",
+      "department_name": "Carlos Tejedor",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06161",
+      "department_name": "Carmen de Areco",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06168",
+      "department_name": "Castelli",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06175",
+      "department_name": "Colón",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06182",
+      "department_name": "Coronel de Marina L. Rosales",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06189",
+      "department_name": "Coronel Dorrego",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06196",
+      "department_name": "Coronel Pringles",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06203",
+      "department_name": "Coronel Suárez",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06210",
+      "department_name": "Chacabuco",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06217",
+      "department_name": "Chascomús",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06224",
+      "department_name": "Chivilcoy",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06231",
+      "department_name": "Daireaux",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06238",
+      "department_name": "Dolores",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06245",
+      "department_name": "Ensenada",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06252",
+      "department_name": "Escobar",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06266",
+      "department_name": "Exaltación de la Cruz",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06277",
+      "department_name": "Florentino Ameghino",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06280",
+      "department_name": "General Alvarado",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06287",
+      "department_name": "General Alvear",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06294",
+      "department_name": "General Arenales",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06301",
+      "department_name": "General Belgrano",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06308",
+      "department_name": "General Guido",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06315",
+      "department_name": "General Juan Madariaga",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06322",
+      "department_name": "General La Madrid",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06329",
+      "department_name": "General Las Heras",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06336",
+      "department_name": "General Lavalle",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06343",
+      "department_name": "General Paz",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06351",
+      "department_name": "General Pinto",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06357",
+      "department_name": "General Pueyrredón",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06364",
+      "department_name": "General Rodríguez",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06385",
+      "department_name": "General Viamonte",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06392",
+      "department_name": "General Villegas",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06399",
+      "department_name": "Guaminí",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06406",
+      "department_name": "Hipólito Yrigoyen",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06413",
+      "department_name": "Junín",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06420",
+      "department_name": "La Costa",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06441",
+      "department_name": "La Plata",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06448",
+      "department_name": "Laprida",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06455",
+      "department_name": "Las Flores",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06462",
+      "department_name": "Leandro N. Alem",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06469",
+      "department_name": "Lincoln",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06476",
+      "department_name": "Lobería",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06483",
+      "department_name": "Lobos",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06497",
+      "department_name": "Luján",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06505",
+      "department_name": "Magdalena",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06511",
+      "department_name": "Maipú",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06518",
+      "department_name": "Mar Chiquita",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06525",
+      "department_name": "Marcos Paz",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06532",
+      "department_name": "Mercedes",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06547",
+      "department_name": "Monte",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06553",
+      "department_name": "Monte Hermoso",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06574",
+      "department_name": "Navarro",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06581",
+      "department_name": "Necochea",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06588",
+      "department_name": "9 de Julio",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06595",
+      "department_name": "Olavarría",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06602",
+      "department_name": "Patagones",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06609",
+      "department_name": "Pehuajó",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06616",
+      "department_name": "Pellegrini",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06623",
+      "department_name": "Pergamino",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06630",
+      "department_name": "Pila",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06638",
+      "department_name": "Pilar",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06644",
+      "department_name": "Pinamar",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06648",
+      "department_name": "Presidente Perón",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06651",
+      "department_name": "Puán",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06655",
+      "department_name": "Punta Indio",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06665",
+      "department_name": "Ramallo",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06672",
+      "department_name": "Rauch",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06679",
+      "department_name": "Rivadavia",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06686",
+      "department_name": "Rojas",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06693",
+      "department_name": "Roque Pérez",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06700",
+      "department_name": "Saavedra",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06707",
+      "department_name": "Saladillo",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06714",
+      "department_name": "Salto",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06721",
+      "department_name": "Salliqueló",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06728",
+      "department_name": "San Andrés de Giles",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06735",
+      "department_name": "San Antonio de Areco",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06742",
+      "department_name": "San Cayetano",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06763",
+      "department_name": "San Nicolás",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06770",
+      "department_name": "San Pedro",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06778",
+      "department_name": "San Vicente",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06784",
+      "department_name": "Suipacha",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06791",
+      "department_name": "Tandil",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06798",
+      "department_name": "Tapalqué",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06812",
+      "department_name": "Tordillo",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06819",
+      "department_name": "Tornquist",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06826",
+      "department_name": "Trenque Lauquen",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06833",
+      "department_name": "Tres Arroyos",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06847",
+      "department_name": "Tres Lomas",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06854",
+      "department_name": "25 de Mayo",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06868",
+      "department_name": "Villa Gesell",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06875",
+      "department_name": "Villarino",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "06882",
+      "department_name": "Zárate",
+      "province_2010_id": "06",
+      "province_name": "Buenos Aires"
+    },
+    {
+      "department_2010_id": "10007",
+      "department_name": "Ambato",
+      "province_2010_id": "10",
+      "province_name": "Catamarca"
+    },
+    {
+      "department_2010_id": "10014",
+      "department_name": "Ancasti",
+      "province_2010_id": "10",
+      "province_name": "Catamarca"
+    },
+    {
+      "department_2010_id": "10021",
+      "department_name": "Andalgalá",
+      "province_2010_id": "10",
+      "province_name": "Catamarca"
+    },
+    {
+      "department_2010_id": "10028",
+      "department_name": "Antofagasta de la Sierra",
+      "province_2010_id": "10",
+      "province_name": "Catamarca"
+    },
+    {
+      "department_2010_id": "10035",
+      "department_name": "Belén",
+      "province_2010_id": "10",
+      "province_name": "Catamarca"
+    },
+    {
+      "department_2010_id": "10042",
+      "department_name": "Capayán",
+      "province_2010_id": "10",
+      "province_name": "Catamarca"
+    },
+    {
+      "department_2010_id": "10049",
+      "department_name": "Capital",
+      "province_2010_id": "10",
+      "province_name": "Catamarca"
+    },
+    {
+      "department_2010_id": "10056",
+      "department_name": "El Alto",
+      "province_2010_id": "10",
+      "province_name": "Catamarca"
+    },
+    {
+      "department_2010_id": "10063",
+      "department_name": "Fray Mamerto Esquiú",
+      "province_2010_id": "10",
+      "province_name": "Catamarca"
+    },
+    {
+      "department_2010_id": "10070",
+      "department_name": "La Paz",
+      "province_2010_id": "10",
+      "province_name": "Catamarca"
+    },
+    {
+      "department_2010_id": "10077",
+      "department_name": "Paclin",
+      "province_2010_id": "10",
+      "province_name": "Catamarca"
+    },
+    {
+      "department_2010_id": "10084",
+      "department_name": "Poman",
+      "province_2010_id": "10",
+      "province_name": "Catamarca"
+    },
+    {
+      "department_2010_id": "10091",
+      "department_name": "Santa María",
+      "province_2010_id": "10",
+      "province_name": "Catamarca"
+    },
+    {
+      "department_2010_id": "10098",
+      "department_name": "Santa Rosa",
+      "province_2010_id": "10",
+      "province_name": "Catamarca"
+    },
+    {
+      "department_2010_id": "10105",
+      "department_name": "Tinogasta",
+      "province_2010_id": "10",
+      "province_name": "Catamarca"
+    },
+    {
+      "department_2010_id": "10112",
+      "department_name": "Valle Viejo",
+      "province_2010_id": "10",
+      "province_name": "Catamarca"
+    },
+    {
+      "department_2010_id": "14007",
+      "department_name": "Calamuchita",
+      "province_2010_id": "14",
+      "province_name": "Córdoba"
+    },
+    {
+      "department_2010_id": "14014",
+      "department_name": "Capital",
+      "province_2010_id": "14",
+      "province_name": "Córdoba"
+    },
+    {
+      "department_2010_id": "14021",
+      "department_name": "Colón",
+      "province_2010_id": "14",
+      "province_name": "Córdoba"
+    },
+    {
+      "department_2010_id": "14028",
+      "department_name": "Cruz del Eje",
+      "province_2010_id": "14",
+      "province_name": "Córdoba"
+    },
+    {
+      "department_2010_id": "14035",
+      "department_name": "General Roca",
+      "province_2010_id": "14",
+      "province_name": "Córdoba"
+    },
+    {
+      "department_2010_id": "14042",
+      "department_name": "General San Martín",
+      "province_2010_id": "14",
+      "province_name": "Córdoba"
+    },
+    {
+      "department_2010_id": "14049",
+      "department_name": "Ischilín",
+      "province_2010_id": "14",
+      "province_name": "Córdoba"
+    },
+    {
+      "department_2010_id": "14056",
+      "department_name": "Juárez Celman",
+      "province_2010_id": "14",
+      "province_name": "Córdoba"
+    },
+    {
+      "department_2010_id": "14063",
+      "department_name": "Marcos Juárez",
+      "province_2010_id": "14",
+      "province_name": "Córdoba"
+    },
+    {
+      "department_2010_id": "14070",
+      "department_name": "Minas",
+      "province_2010_id": "14",
+      "province_name": "Córdoba"
+    },
+    {
+      "department_2010_id": "14077",
+      "department_name": "Pocho",
+      "province_2010_id": "14",
+      "province_name": "Córdoba"
+    },
+    {
+      "department_2010_id": "14084",
+      "department_name": "Presidente Roque Sáenz Peña",
+      "province_2010_id": "14",
+      "province_name": "Córdoba"
+    },
+    {
+      "department_2010_id": "14091",
+      "department_name": "Punilla",
+      "province_2010_id": "14",
+      "province_name": "Córdoba"
+    },
+    {
+      "department_2010_id": "14098",
+      "department_name": "Río Cuarto",
+      "province_2010_id": "14",
+      "province_name": "Córdoba"
+    },
+    {
+      "department_2010_id": "14105",
+      "department_name": "Río Primero",
+      "province_2010_id": "14",
+      "province_name": "Córdoba"
+    },
+    {
+      "department_2010_id": "14112",
+      "department_name": "Río Seco",
+      "province_2010_id": "14",
+      "province_name": "Córdoba"
+    },
+    {
+      "department_2010_id": "14119",
+      "department_name": "Río Segundo",
+      "province_2010_id": "14",
+      "province_name": "Córdoba"
+    },
+    {
+      "department_2010_id": "14126",
+      "department_name": "San Alberto",
+      "province_2010_id": "14",
+      "province_name": "Córdoba"
+    },
+    {
+      "department_2010_id": "14133",
+      "department_name": "San Javier",
+      "province_2010_id": "14",
+      "province_name": "Córdoba"
+    },
+    {
+      "department_2010_id": "14140",
+      "department_name": "San Justo",
+      "province_2010_id": "14",
+      "province_name": "Córdoba"
+    },
+    {
+      "department_2010_id": "14147",
+      "department_name": "Santa María",
+      "province_2010_id": "14",
+      "province_name": "Córdoba"
+    },
+    {
+      "department_2010_id": "14154",
+      "department_name": "Sobremonte",
+      "province_2010_id": "14",
+      "province_name": "Córdoba"
+    },
+    {
+      "department_2010_id": "14161",
+      "department_name": "Tercero Arriba",
+      "province_2010_id": "14",
+      "province_name": "Córdoba"
+    },
+    {
+      "department_2010_id": "14168",
+      "department_name": "Totoral",
+      "province_2010_id": "14",
+      "province_name": "Córdoba"
+    },
+    {
+      "department_2010_id": "14175",
+      "department_name": "Tulumba",
+      "province_2010_id": "14",
+      "province_name": "Córdoba"
+    },
+    {
+      "department_2010_id": "14182",
+      "department_name": "Unión",
+      "province_2010_id": "14",
+      "province_name": "Córdoba"
+    },
+    {
+      "department_2010_id": "18007",
+      "department_name": "Bella Vista",
+      "province_2010_id": "18",
+      "province_name": "Corrientes"
+    },
+    {
+      "department_2010_id": "18014",
+      "department_name": "Berón de Astrada",
+      "province_2010_id": "18",
+      "province_name": "Corrientes"
+    },
+    {
+      "department_2010_id": "18021",
+      "department_name": "Capital",
+      "province_2010_id": "18",
+      "province_name": "Corrientes"
+    },
+    {
+      "department_2010_id": "18028",
+      "department_name": "Concepción",
+      "province_2010_id": "18",
+      "province_name": "Corrientes"
+    },
+    {
+      "department_2010_id": "18035",
+      "department_name": "Curuzú Cuatiá",
+      "province_2010_id": "18",
+      "province_name": "Corrientes"
+    },
+    {
+      "department_2010_id": "18042",
+      "department_name": "Empedrado",
+      "province_2010_id": "18",
+      "province_name": "Corrientes"
+    },
+    {
+      "department_2010_id": "18049",
+      "department_name": "Esquina",
+      "province_2010_id": "18",
+      "province_name": "Corrientes"
+    },
+    {
+      "department_2010_id": "18056",
+      "department_name": "General Alvear",
+      "province_2010_id": "18",
+      "province_name": "Corrientes"
+    },
+    {
+      "department_2010_id": "18063",
+      "department_name": "General Paz",
+      "province_2010_id": "18",
+      "province_name": "Corrientes"
+    },
+    {
+      "department_2010_id": "18070",
+      "department_name": "Goya",
+      "province_2010_id": "18",
+      "province_name": "Corrientes"
+    },
+    {
+      "department_2010_id": "18077",
+      "department_name": "Itatí",
+      "province_2010_id": "18",
+      "province_name": "Corrientes"
+    },
+    {
+      "department_2010_id": "18084",
+      "department_name": "Ituzaingó",
+      "province_2010_id": "18",
+      "province_name": "Corrientes"
+    },
+    {
+      "department_2010_id": "18091",
+      "department_name": "Lavalle",
+      "province_2010_id": "18",
+      "province_name": "Corrientes"
+    },
+    {
+      "department_2010_id": "18098",
+      "department_name": "Mburucuyá",
+      "province_2010_id": "18",
+      "province_name": "Corrientes"
+    },
+    {
+      "department_2010_id": "18105",
+      "department_name": "Mercedes",
+      "province_2010_id": "18",
+      "province_name": "Corrientes"
+    },
+    {
+      "department_2010_id": "18112",
+      "department_name": "Monte Caseros",
+      "province_2010_id": "18",
+      "province_name": "Corrientes"
+    },
+    {
+      "department_2010_id": "18119",
+      "department_name": "Paso de los Libres",
+      "province_2010_id": "18",
+      "province_name": "Corrientes"
+    },
+    {
+      "department_2010_id": "18126",
+      "department_name": "Saladas",
+      "province_2010_id": "18",
+      "province_name": "Corrientes"
+    },
+    {
+      "department_2010_id": "18133",
+      "department_name": "San Cosme",
+      "province_2010_id": "18",
+      "province_name": "Corrientes"
+    },
+    {
+      "department_2010_id": "18140",
+      "department_name": "San Luis del Palmar",
+      "province_2010_id": "18",
+      "province_name": "Corrientes"
+    },
+    {
+      "department_2010_id": "18147",
+      "department_name": "San Martín",
+      "province_2010_id": "18",
+      "province_name": "Corrientes"
+    },
+    {
+      "department_2010_id": "18154",
+      "department_name": "San Miguel",
+      "province_2010_id": "18",
+      "province_name": "Corrientes"
+    },
+    {
+      "department_2010_id": "18161",
+      "department_name": "San Roque",
+      "province_2010_id": "18",
+      "province_name": "Corrientes"
+    },
+    {
+      "department_2010_id": "18168",
+      "department_name": "Santo Tomé",
+      "province_2010_id": "18",
+      "province_name": "Corrientes"
+    },
+    {
+      "department_2010_id": "18175",
+      "department_name": "Sauce",
+      "province_2010_id": "18",
+      "province_name": "Corrientes"
+    },
+    {
+      "department_2010_id": "22007",
+      "department_name": "Almirante Brown",
+      "province_2010_id": "22",
+      "province_name": "Chaco"
+    },
+    {
+      "department_2010_id": "22014",
+      "department_name": "Bermejo",
+      "province_2010_id": "22",
+      "province_name": "Chaco"
+    },
+    {
+      "department_2010_id": "22021",
+      "department_name": "Comandante Fernández",
+      "province_2010_id": "22",
+      "province_name": "Chaco"
+    },
+    {
+      "department_2010_id": "22028",
+      "department_name": "Chacabuco",
+      "province_2010_id": "22",
+      "province_name": "Chaco"
+    },
+    {
+      "department_2010_id": "22036",
+      "department_name": "12 de Octubre",
+      "province_2010_id": "22",
+      "province_name": "Chaco"
+    },
+    {
+      "department_2010_id": "22039",
+      "department_name": "2 de Abril",
+      "province_2010_id": "22",
+      "province_name": "Chaco"
+    },
+    {
+      "department_2010_id": "22043",
+      "department_name": "Fray Justo Santa María de Oro",
+      "province_2010_id": "22",
+      "province_name": "Chaco"
+    },
+    {
+      "department_2010_id": "22049",
+      "department_name": "General Belgrano",
+      "province_2010_id": "22",
+      "province_name": "Chaco"
+    },
+    {
+      "department_2010_id": "22056",
+      "department_name": "General Donovan",
+      "province_2010_id": "22",
+      "province_name": "Chaco"
+    },
+    {
+      "department_2010_id": "22063",
+      "department_name": "General Güemes",
+      "province_2010_id": "22",
+      "province_name": "Chaco"
+    },
+    {
+      "department_2010_id": "22070",
+      "department_name": "Independencia",
+      "province_2010_id": "22",
+      "province_name": "Chaco"
+    },
+    {
+      "department_2010_id": "22077",
+      "department_name": "Libertad",
+      "province_2010_id": "22",
+      "province_name": "Chaco"
+    },
+    {
+      "department_2010_id": "22084",
+      "department_name": "Libertador General San Martín",
+      "province_2010_id": "22",
+      "province_name": "Chaco"
+    },
+    {
+      "department_2010_id": "22091",
+      "department_name": "Maipú",
+      "province_2010_id": "22",
+      "province_name": "Chaco"
+    },
+    {
+      "department_2010_id": "22098",
+      "department_name": "Mayor Luis J. Fontana",
+      "province_2010_id": "22",
+      "province_name": "Chaco"
+    },
+    {
+      "department_2010_id": "22105",
+      "department_name": "9 de Julio",
+      "province_2010_id": "22",
+      "province_name": "Chaco"
+    },
+    {
+      "department_2010_id": "22112",
+      "department_name": "O'Higgins",
+      "province_2010_id": "22",
+      "province_name": "Chaco"
+    },
+    {
+      "department_2010_id": "22119",
+      "department_name": "Presidencia de la Plaza",
+      "province_2010_id": "22",
+      "province_name": "Chaco"
+    },
+    {
+      "department_2010_id": "22126",
+      "department_name": "1°  de Mayo",
+      "province_2010_id": "22",
+      "province_name": "Chaco"
+    },
+    {
+      "department_2010_id": "22133",
+      "department_name": "Quitilipi",
+      "province_2010_id": "22",
+      "province_name": "Chaco"
+    },
+    {
+      "department_2010_id": "22140",
+      "department_name": "San Fernando",
+      "province_2010_id": "22",
+      "province_name": "Chaco"
+    },
+    {
+      "department_2010_id": "22147",
+      "department_name": "San Lorenzo",
+      "province_2010_id": "22",
+      "province_name": "Chaco"
+    },
+    {
+      "department_2010_id": "22154",
+      "department_name": "Sargento Cabral",
+      "province_2010_id": "22",
+      "province_name": "Chaco"
+    },
+    {
+      "department_2010_id": "22161",
+      "department_name": "Tapenagá",
+      "province_2010_id": "22",
+      "province_name": "Chaco"
+    },
+    {
+      "department_2010_id": "22168",
+      "department_name": "25 de Mayo",
+      "province_2010_id": "22",
+      "province_name": "Chaco"
+    },
+    {
+      "department_2010_id": "26007",
+      "department_name": "Biedma",
+      "province_2010_id": "26",
+      "province_name": "Chubut"
+    },
+    {
+      "department_2010_id": "26014",
+      "department_name": "Cushamen",
+      "province_2010_id": "26",
+      "province_name": "Chubut"
+    },
+    {
+      "department_2010_id": "26021",
+      "department_name": "Escalante",
+      "province_2010_id": "26",
+      "province_name": "Chubut"
+    },
+    {
+      "department_2010_id": "26028",
+      "department_name": "Florentino Ameghino",
+      "province_2010_id": "26",
+      "province_name": "Chubut"
+    },
+    {
+      "department_2010_id": "26035",
+      "department_name": "Futaleufú",
+      "province_2010_id": "26",
+      "province_name": "Chubut"
+    },
+    {
+      "department_2010_id": "26042",
+      "department_name": "Gaiman",
+      "province_2010_id": "26",
+      "province_name": "Chubut"
+    },
+    {
+      "department_2010_id": "26049",
+      "department_name": "Gastre",
+      "province_2010_id": "26",
+      "province_name": "Chubut"
+    },
+    {
+      "department_2010_id": "26056",
+      "department_name": "Languiñeo",
+      "province_2010_id": "26",
+      "province_name": "Chubut"
+    },
+    {
+      "department_2010_id": "26063",
+      "department_name": "Martires",
+      "province_2010_id": "26",
+      "province_name": "Chubut"
+    },
+    {
+      "department_2010_id": "26070",
+      "department_name": "Paso de los Indios",
+      "province_2010_id": "26",
+      "province_name": "Chubut"
+    },
+    {
+      "department_2010_id": "26077",
+      "department_name": "Rawson",
+      "province_2010_id": "26",
+      "province_name": "Chubut"
+    },
+    {
+      "department_2010_id": "26084",
+      "department_name": "Río Senguer",
+      "province_2010_id": "26",
+      "province_name": "Chubut"
+    },
+    {
+      "department_2010_id": "26091",
+      "department_name": "Sarmiento",
+      "province_2010_id": "26",
+      "province_name": "Chubut"
+    },
+    {
+      "department_2010_id": "26098",
+      "department_name": "Tehuelches",
+      "province_2010_id": "26",
+      "province_name": "Chubut"
+    },
+    {
+      "department_2010_id": "26105",
+      "department_name": "Telsen",
+      "province_2010_id": "26",
+      "province_name": "Chubut"
+    },
+    {
+      "department_2010_id": "30008",
+      "department_name": "Colón",
+      "province_2010_id": "30",
+      "province_name": "Entre Ríos"
+    },
+    {
+      "department_2010_id": "30015",
+      "department_name": "Concordia",
+      "province_2010_id": "30",
+      "province_name": "Entre Ríos"
+    },
+    {
+      "department_2010_id": "30021",
+      "department_name": "Diamante",
+      "province_2010_id": "30",
+      "province_name": "Entre Ríos"
+    },
+    {
+      "department_2010_id": "30028",
+      "department_name": "Federación",
+      "province_2010_id": "30",
+      "province_name": "Entre Ríos"
+    },
+    {
+      "department_2010_id": "30035",
+      "department_name": "Federal",
+      "province_2010_id": "30",
+      "province_name": "Entre Ríos"
+    },
+    {
+      "department_2010_id": "30042",
+      "department_name": "Feliciano",
+      "province_2010_id": "30",
+      "province_name": "Entre Ríos"
+    },
+    {
+      "department_2010_id": "30049",
+      "department_name": "Gualeguay",
+      "province_2010_id": "30",
+      "province_name": "Entre Ríos"
+    },
+    {
+      "department_2010_id": "30056",
+      "department_name": "Gualeguaychú",
+      "province_2010_id": "30",
+      "province_name": "Entre Ríos"
+    },
+    {
+      "department_2010_id": "30063",
+      "department_name": "Islas del Ibicuy",
+      "province_2010_id": "30",
+      "province_name": "Entre Ríos"
+    },
+    {
+      "department_2010_id": "30070",
+      "department_name": "La Paz",
+      "province_2010_id": "30",
+      "province_name": "Entre Ríos"
+    },
+    {
+      "department_2010_id": "30077",
+      "department_name": "Nogoya",
+      "province_2010_id": "30",
+      "province_name": "Entre Ríos"
+    },
+    {
+      "department_2010_id": "30084",
+      "department_name": "Paraná",
+      "province_2010_id": "30",
+      "province_name": "Entre Ríos"
+    },
+    {
+      "department_2010_id": "30088",
+      "department_name": "San Salvador",
+      "province_2010_id": "30",
+      "province_name": "Entre Ríos"
+    },
+    {
+      "department_2010_id": "30091",
+      "department_name": "Tala",
+      "province_2010_id": "30",
+      "province_name": "Entre Ríos"
+    },
+    {
+      "department_2010_id": "30098",
+      "department_name": "Uruguay",
+      "province_2010_id": "30",
+      "province_name": "Entre Ríos"
+    },
+    {
+      "department_2010_id": "30105",
+      "department_name": "Victoria",
+      "province_2010_id": "30",
+      "province_name": "Entre Ríos"
+    },
+    {
+      "department_2010_id": "30113",
+      "department_name": "Villaguay",
+      "province_2010_id": "30",
+      "province_name": "Entre Ríos"
+    },
+    {
+      "department_2010_id": "34007",
+      "department_name": "Bermejo",
+      "province_2010_id": "34",
+      "province_name": "Formosa"
+    },
+    {
+      "department_2010_id": "34014",
+      "department_name": "Formosa",
+      "province_2010_id": "34",
+      "province_name": "Formosa"
+    },
+    {
+      "department_2010_id": "34021",
+      "department_name": "Laishi",
+      "province_2010_id": "34",
+      "province_name": "Formosa"
+    },
+    {
+      "department_2010_id": "34028",
+      "department_name": "Matacos",
+      "province_2010_id": "34",
+      "province_name": "Formosa"
+    },
+    {
+      "department_2010_id": "34035",
+      "department_name": "Patiño",
+      "province_2010_id": "34",
+      "province_name": "Formosa"
+    },
+    {
+      "department_2010_id": "34042",
+      "department_name": "Pilagás",
+      "province_2010_id": "34",
+      "province_name": "Formosa"
+    },
+    {
+      "department_2010_id": "34049",
+      "department_name": "Pilcomayo",
+      "province_2010_id": "34",
+      "province_name": "Formosa"
+    },
+    {
+      "department_2010_id": "34056",
+      "department_name": "Pirane",
+      "province_2010_id": "34",
+      "province_name": "Formosa"
+    },
+    {
+      "department_2010_id": "34063",
+      "department_name": "Ramón Lista",
+      "province_2010_id": "34",
+      "province_name": "Formosa"
+    },
+    {
+      "department_2010_id": "38007",
+      "department_name": "Cochinoca",
+      "province_2010_id": "38",
+      "province_name": "Jujuy"
+    },
+    {
+      "department_2010_id": "38014",
+      "department_name": "El Carmen",
+      "province_2010_id": "38",
+      "province_name": "Jujuy"
+    },
+    {
+      "department_2010_id": "38021",
+      "department_name": "Dr. Manuel Belgrano",
+      "province_2010_id": "38",
+      "province_name": "Jujuy"
+    },
+    {
+      "department_2010_id": "38028",
+      "department_name": "Humahuaca",
+      "province_2010_id": "38",
+      "province_name": "Jujuy"
+    },
+    {
+      "department_2010_id": "38035",
+      "department_name": "Ledesma",
+      "province_2010_id": "38",
+      "province_name": "Jujuy"
+    },
+    {
+      "department_2010_id": "38042",
+      "department_name": "Palpalá",
+      "province_2010_id": "38",
+      "province_name": "Jujuy"
+    },
+    {
+      "department_2010_id": "38049",
+      "department_name": "Rinconada",
+      "province_2010_id": "38",
+      "province_name": "Jujuy"
+    },
+    {
+      "department_2010_id": "38056",
+      "department_name": "San Antonio",
+      "province_2010_id": "38",
+      "province_name": "Jujuy"
+    },
+    {
+      "department_2010_id": "38063",
+      "department_name": "San Pedro",
+      "province_2010_id": "38",
+      "province_name": "Jujuy"
+    },
+    {
+      "department_2010_id": "38070",
+      "department_name": "Santa Bárbara",
+      "province_2010_id": "38",
+      "province_name": "Jujuy"
+    },
+    {
+      "department_2010_id": "38077",
+      "department_name": "Santa Catalina",
+      "province_2010_id": "38",
+      "province_name": "Jujuy"
+    },
+    {
+      "department_2010_id": "38084",
+      "department_name": "Susques",
+      "province_2010_id": "38",
+      "province_name": "Jujuy"
+    },
+    {
+      "department_2010_id": "38094",
+      "department_name": "Tilcara",
+      "province_2010_id": "38",
+      "province_name": "Jujuy"
+    },
+    {
+      "department_2010_id": "38098",
+      "department_name": "Tumbaya",
+      "province_2010_id": "38",
+      "province_name": "Jujuy"
+    },
+    {
+      "department_2010_id": "38105",
+      "department_name": "Valle Grande",
+      "province_2010_id": "38",
+      "province_name": "Jujuy"
+    },
+    {
+      "department_2010_id": "38112",
+      "department_name": "Yaví",
+      "province_2010_id": "38",
+      "province_name": "Jujuy"
+    },
+    {
+      "department_2010_id": "42007",
+      "department_name": "Atreuco",
+      "province_2010_id": "42",
+      "province_name": "La Pampa"
+    },
+    {
+      "department_2010_id": "42014",
+      "department_name": "Caleu Caleu",
+      "province_2010_id": "42",
+      "province_name": "La Pampa"
+    },
+    {
+      "department_2010_id": "42021",
+      "department_name": "Capital",
+      "province_2010_id": "42",
+      "province_name": "La Pampa"
+    },
+    {
+      "department_2010_id": "42028",
+      "department_name": "Catriló",
+      "province_2010_id": "42",
+      "province_name": "La Pampa"
+    },
+    {
+      "department_2010_id": "42035",
+      "department_name": "Conhelo",
+      "province_2010_id": "42",
+      "province_name": "La Pampa"
+    },
+    {
+      "department_2010_id": "42042",
+      "department_name": "Curacó",
+      "province_2010_id": "42",
+      "province_name": "La Pampa"
+    },
+    {
+      "department_2010_id": "42049",
+      "department_name": "Chalileo",
+      "province_2010_id": "42",
+      "province_name": "La Pampa"
+    },
+    {
+      "department_2010_id": "42056",
+      "department_name": "Chapaleufú",
+      "province_2010_id": "42",
+      "province_name": "La Pampa"
+    },
+    {
+      "department_2010_id": "42063",
+      "department_name": "Chical Có",
+      "province_2010_id": "42",
+      "province_name": "La Pampa"
+    },
+    {
+      "department_2010_id": "42070",
+      "department_name": "Guatraché",
+      "province_2010_id": "42",
+      "province_name": "La Pampa"
+    },
+    {
+      "department_2010_id": "42077",
+      "department_name": "Hucal",
+      "province_2010_id": "42",
+      "province_name": "La Pampa"
+    },
+    {
+      "department_2010_id": "42084",
+      "department_name": "Lihuel Calel",
+      "province_2010_id": "42",
+      "province_name": "La Pampa"
+    },
+    {
+      "department_2010_id": "42091",
+      "department_name": "Limay Mahuida",
+      "province_2010_id": "42",
+      "province_name": "La Pampa"
+    },
+    {
+      "department_2010_id": "42098",
+      "department_name": "Loventué",
+      "province_2010_id": "42",
+      "province_name": "La Pampa"
+    },
+    {
+      "department_2010_id": "42105",
+      "department_name": "Maracó",
+      "province_2010_id": "42",
+      "province_name": "La Pampa"
+    },
+    {
+      "department_2010_id": "42112",
+      "department_name": "Puelén",
+      "province_2010_id": "42",
+      "province_name": "La Pampa"
+    },
+    {
+      "department_2010_id": "42119",
+      "department_name": "Quemú Quemú",
+      "province_2010_id": "42",
+      "province_name": "La Pampa"
+    },
+    {
+      "department_2010_id": "42126",
+      "department_name": "Rancul",
+      "province_2010_id": "42",
+      "province_name": "La Pampa"
+    },
+    {
+      "department_2010_id": "42133",
+      "department_name": "Realicó",
+      "province_2010_id": "42",
+      "province_name": "La Pampa"
+    },
+    {
+      "department_2010_id": "42140",
+      "department_name": "Toay",
+      "province_2010_id": "42",
+      "province_name": "La Pampa"
+    },
+    {
+      "department_2010_id": "42147",
+      "department_name": "Trenel",
+      "province_2010_id": "42",
+      "province_name": "La Pampa"
+    },
+    {
+      "department_2010_id": "42154",
+      "department_name": "Utracán",
+      "province_2010_id": "42",
+      "province_name": "La Pampa"
+    },
+    {
+      "department_2010_id": "46007",
+      "department_name": "Arauco",
+      "province_2010_id": "46",
+      "province_name": "La Rioja"
+    },
+    {
+      "department_2010_id": "46014",
+      "department_name": "Capital",
+      "province_2010_id": "46",
+      "province_name": "La Rioja"
+    },
+    {
+      "department_2010_id": "46021",
+      "department_name": "Castro Barros",
+      "province_2010_id": "46",
+      "province_name": "La Rioja"
+    },
+    {
+      "department_2010_id": "46028",
+      "department_name": "Coronel Felipe Varela",
+      "province_2010_id": "46",
+      "province_name": "La Rioja"
+    },
+    {
+      "department_2010_id": "46035",
+      "department_name": "Chamical",
+      "province_2010_id": "46",
+      "province_name": "La Rioja"
+    },
+    {
+      "department_2010_id": "46042",
+      "department_name": "Chilecito",
+      "province_2010_id": "46",
+      "province_name": "La Rioja"
+    },
+    {
+      "department_2010_id": "46049",
+      "department_name": "Famatina",
+      "province_2010_id": "46",
+      "province_name": "La Rioja"
+    },
+    {
+      "department_2010_id": "46056",
+      "department_name": "General Angel V. Peñaloza",
+      "province_2010_id": "46",
+      "province_name": "La Rioja"
+    },
+    {
+      "department_2010_id": "46063",
+      "department_name": "General Belgrano",
+      "province_2010_id": "46",
+      "province_name": "La Rioja"
+    },
+    {
+      "department_2010_id": "46070",
+      "department_name": "General Juan F.Quiroga",
+      "province_2010_id": "46",
+      "province_name": "La Rioja"
+    },
+    {
+      "department_2010_id": "46077",
+      "department_name": "General Lamadrid",
+      "province_2010_id": "46",
+      "province_name": "La Rioja"
+    },
+    {
+      "department_2010_id": "46084",
+      "department_name": "General Ocampo",
+      "province_2010_id": "46",
+      "province_name": "La Rioja"
+    },
+    {
+      "department_2010_id": "46091",
+      "department_name": "General San Martín",
+      "province_2010_id": "46",
+      "province_name": "La Rioja"
+    },
+    {
+      "department_2010_id": "46098",
+      "department_name": "Vinchina",
+      "province_2010_id": "46",
+      "province_name": "La Rioja"
+    },
+    {
+      "department_2010_id": "46105",
+      "department_name": "Independencia",
+      "province_2010_id": "46",
+      "province_name": "La Rioja"
+    },
+    {
+      "department_2010_id": "46112",
+      "department_name": "Rosario Vera Peñaloza",
+      "province_2010_id": "46",
+      "province_name": "La Rioja"
+    },
+    {
+      "department_2010_id": "46119",
+      "department_name": "San Blas de los Sauces",
+      "province_2010_id": "46",
+      "province_name": "La Rioja"
+    },
+    {
+      "department_2010_id": "46126",
+      "department_name": "Sanagasta",
+      "province_2010_id": "46",
+      "province_name": "La Rioja"
+    },
+    {
+      "department_2010_id": "50007",
+      "department_name": "Capital",
+      "province_2010_id": "50",
+      "province_name": "Mendoza"
+    },
+    {
+      "department_2010_id": "50014",
+      "department_name": "General Alvear",
+      "province_2010_id": "50",
+      "province_name": "Mendoza"
+    },
+    {
+      "department_2010_id": "50021",
+      "department_name": "Godoy Cruz",
+      "province_2010_id": "50",
+      "province_name": "Mendoza"
+    },
+    {
+      "department_2010_id": "50028",
+      "department_name": "Guaymallén",
+      "province_2010_id": "50",
+      "province_name": "Mendoza"
+    },
+    {
+      "department_2010_id": "50035",
+      "department_name": "Junín",
+      "province_2010_id": "50",
+      "province_name": "Mendoza"
+    },
+    {
+      "department_2010_id": "50042",
+      "department_name": "La Paz",
+      "province_2010_id": "50",
+      "province_name": "Mendoza"
+    },
+    {
+      "department_2010_id": "50049",
+      "department_name": "Las Heras",
+      "province_2010_id": "50",
+      "province_name": "Mendoza"
+    },
+    {
+      "department_2010_id": "50056",
+      "department_name": "Lavalle",
+      "province_2010_id": "50",
+      "province_name": "Mendoza"
+    },
+    {
+      "department_2010_id": "50063",
+      "department_name": "Luján de Cuyo",
+      "province_2010_id": "50",
+      "province_name": "Mendoza"
+    },
+    {
+      "department_2010_id": "50070",
+      "department_name": "Maipú",
+      "province_2010_id": "50",
+      "province_name": "Mendoza"
+    },
+    {
+      "department_2010_id": "50077",
+      "department_name": "Malargüe",
+      "province_2010_id": "50",
+      "province_name": "Mendoza"
+    },
+    {
+      "department_2010_id": "50084",
+      "department_name": "Rivadavia",
+      "province_2010_id": "50",
+      "province_name": "Mendoza"
+    },
+    {
+      "department_2010_id": "50091",
+      "department_name": "San Carlos",
+      "province_2010_id": "50",
+      "province_name": "Mendoza"
+    },
+    {
+      "department_2010_id": "50098",
+      "department_name": "San Martín",
+      "province_2010_id": "50",
+      "province_name": "Mendoza"
+    },
+    {
+      "department_2010_id": "50105",
+      "department_name": "San Rafael",
+      "province_2010_id": "50",
+      "province_name": "Mendoza"
+    },
+    {
+      "department_2010_id": "50112",
+      "department_name": "Santa Rosa",
+      "province_2010_id": "50",
+      "province_name": "Mendoza"
+    },
+    {
+      "department_2010_id": "50119",
+      "department_name": "Tunuyán",
+      "province_2010_id": "50",
+      "province_name": "Mendoza"
+    },
+    {
+      "department_2010_id": "50126",
+      "department_name": "Tupungato",
+      "province_2010_id": "50",
+      "province_name": "Mendoza"
+    },
+    {
+      "department_2010_id": "54007",
+      "department_name": "Apóstoles",
+      "province_2010_id": "54",
+      "province_name": "Misiones"
+    },
+    {
+      "department_2010_id": "54014",
+      "department_name": "Cainguás",
+      "province_2010_id": "54",
+      "province_name": "Misiones"
+    },
+    {
+      "department_2010_id": "54021",
+      "department_name": "Candelaria",
+      "province_2010_id": "54",
+      "province_name": "Misiones"
+    },
+    {
+      "department_2010_id": "54028",
+      "department_name": "Capital",
+      "province_2010_id": "54",
+      "province_name": "Misiones"
+    },
+    {
+      "department_2010_id": "54035",
+      "department_name": "Concepción",
+      "province_2010_id": "54",
+      "province_name": "Misiones"
+    },
+    {
+      "department_2010_id": "54042",
+      "department_name": "El Dorado",
+      "province_2010_id": "54",
+      "province_name": "Misiones"
+    },
+    {
+      "department_2010_id": "54049",
+      "department_name": "General Manuel Belgrano",
+      "province_2010_id": "54",
+      "province_name": "Misiones"
+    },
+    {
+      "department_2010_id": "54056",
+      "department_name": "Guaraní",
+      "province_2010_id": "54",
+      "province_name": "Misiones"
+    },
+    {
+      "department_2010_id": "54063",
+      "department_name": "Iguazú",
+      "province_2010_id": "54",
+      "province_name": "Misiones"
+    },
+    {
+      "department_2010_id": "54070",
+      "department_name": "Leandro N. Alem",
+      "province_2010_id": "54",
+      "province_name": "Misiones"
+    },
+    {
+      "department_2010_id": "54077",
+      "department_name": "Libertador General San Martín",
+      "province_2010_id": "54",
+      "province_name": "Misiones"
+    },
+    {
+      "department_2010_id": "54084",
+      "department_name": "Montecarlo",
+      "province_2010_id": "54",
+      "province_name": "Misiones"
+    },
+    {
+      "department_2010_id": "54091",
+      "department_name": "Oberá",
+      "province_2010_id": "54",
+      "province_name": "Misiones"
+    },
+    {
+      "department_2010_id": "54098",
+      "department_name": "San Ignacio",
+      "province_2010_id": "54",
+      "province_name": "Misiones"
+    },
+    {
+      "department_2010_id": "54105",
+      "department_name": "San Javier",
+      "province_2010_id": "54",
+      "province_name": "Misiones"
+    },
+    {
+      "department_2010_id": "54112",
+      "department_name": "San Pedro",
+      "province_2010_id": "54",
+      "province_name": "Misiones"
+    },
+    {
+      "department_2010_id": "54119",
+      "department_name": "25 de Mayo",
+      "province_2010_id": "54",
+      "province_name": "Misiones"
+    },
+    {
+      "department_2010_id": "58007",
+      "department_name": "Aluminé",
+      "province_2010_id": "58",
+      "province_name": "Neuquén"
+    },
+    {
+      "department_2010_id": "58014",
+      "department_name": "Añelo",
+      "province_2010_id": "58",
+      "province_name": "Neuquén"
+    },
+    {
+      "department_2010_id": "58021",
+      "department_name": "Catan Lil",
+      "province_2010_id": "58",
+      "province_name": "Neuquén"
+    },
+    {
+      "department_2010_id": "58028",
+      "department_name": "Collón Curá",
+      "province_2010_id": "58",
+      "province_name": "Neuquén"
+    },
+    {
+      "department_2010_id": "58035",
+      "department_name": "Confluencia",
+      "province_2010_id": "58",
+      "province_name": "Neuquén"
+    },
+    {
+      "department_2010_id": "58042",
+      "department_name": "Chos Malal",
+      "province_2010_id": "58",
+      "province_name": "Neuquén"
+    },
+    {
+      "department_2010_id": "58049",
+      "department_name": "Huiliches",
+      "province_2010_id": "58",
+      "province_name": "Neuquén"
+    },
+    {
+      "department_2010_id": "58056",
+      "department_name": "Lacar",
+      "province_2010_id": "58",
+      "province_name": "Neuquén"
+    },
+    {
+      "department_2010_id": "58063",
+      "department_name": "Loncopué",
+      "province_2010_id": "58",
+      "province_name": "Neuquén"
+    },
+    {
+      "department_2010_id": "58070",
+      "department_name": "Los Lagos",
+      "province_2010_id": "58",
+      "province_name": "Neuquén"
+    },
+    {
+      "department_2010_id": "58077",
+      "department_name": "Minas",
+      "province_2010_id": "58",
+      "province_name": "Neuquén"
+    },
+    {
+      "department_2010_id": "58084",
+      "department_name": "Ñorquín",
+      "province_2010_id": "58",
+      "province_name": "Neuquén"
+    },
+    {
+      "department_2010_id": "58091",
+      "department_name": "Pehuenches",
+      "province_2010_id": "58",
+      "province_name": "Neuquén"
+    },
+    {
+      "department_2010_id": "58098",
+      "department_name": "Picún Leufú",
+      "province_2010_id": "58",
+      "province_name": "Neuquén"
+    },
+    {
+      "department_2010_id": "58105",
+      "department_name": "Picunches",
+      "province_2010_id": "58",
+      "province_name": "Neuquén"
+    },
+    {
+      "department_2010_id": "58112",
+      "department_name": "Zapala",
+      "province_2010_id": "58",
+      "province_name": "Neuquén"
+    },
+    {
+      "department_2010_id": "62007",
+      "department_name": "Adolfo Alsina",
+      "province_2010_id": "62",
+      "province_name": "Río Negro"
+    },
+    {
+      "department_2010_id": "62014",
+      "department_name": "Avellaneda",
+      "province_2010_id": "62",
+      "province_name": "Río Negro"
+    },
+    {
+      "department_2010_id": "62021",
+      "department_name": "Bariloche",
+      "province_2010_id": "62",
+      "province_name": "Río Negro"
+    },
+    {
+      "department_2010_id": "62028",
+      "department_name": "Conesa",
+      "province_2010_id": "62",
+      "province_name": "Río Negro"
+    },
+    {
+      "department_2010_id": "62035",
+      "department_name": "El Cuy",
+      "province_2010_id": "62",
+      "province_name": "Río Negro"
+    },
+    {
+      "department_2010_id": "62042",
+      "department_name": "General Roca",
+      "province_2010_id": "62",
+      "province_name": "Río Negro"
+    },
+    {
+      "department_2010_id": "62049",
+      "department_name": "9 de Julio",
+      "province_2010_id": "62",
+      "province_name": "Río Negro"
+    },
+    {
+      "department_2010_id": "62056",
+      "department_name": "Ñorquinco",
+      "province_2010_id": "62",
+      "province_name": "Río Negro"
+    },
+    {
+      "department_2010_id": "62063",
+      "department_name": "Pichi Mahuída",
+      "province_2010_id": "62",
+      "province_name": "Río Negro"
+    },
+    {
+      "department_2010_id": "62070",
+      "department_name": "Pilnaniyeu",
+      "province_2010_id": "62",
+      "province_name": "Río Negro"
+    },
+    {
+      "department_2010_id": "62077",
+      "department_name": "San Antonio",
+      "province_2010_id": "62",
+      "province_name": "Río Negro"
+    },
+    {
+      "department_2010_id": "62084",
+      "department_name": "Valcheta",
+      "province_2010_id": "62",
+      "province_name": "Río Negro"
+    },
+    {
+      "department_2010_id": "62091",
+      "department_name": "25 de Mayo",
+      "province_2010_id": "62",
+      "province_name": "Río Negro"
+    },
+    {
+      "department_2010_id": "66007",
+      "department_name": "Anta",
+      "province_2010_id": "66",
+      "province_name": "Salta"
+    },
+    {
+      "department_2010_id": "66014",
+      "department_name": "Cachi",
+      "province_2010_id": "66",
+      "province_name": "Salta"
+    },
+    {
+      "department_2010_id": "66021",
+      "department_name": "Cafayate",
+      "province_2010_id": "66",
+      "province_name": "Salta"
+    },
+    {
+      "department_2010_id": "66028",
+      "department_name": "Capital",
+      "province_2010_id": "66",
+      "province_name": "Salta"
+    },
+    {
+      "department_2010_id": "66035",
+      "department_name": "Cerrillos",
+      "province_2010_id": "66",
+      "province_name": "Salta"
+    },
+    {
+      "department_2010_id": "66042",
+      "department_name": "Chicoana",
+      "province_2010_id": "66",
+      "province_name": "Salta"
+    },
+    {
+      "department_2010_id": "66049",
+      "department_name": "General Güemes",
+      "province_2010_id": "66",
+      "province_name": "Salta"
+    },
+    {
+      "department_2010_id": "66056",
+      "department_name": "General José de San Martín",
+      "province_2010_id": "66",
+      "province_name": "Salta"
+    },
+    {
+      "department_2010_id": "66063",
+      "department_name": "Guachipas",
+      "province_2010_id": "66",
+      "province_name": "Salta"
+    },
+    {
+      "department_2010_id": "66070",
+      "department_name": "Iruya",
+      "province_2010_id": "66",
+      "province_name": "Salta"
+    },
+    {
+      "department_2010_id": "66077",
+      "department_name": "La Caldera",
+      "province_2010_id": "66",
+      "province_name": "Salta"
+    },
+    {
+      "department_2010_id": "66084",
+      "department_name": "La Candelaria",
+      "province_2010_id": "66",
+      "province_name": "Salta"
+    },
+    {
+      "department_2010_id": "66091",
+      "department_name": "La Poma",
+      "province_2010_id": "66",
+      "province_name": "Salta"
+    },
+    {
+      "department_2010_id": "66098",
+      "department_name": "La Viña",
+      "province_2010_id": "66",
+      "province_name": "Salta"
+    },
+    {
+      "department_2010_id": "66105",
+      "department_name": "Los Andes",
+      "province_2010_id": "66",
+      "province_name": "Salta"
+    },
+    {
+      "department_2010_id": "66112",
+      "department_name": "Metán",
+      "province_2010_id": "66",
+      "province_name": "Salta"
+    },
+    {
+      "department_2010_id": "66119",
+      "department_name": "Molinos",
+      "province_2010_id": "66",
+      "province_name": "Salta"
+    },
+    {
+      "department_2010_id": "66126",
+      "department_name": "Orán",
+      "province_2010_id": "66",
+      "province_name": "Salta"
+    },
+    {
+      "department_2010_id": "66133",
+      "department_name": "Rivadavia",
+      "province_2010_id": "66",
+      "province_name": "Salta"
+    },
+    {
+      "department_2010_id": "66140",
+      "department_name": "Rosario de la Frontera",
+      "province_2010_id": "66",
+      "province_name": "Salta"
+    },
+    {
+      "department_2010_id": "66147",
+      "department_name": "Rosario de Lerma",
+      "province_2010_id": "66",
+      "province_name": "Salta"
+    },
+    {
+      "department_2010_id": "66154",
+      "department_name": "San Carlos",
+      "province_2010_id": "66",
+      "province_name": "Salta"
+    },
+    {
+      "department_2010_id": "66161",
+      "department_name": "Santa Victoria",
+      "province_2010_id": "66",
+      "province_name": "Salta"
+    },
+    {
+      "department_2010_id": "70007",
+      "department_name": "Albardón",
+      "province_2010_id": "70",
+      "province_name": "San Juan"
+    },
+    {
+      "department_2010_id": "70014",
+      "department_name": "Angaco",
+      "province_2010_id": "70",
+      "province_name": "San Juan"
+    },
+    {
+      "department_2010_id": "70021",
+      "department_name": "Calingasta",
+      "province_2010_id": "70",
+      "province_name": "San Juan"
+    },
+    {
+      "department_2010_id": "70028",
+      "department_name": "Capital",
+      "province_2010_id": "70",
+      "province_name": "San Juan"
+    },
+    {
+      "department_2010_id": "70035",
+      "department_name": "Caucete",
+      "province_2010_id": "70",
+      "province_name": "San Juan"
+    },
+    {
+      "department_2010_id": "70042",
+      "department_name": "Chimbas",
+      "province_2010_id": "70",
+      "province_name": "San Juan"
+    },
+    {
+      "department_2010_id": "70049",
+      "department_name": "Iglesia",
+      "province_2010_id": "70",
+      "province_name": "San Juan"
+    },
+    {
+      "department_2010_id": "70056",
+      "department_name": "Jáchal",
+      "province_2010_id": "70",
+      "province_name": "San Juan"
+    },
+    {
+      "department_2010_id": "70063",
+      "department_name": "9 de julio",
+      "province_2010_id": "70",
+      "province_name": "San Juan"
+    },
+    {
+      "department_2010_id": "70070",
+      "department_name": "Pocito",
+      "province_2010_id": "70",
+      "province_name": "San Juan"
+    },
+    {
+      "department_2010_id": "70077",
+      "department_name": "Rawson",
+      "province_2010_id": "70",
+      "province_name": "San Juan"
+    },
+    {
+      "department_2010_id": "70084",
+      "department_name": "Rivadavia",
+      "province_2010_id": "70",
+      "province_name": "San Juan"
+    },
+    {
+      "department_2010_id": "70091",
+      "department_name": "San Martín",
+      "province_2010_id": "70",
+      "province_name": "San Juan"
+    },
+    {
+      "department_2010_id": "70098",
+      "department_name": "Santa Lucía",
+      "province_2010_id": "70",
+      "province_name": "San Juan"
+    },
+    {
+      "department_2010_id": "70105",
+      "department_name": "Sarmiento",
+      "province_2010_id": "70",
+      "province_name": "San Juan"
+    },
+    {
+      "department_2010_id": "70112",
+      "department_name": "Ullum",
+      "province_2010_id": "70",
+      "province_name": "San Juan"
+    },
+    {
+      "department_2010_id": "70119",
+      "department_name": "Valle Fértil",
+      "province_2010_id": "70",
+      "province_name": "San Juan"
+    },
+    {
+      "department_2010_id": "70126",
+      "department_name": "25 de Mayo",
+      "province_2010_id": "70",
+      "province_name": "San Juan"
+    },
+    {
+      "department_2010_id": "70133",
+      "department_name": "Zonda",
+      "province_2010_id": "70",
+      "province_name": "San Juan"
+    },
+    {
+      "department_2010_id": "74007",
+      "department_name": "Ayacucho",
+      "province_2010_id": "74",
+      "province_name": "San Luis"
+    },
+    {
+      "department_2010_id": "74014",
+      "department_name": "Belgrano",
+      "province_2010_id": "74",
+      "province_name": "San Luis"
+    },
+    {
+      "department_2010_id": "74021",
+      "department_name": "Coronel Pringles",
+      "province_2010_id": "74",
+      "province_name": "San Luis"
+    },
+    {
+      "department_2010_id": "74028",
+      "department_name": "Chacabuco",
+      "province_2010_id": "74",
+      "province_name": "San Luis"
+    },
+    {
+      "department_2010_id": "74035",
+      "department_name": "General Pedernera",
+      "province_2010_id": "74",
+      "province_name": "San Luis"
+    },
+    {
+      "department_2010_id": "74042",
+      "department_name": "Gobernador Dupuy",
+      "province_2010_id": "74",
+      "province_name": "San Luis"
+    },
+    {
+      "department_2010_id": "74049",
+      "department_name": "Junín",
+      "province_2010_id": "74",
+      "province_name": "San Luis"
+    },
+    {
+      "department_2010_id": "74056",
+      "department_name": "La Capital",
+      "province_2010_id": "74",
+      "province_name": "San Luis"
+    },
+    {
+      "department_2010_id": "74063",
+      "department_name": "Libertador General San Martín",
+      "province_2010_id": "74",
+      "province_name": "San Luis"
+    },
+    {
+      "department_2010_id": "78007",
+      "department_name": "Corpen Aike",
+      "province_2010_id": "78",
+      "province_name": "Santa Cruz"
+    },
+    {
+      "department_2010_id": "78014",
+      "department_name": "Deseado",
+      "province_2010_id": "78",
+      "province_name": "Santa Cruz"
+    },
+    {
+      "department_2010_id": "78021",
+      "department_name": "Güer Aike",
+      "province_2010_id": "78",
+      "province_name": "Santa Cruz"
+    },
+    {
+      "department_2010_id": "78028",
+      "department_name": "Lago Argentino",
+      "province_2010_id": "78",
+      "province_name": "Santa Cruz"
+    },
+    {
+      "department_2010_id": "78035",
+      "department_name": "Lago Buenos Aires",
+      "province_2010_id": "78",
+      "province_name": "Santa Cruz"
+    },
+    {
+      "department_2010_id": "78042",
+      "department_name": "Magallanes",
+      "province_2010_id": "78",
+      "province_name": "Santa Cruz"
+    },
+    {
+      "department_2010_id": "78049",
+      "department_name": "Río Chico",
+      "province_2010_id": "78",
+      "province_name": "Santa Cruz"
+    },
+    {
+      "department_2010_id": "82007",
+      "department_name": "Belgrano",
+      "province_2010_id": "82",
+      "province_name": "Santa Fe"
+    },
+    {
+      "department_2010_id": "82014",
+      "department_name": "Caseros",
+      "province_2010_id": "82",
+      "province_name": "Santa Fe"
+    },
+    {
+      "department_2010_id": "82021",
+      "department_name": "Castellanos",
+      "province_2010_id": "82",
+      "province_name": "Santa Fe"
+    },
+    {
+      "department_2010_id": "82028",
+      "department_name": "Constitución",
+      "province_2010_id": "82",
+      "province_name": "Santa Fe"
+    },
+    {
+      "department_2010_id": "82035",
+      "department_name": "Garay",
+      "province_2010_id": "82",
+      "province_name": "Santa Fe"
+    },
+    {
+      "department_2010_id": "82042",
+      "department_name": "General López",
+      "province_2010_id": "82",
+      "province_name": "Santa Fe"
+    },
+    {
+      "department_2010_id": "82049",
+      "department_name": "General Obligado",
+      "province_2010_id": "82",
+      "province_name": "Santa Fe"
+    },
+    {
+      "department_2010_id": "82056",
+      "department_name": "Iriondo",
+      "province_2010_id": "82",
+      "province_name": "Santa Fe"
+    },
+    {
+      "department_2010_id": "82063",
+      "department_name": "La Capital",
+      "province_2010_id": "82",
+      "province_name": "Santa Fe"
+    },
+    {
+      "department_2010_id": "82070",
+      "department_name": "Las Colonias",
+      "province_2010_id": "82",
+      "province_name": "Santa Fe"
+    },
+    {
+      "department_2010_id": "82077",
+      "department_name": "9 de Julio",
+      "province_2010_id": "82",
+      "province_name": "Santa Fe"
+    },
+    {
+      "department_2010_id": "82084",
+      "department_name": "Rosario",
+      "province_2010_id": "82",
+      "province_name": "Santa Fe"
+    },
+    {
+      "department_2010_id": "82091",
+      "department_name": "San Cristobal",
+      "province_2010_id": "82",
+      "province_name": "Santa Fe"
+    },
+    {
+      "department_2010_id": "82098",
+      "department_name": "San Javier",
+      "province_2010_id": "82",
+      "province_name": "Santa Fe"
+    },
+    {
+      "department_2010_id": "82105",
+      "department_name": "San Jerónimo",
+      "province_2010_id": "82",
+      "province_name": "Santa Fe"
+    },
+    {
+      "department_2010_id": "82112",
+      "department_name": "San Justo",
+      "province_2010_id": "82",
+      "province_name": "Santa Fe"
+    },
+    {
+      "department_2010_id": "82119",
+      "department_name": "San Lorenzo",
+      "province_2010_id": "82",
+      "province_name": "Santa Fe"
+    },
+    {
+      "department_2010_id": "82126",
+      "department_name": "San Martín",
+      "province_2010_id": "82",
+      "province_name": "Santa Fe"
+    },
+    {
+      "department_2010_id": "82133",
+      "department_name": "Vera",
+      "province_2010_id": "82",
+      "province_name": "Santa Fe"
+    },
+    {
+      "department_2010_id": "86007",
+      "department_name": "Aguirre",
+      "province_2010_id": "86",
+      "province_name": "Santiago del Estero"
+    },
+    {
+      "department_2010_id": "86014",
+      "department_name": "Alberdi",
+      "province_2010_id": "86",
+      "province_name": "Santiago del Estero"
+    },
+    {
+      "department_2010_id": "86021",
+      "department_name": "Atamisqui",
+      "province_2010_id": "86",
+      "province_name": "Santiago del Estero"
+    },
+    {
+      "department_2010_id": "86028",
+      "department_name": "Avellaneda",
+      "province_2010_id": "86",
+      "province_name": "Santiago del Estero"
+    },
+    {
+      "department_2010_id": "86035",
+      "department_name": "Banda",
+      "province_2010_id": "86",
+      "province_name": "Santiago del Estero"
+    },
+    {
+      "department_2010_id": "86042",
+      "department_name": "Belgrano",
+      "province_2010_id": "86",
+      "province_name": "Santiago del Estero"
+    },
+    {
+      "department_2010_id": "86049",
+      "department_name": "Capital",
+      "province_2010_id": "86",
+      "province_name": "Santiago del Estero"
+    },
+    {
+      "department_2010_id": "86056",
+      "department_name": "Copo",
+      "province_2010_id": "86",
+      "province_name": "Santiago del Estero"
+    },
+    {
+      "department_2010_id": "86063",
+      "department_name": "Choya",
+      "province_2010_id": "86",
+      "province_name": "Santiago del Estero"
+    },
+    {
+      "department_2010_id": "86070",
+      "department_name": "Figueroa",
+      "province_2010_id": "86",
+      "province_name": "Santiago del Estero"
+    },
+    {
+      "department_2010_id": "86077",
+      "department_name": "General Taboada",
+      "province_2010_id": "86",
+      "province_name": "Santiago del Estero"
+    },
+    {
+      "department_2010_id": "86084",
+      "department_name": "Guasayán",
+      "province_2010_id": "86",
+      "province_name": "Santiago del Estero"
+    },
+    {
+      "department_2010_id": "86091",
+      "department_name": "Jiménez",
+      "province_2010_id": "86",
+      "province_name": "Santiago del Estero"
+    },
+    {
+      "department_2010_id": "86098",
+      "department_name": "Juan F. Ibarra",
+      "province_2010_id": "86",
+      "province_name": "Santiago del Estero"
+    },
+    {
+      "department_2010_id": "86105",
+      "department_name": "Loreto",
+      "province_2010_id": "86",
+      "province_name": "Santiago del Estero"
+    },
+    {
+      "department_2010_id": "86112",
+      "department_name": "Mitre",
+      "province_2010_id": "86",
+      "province_name": "Santiago del Estero"
+    },
+    {
+      "department_2010_id": "86119",
+      "department_name": "Moreno",
+      "province_2010_id": "86",
+      "province_name": "Santiago del Estero"
+    },
+    {
+      "department_2010_id": "86126",
+      "department_name": "Ojo de agua",
+      "province_2010_id": "86",
+      "province_name": "Santiago del Estero"
+    },
+    {
+      "department_2010_id": "86133",
+      "department_name": "Pelegrini",
+      "province_2010_id": "86",
+      "province_name": "Santiago del Estero"
+    },
+    {
+      "department_2010_id": "86140",
+      "department_name": "Quebrachos",
+      "province_2010_id": "86",
+      "province_name": "Santiago del Estero"
+    },
+    {
+      "department_2010_id": "86147",
+      "department_name": "Río Hondo",
+      "province_2010_id": "86",
+      "province_name": "Santiago del Estero"
+    },
+    {
+      "department_2010_id": "86154",
+      "department_name": "Rivadavia",
+      "province_2010_id": "86",
+      "province_name": "Santiago del Estero"
+    },
+    {
+      "department_2010_id": "86161",
+      "department_name": "Robles",
+      "province_2010_id": "86",
+      "province_name": "Santiago del Estero"
+    },
+    {
+      "department_2010_id": "86168",
+      "department_name": "Salavina",
+      "province_2010_id": "86",
+      "province_name": "Santiago del Estero"
+    },
+    {
+      "department_2010_id": "86175",
+      "department_name": "San Martín",
+      "province_2010_id": "86",
+      "province_name": "Santiago del Estero"
+    },
+    {
+      "department_2010_id": "86182",
+      "department_name": "Sarmiento",
+      "province_2010_id": "86",
+      "province_name": "Santiago del Estero"
+    },
+    {
+      "department_2010_id": "86189",
+      "department_name": "Silípica",
+      "province_2010_id": "86",
+      "province_name": "Santiago del Estero"
+    },
+    {
+      "department_2010_id": "90007",
+      "department_name": "Burruyacú",
+      "province_2010_id": "90",
+      "province_name": "Tucumán"
+    },
+    {
+      "department_2010_id": "90014",
+      "department_name": "Cruz Alta",
+      "province_2010_id": "90",
+      "province_name": "Tucumán"
+    },
+    {
+      "department_2010_id": "90021",
+      "department_name": "Chicligasta",
+      "province_2010_id": "90",
+      "province_name": "Tucumán"
+    },
+    {
+      "department_2010_id": "90028",
+      "department_name": "Famallá",
+      "province_2010_id": "90",
+      "province_name": "Tucumán"
+    },
+    {
+      "department_2010_id": "90035",
+      "department_name": "Graneros",
+      "province_2010_id": "90",
+      "province_name": "Tucumán"
+    },
+    {
+      "department_2010_id": "90042",
+      "department_name": "Juan B. Alberdi",
+      "province_2010_id": "90",
+      "province_name": "Tucumán"
+    },
+    {
+      "department_2010_id": "90049",
+      "department_name": "La Cocha",
+      "province_2010_id": "90",
+      "province_name": "Tucumán"
+    },
+    {
+      "department_2010_id": "90056",
+      "department_name": "Leales",
+      "province_2010_id": "90",
+      "province_name": "Tucumán"
+    },
+    {
+      "department_2010_id": "90063",
+      "department_name": "Lules",
+      "province_2010_id": "90",
+      "province_name": "Tucumán"
+    },
+    {
+      "department_2010_id": "90070",
+      "department_name": "Monteros",
+      "province_2010_id": "90",
+      "province_name": "Tucumán"
+    },
+    {
+      "department_2010_id": "90077",
+      "department_name": "Río Chico",
+      "province_2010_id": "90",
+      "province_name": "Tucumán"
+    },
+    {
+      "department_2010_id": "90084",
+      "department_name": "Capital",
+      "province_2010_id": "90",
+      "province_name": "Tucumán"
+    },
+    {
+      "department_2010_id": "90091",
+      "department_name": "Simoca",
+      "province_2010_id": "90",
+      "province_name": "Tucumán"
+    },
+    {
+      "department_2010_id": "90098",
+      "department_name": "Tafí del Valle",
+      "province_2010_id": "90",
+      "province_name": "Tucumán"
+    },
+    {
+      "department_2010_id": "90105",
+      "department_name": "Tafí Viejo",
+      "province_2010_id": "90",
+      "province_name": "Tucumán"
+    },
+    {
+      "department_2010_id": "90112",
+      "department_name": "Trancas",
+      "province_2010_id": "90",
+      "province_name": "Tucumán"
+    },
+    {
+      "department_2010_id": "90119",
+      "department_name": "Yerba Buena",
+      "province_2010_id": "90",
+      "province_name": "Tucumán"
+    },
+    {
+      "department_2010_id": "94007",
+      "department_name": "Río Grande",
+      "province_2010_id": "94",
+      "province_name": "Tierra del Fuego, Antártida e Islas del Atlántico Sur"
+    },
+    {
+      "department_2010_id": "94014",
+      "department_name": "Ushuaia",
+      "province_2010_id": "94",
+      "province_name": "Tierra del Fuego, Antártida e Islas del Atlántico Sur"
+    }
+  ]
+}
