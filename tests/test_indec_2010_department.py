@@ -82,5 +82,5 @@ def test_department_footprint_rejects_numeric_or_short_identity():
         geometry="geometry",
         crs="EPSG:22183",
     )
-    with pytest.raises(ValueError, match="five"):
+    with pytest.raises(ValueError, match="5-digit"):
         derive_department_footprints(radios)
