@@ -43,6 +43,8 @@ def test_department_footprints_preserve_exact_zero_padded_identity():
     assert departments["native_id"].tolist() == ["02001", "06028"]
     assert departments["source_radio_count"].tolist() == [2, 1]
     assert departments["province_2010_id"].tolist() == ["02", "06"]
+    assert departments["department_name"].tolist() == ["Comuna 01", "Almirante Brown"]
+    assert departments["province_name"].tolist() == ["Ciudad Autónoma de Buenos Aires", "Buenos Aires"]
     assert departments["geometry_valid"].all()
 
 
