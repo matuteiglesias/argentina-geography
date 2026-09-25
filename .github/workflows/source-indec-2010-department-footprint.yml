@@ -1,0 +1,63 @@
+name: source-proof-indec-2010-department-footprint
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["feat/department-2010-footprint-release"]
+    paths:
+      - "src/argentina_geography/derived/indec_2010_department.py"
+      - "tests/test_indec_2010_department.py"
+      - ".github/workflows/source-indec-2010-department-footprint.yml"
+
+concurrency:
+  group: source-proof-indec-2010-department-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install project
+        run: python -m pip install -e ".[dev]"
+      - name: Run bounded unit tests
+        run: python -m pytest -q tests/test_indec_2010_radio.py tests/test_indec_2010_department.py
+      - name: Materialize exact official radio parent
+        run: |
+          mkdir -p /tmp/indec-2010-source
+          python -m argentina_geography.sources.indec_2010_radio materialize \
+            --source-dir /tmp/indec-2010-source \
+            --output /tmp/indec-2010-radio
+          python -m argentina_geography.sources.indec_2010_radio verify \
+            --release /tmp/indec-2010-radio
+      - name: Materialize 525 derived department footprints
+        run: |
+          python -m argentina_geography.derived.indec_2010_department materialize \
+            --parent-release /tmp/indec-2010-radio \
+            --output /tmp/indec-2010-department
+      - name: Detached verification
+        run: |
+          cp -R /tmp/indec-2010-department /tmp/indec-2010-department-detached
+          python -m argentina_geography.derived.indec_2010_department verify \
+            --release /tmp/indec-2010-department-detached
+      - name: Emit non-geometric evidence
+        run: |
+          cat /tmp/indec-2010-department/manifest.json
+          cat /tmp/indec-2010-department/qa.json
+          mkdir -p /tmp/department-evidence
+          cp /tmp/indec-2010-department/manifest.json /tmp/department-evidence/
+          cp /tmp/indec-2010-department/qa.json /tmp/department-evidence/
+          cp /tmp/indec-2010-department/limitations.json /tmp/department-evidence/
+          cp /tmp/indec-2010-department/geography_catalog.parquet /tmp/department-evidence/
+          cp /tmp/indec-2010-department/checksums.txt /tmp/department-evidence/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: indec-2010-department-footprint-evidence
+          path: /tmp/department-evidence
+          if-no-files-found: error
+          retention-days: 30
