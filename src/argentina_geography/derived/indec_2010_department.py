@@ -6,6 +6,8 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 
+import geopandas as gpd
+import pandas as pd
 from empirical_contracts import (
     AuthorityLevel,
     DataLayer,
@@ -16,8 +18,6 @@ from empirical_contracts import (
     RunManifest,
     SourceSnapshotRef,
 )
-import geopandas as gpd
-import pandas as pd
 from shapely.geometry import mapping
 
 from argentina_geography.electoral.hierarchy import _department_footprints
@@ -31,7 +31,6 @@ from argentina_geography.products import (
     write_json,
 )
 from argentina_geography.sources.indec_2010_radio import verify_release as verify_radio_release
-
 
 EXPECTED_DEPARTMENT_COUNT = 525
 EXPECTED_PROVINCE_COUNT = 24
