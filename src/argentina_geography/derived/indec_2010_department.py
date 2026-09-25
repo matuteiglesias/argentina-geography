@@ -113,8 +113,17 @@ def derive_department_footprints(census: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     return derived[columns].sort_values("geography_id", ignore_index=True)
 
 
-def _write_display_geojson(frame: gpd.GeoDataFrame, path: Path) -> None:
+def _write_display_geojson(frame: gpd.GeoDataFrame, path: Path) -> int:
     display = frame.to_crs(DISPLAY_CRS)
+    invalid = ~display.geometry.is_valid
+    repair_count = int(invalid.sum())
+    if repair_count:
+        geometry_name = display.geometry.name
+        display.loc[invalid, geometry_name] = display.loc[invalid].geometry.make_valid()
+    if display.geometry.isna().any() or display.geometry.is_empty.any():
+        raise ValueError("display reprojection/repair produced missing or empty geometry")
+    if (~display.geometry.is_valid).any():
+        raise ValueError("display reprojection/repair left invalid geometry")
     features = []
     for _, row in display.sort_values("geography_id").iterrows():
         properties = {field: row[field] for field in DISPLAY_PROPERTY_FIELDS}
@@ -136,6 +145,7 @@ def _write_display_geojson(frame: gpd.GeoDataFrame, path: Path) -> None:
         + "\n",
         encoding="utf-8",
     )
+    return repair_count
 
 
 def materialize_from_parent(parent_release: Path, output: Path) -> dict:
@@ -167,7 +177,7 @@ def materialize_from_parent(parent_release: Path, output: Path) -> dict:
     departments.to_parquet(geography_path, index=False)
     content_sha256 = sha256_file(geography_path)
     display_path = output / "geography.geojson"
-    _write_display_geojson(departments, display_path)
+    display_repair_count = _write_display_geojson(departments, display_path)
     display_sha256 = sha256_file(display_path)
 
     release_version = f"derived-{parent_dataset['version']}"
@@ -254,7 +264,11 @@ def materialize_from_parent(parent_release: Path, output: Path) -> dict:
                 "the exact official radio parent. It is not relabeled as an official "
                 "general-purpose administrative boundary."
             ),
-            "No geometry repair, buffering, snapping, clipping or poverty-data decoration is applied.",
+            (
+                "Canonical projected department geometry is not repaired, buffered, snapped or clipped. "
+                "The WGS84 display derivative applies make_valid only to features made invalid by "
+                "floating-point reprojection; the repair count is recorded explicitly."
+            ),
             "Display names are intentionally not identity-bearing in this release.",
         ],
     }
@@ -315,7 +329,9 @@ def materialize_from_parent(parent_release: Path, output: Path) -> dict:
             "feature_id_field": "geography_id",
             "property_fields": list(DISPLAY_PROPERTY_FIELDS),
             "geometry_transform": "department union in source CRS, then display-only reprojection to EPSG:4326",
-            "geometry_repair_applied": False,
+            "geometry_repair_applied": display_repair_count > 0,
+            "geometry_repair_count": display_repair_count,
+            "geometry_repair_method": "shapely.make_valid on post-reprojection invalid features only",
             "geometry_clip_applied": False,
             "poverty_values_embedded": False,
         },
@@ -372,8 +388,14 @@ def verify_release(output: Path) -> None:
     display_ids = {feature.get("id") for feature in features}
     if display_ids != set(frame["geography_id"].astype(str)):
         raise ValueError("department display GeoJSON ID set mismatch")
-    if manifest["display_derivative"].get("crs") != DISPLAY_CRS:
+    display_contract = manifest["display_derivative"]
+    if display_contract.get("crs") != DISPLAY_CRS:
         raise ValueError("department display GeoJSON must declare EPSG:4326")
+    repair_count = display_contract.get("geometry_repair_count")
+    if not isinstance(repair_count, int) or repair_count < 0 or repair_count > EXPECTED_DEPARTMENT_COUNT:
+        raise ValueError("department display repair count is invalid")
+    if display_contract.get("geometry_repair_applied") is not (repair_count > 0):
+        raise ValueError("department display repair flag/count disagree")
     for feature in features:
         properties = feature.get("properties", {})
         if set(properties) != set(DISPLAY_PROPERTY_FIELDS):
