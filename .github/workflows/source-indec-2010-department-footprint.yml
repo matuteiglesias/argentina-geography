@@ -3,7 +3,7 @@ name: source-proof-indec-2010-department-footprint
 on:
   workflow_dispatch:
   push:
-    branches: ["feat/department-2010-footprint-release"]
+    branches: ["feat/department-2010-footprint-release", "fix/department-display-wgs84"]
     paths:
       - "src/argentina_geography/derived/indec_2010_department.py"
       - "tests/test_indec_2010_department.py"
