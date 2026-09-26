@@ -4,6 +4,8 @@ import argparse
 from datetime import UTC, datetime
 from pathlib import Path
 
+import geopandas as gpd
+import pandas as pd
 from empirical_contracts import (
     AuthorityLevel,
     DataLayer,
@@ -14,8 +16,6 @@ from empirical_contracts import (
     RunManifest,
     SourceSnapshotRef,
 )
-import geopandas as gpd
-import pandas as pd
 
 from argentina_geography.derived.indec_eph_agglomerate import (
     DISPLAY_CRS,
