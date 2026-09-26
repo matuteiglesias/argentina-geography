@@ -1,0 +1,64 @@
+name: derived-indec-eph-agglomerate
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["feat/eph-agglomerate-first-class"]
+    paths:
+      - "src/argentina_geography/derived/indec_eph_agglomerate.py"
+      - "tests/test_indec_eph_agglomerate.py"
+      - ".github/workflows/derived-indec-eph-agglomerate.yml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "src/argentina_geography/derived/indec_eph_agglomerate.py"
+      - "tests/test_indec_eph_agglomerate.py"
+      - ".github/workflows/derived-indec-eph-agglomerate.yml"
+
+concurrency:
+  group: derived-indec-eph-agglomerate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  derive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install
+        run: |
+          python -m pip install -e ".[dev]"
+          python -m pip install xlrd
+      - name: Unit contract
+        run: python -m pytest -q tests/test_indec_eph_agglomerate.py
+      - name: Materialize exact A6 Census-2010 parent
+        run: |
+          python -m argentina_geography.sources.indec_2010_radio materialize \
+            --source-dir /tmp/indec-2010-parent-source \
+            --output /tmp/indec-2010-parent-release
+          python -m argentina_geography.sources.indec_2010_radio verify \
+            --release /tmp/indec-2010-parent-release
+          echo "--- CURRENT A6 MANIFEST ---"
+          cat /tmp/indec-2010-parent-release/manifest.json
+          echo "--- CURRENT A6 SOURCE METADATA ---"
+          cat /tmp/indec-2010-parent-release/source_metadata.json
+      - name: Materialize first-class agglomerates from exact pinned sources
+        run: |
+          python -m argentina_geography.derived.indec_eph_agglomerate_exact \
+            --census-parent-release /tmp/indec-2010-parent-release \
+            --source-dir /tmp/indec-eph-2010-source \
+            --output /tmp/indec-eph-agglomerates
+          python -m argentina_geography.derived.indec_eph_agglomerate verify \
+            --release /tmp/indec-eph-agglomerates
+          cat /tmp/indec-eph-agglomerates/agglomerate_inventory.csv
+          cat /tmp/indec-eph-agglomerates/inventory_audit.json
+          cat /tmp/indec-eph-agglomerates/qa.json
+      - name: Upload derived evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: indec-eph-agglomerate-geography
+          path: /tmp/indec-eph-agglomerates
+          if-no-files-found: error
