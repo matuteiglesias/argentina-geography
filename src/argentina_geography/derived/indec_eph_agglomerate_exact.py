@@ -1,12 +1,9 @@
 from __future__ import annotations
 
 import argparse
-import json
 from datetime import UTC, datetime
 from pathlib import Path
 
-import geopandas as gpd
-import pandas as pd
 from empirical_contracts import (
     AuthorityLevel,
     DataLayer,
@@ -17,6 +14,8 @@ from empirical_contracts import (
     RunManifest,
     SourceSnapshotRef,
 )
+import geopandas as gpd
+import pandas as pd
 
 from argentina_geography.derived.indec_eph_agglomerate import (
     DISPLAY_CRS,
@@ -31,7 +30,6 @@ from argentina_geography.derived.indec_eph_agglomerate import (
 )
 from argentina_geography.product_writer import package_version
 from argentina_geography.products import (
-    read_json,
     sha256_file,
     validate_manifest,
     write_checksums,
@@ -40,7 +38,6 @@ from argentina_geography.products import (
 from argentina_geography.sources import indec_eph_2010 as a7
 
 
-A6_DATASET_ID = "arggeo.indec.census.2010.radio"
 G1_DATASET_ID = "arggeo.indec.eph.census2010.agglomerate-footprint"
 
 
@@ -60,7 +57,7 @@ def _verify_source_equivalent_a6(parent_release: Path, config: dict) -> dict:
         run_inputs = (manifest.get("run") or {}).get("inputs") or []
         source_snapshot = run_inputs[0] if len(run_inputs) == 1 else None
     if not isinstance(source_snapshot, dict):
-        raise ValueError("A6 parent lacks source snapshot identity")
+        raise TypeError("A6 parent lacks source snapshot identity")
     snapshot_id = str(source_snapshot.get("snapshot_id", ""))
     expected_snapshot = f"sha256:{expected['source_snapshot_sha256']}"
     if snapshot_id != expected_snapshot:
@@ -70,7 +67,7 @@ def _verify_source_equivalent_a6(parent_release: Path, config: dict) -> dict:
 
     geography_name = (manifest.get("artifacts") or {}).get("geography")
     if not isinstance(geography_name, str):
-        raise ValueError("A6 parent lacks geography artifact")
+        raise TypeError("A6 parent lacks geography artifact")
     geography_path = parent_release / geography_name
     parent_ids = set(
         pd.read_parquet(geography_path, columns=["radio_2010_id"])["radio_2010_id"]
