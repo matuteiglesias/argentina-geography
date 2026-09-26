@@ -8,6 +8,12 @@ on:
       - "src/argentina_geography/derived/indec_eph_agglomerate.py"
       - "tests/test_indec_eph_agglomerate.py"
       - ".github/workflows/derived-indec-eph-agglomerate.yml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "src/argentina_geography/derived/indec_eph_agglomerate.py"
+      - "tests/test_indec_eph_agglomerate.py"
+      - ".github/workflows/derived-indec-eph-agglomerate.yml"
 
 concurrency:
   group: derived-indec-eph-agglomerate-${{ github.ref }}
