@@ -37,7 +37,6 @@ from argentina_geography.products import (
 )
 from argentina_geography.sources import indec_eph_2010 as a7
 
-
 G1_DATASET_ID = "arggeo.indec.eph.census2010.agglomerate-footprint"
 
 
