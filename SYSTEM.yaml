@@ -38,6 +38,7 @@ upstream:
 downstream:
 - repo.samplerCensoARG
 - repo.indice-pobreza-UBA
+- repo.argentina-poverty-atlas
 - repo.elecciones-ARG
 - repo.income-modeling-eph
 canonical_commands:
