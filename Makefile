@@ -1,6 +1,12 @@
 PYTHON ?= python
 
-.PHONY: install check test smoke release-fixture product-smoke product-fixture build materialize-indec-2022-radio materialize-indec-2022-fraction materialize-ceur-2022-radio materialize-indec-ceur-2022-relation materialize-tartagalensis-circuits materialize-electoral-vertical
+.PHONY: install check test smoke release-fixture product-smoke product-fixture producer-receipt-product-fixture build materialize-indec-2022-radio materialize-indec-2022-fraction materialize-ceur-2022-radio materialize-indec-ceur-2022-relation materialize-tartagalensis-circuits materialize-electoral-vertical
+
+PROJECTS_ROOT ?=
+
+producer-receipt-product-fixture:
+	@test -n "$(PROJECTS_ROOT)" || { echo "PROJECTS_ROOT is required" >&2; exit 2; }
+	python3 "$(PROJECTS_ROOT)/scripts/producer_local_receipt.py" --producer producer.manual.argentina-geography-release --cwd "$(CURDIR)" --evidence-manifest releases/product-fixture-v1/manifest.json --evidence-changed releases/product-fixture-v1/manifest.json --evidence-changed releases/product-fixture-v1/checksums.txt --enforce-evidence -- make product-fixture
 install:
 	$(PYTHON) -m pip install -e ".[dev]"
 check:
